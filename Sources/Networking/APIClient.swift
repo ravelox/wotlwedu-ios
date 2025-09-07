@@ -23,26 +23,31 @@ final class APIClient {
             do {
                 req.httpBody = try JSONEncoder().encode(AnyEncodable(body))
             } catch {
-                throw APIError.encoding(error)
+                throw APIError.encoding(error, url)
             }
         }
         if authorized {
-            guard let token = tokenProvider() else { throw APIError.unauthorized }
+            guard let token = tokenProvider() else { throw APIError.unauthorized(url) }
             req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         return req
     }
 
-    func decode<T: Decodable>(_ data: Data) throws -> T {
+    func decode<T: Decodable>(_ data: Data, url: URL) throws -> T {
         do { return try JSONDecoder().decode(T.self, from: data) }
-        catch { throw APIError.decoding(error) }
+        catch { throw APIError.decoding(error, url) }
     }
 
     func perform(_ req: URLRequest) async throws -> Data {
-        let (data, resp) = try await session.data(for: req)
-        guard let http = resp as? HTTPURLResponse else { throw APIError.noData }
-        guard (200..<300).contains(http.statusCode) else { throw APIError.http(http.statusCode, data) }
-        return data
+        let url = req.url ?? endpoints.baseURL
+        do {
+            let (data, resp) = try await session.data(for: req)
+            guard let http = resp as? HTTPURLResponse else { throw APIError.noData(url) }
+            guard (200..<300).contains(http.statusCode) else { throw APIError.http(http.statusCode, data, url) }
+            return data
+        } catch {
+            throw APIError.other(error.localizedDescription, url)
+        }
     }
 
     // MARK: - Auth
@@ -52,32 +57,32 @@ final class APIClient {
     func login(email: String, password: String) async throws -> AuthTokens {
         let req = try request(endpoints.login, method: "POST", body: LoginRequest(email: email, password: password))
         let data = try await perform(req)
-        return try decode(data)
+        return try decode(data, url: req.url ?? endpoints.login)
     }
 
     func register(email: String, password: String, name: String?) async throws -> AuthTokens {
         let req = try request(endpoints.register, method: "POST", body: RegisterRequest(email: email, password: password, name: name))
         let data = try await perform(req)
-        return try decode(data)
+        return try decode(data, url: req.url ?? endpoints.register)
     }
 
     func me() async throws -> UserProfile {
         let req = try request(endpoints.me, authorized: true)
         let data = try await perform(req)
-        return try decode(data)
+        return try decode(data, url: req.url ?? endpoints.me)
     }
 
     // MARK: - Elections
     func listElections() async throws -> [Election] {
         let req = try request(endpoints.elections, authorized: true)
         let data = try await perform(req)
-        return try decode(data)
+        return try decode(data, url: req.url ?? endpoints.elections)
     }
 
     func getElection(id: Int) async throws -> Election {
         let req = try request(endpoints.election(id: id), authorized: true)
         let data = try await perform(req)
-        return try decode(data)
+        return try decode(data, url: req.url ?? endpoints.election(id: id))
     }
 
     func vote(electionId: Int, itemId: Int) async throws {
@@ -92,14 +97,14 @@ final class APIClient {
         let req = try request(endpoints.elections, method: "POST",
                               body: CreateElectionRequest(name: name, description: description), authorized: true)
         let data = try await perform(req)
-        return try decode(data)
+        return try decode(data, url: req.url ?? endpoints.elections)
     }
 
     func createItem(electionId: Int, name: String, description: String?) async throws -> ElectionItem {
         let req = try request(endpoints.items(electionId: electionId), method: "POST",
                               body: CreateItemRequest(name: name, description: description), authorized: true)
         let data = try await perform(req)
-        return try decode(data)
+        return try decode(data, url: req.url ?? endpoints.items(electionId: electionId))
     }
 
     func uploadElectionImage(electionId: Int, data: Data, filename: String, mime: String) async throws {

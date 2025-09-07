@@ -1,0 +1,69 @@
+name: WotlweduClient
+options:
+  minimumXcodeGenVersion: 2.38.0
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: 5.9
+    PRODUCT_BUNDLE_IDENTIFIER: com.example.wotlweduclient
+    DEVELOPMENT_TEAM: ""
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 1.0
+    CODE_SIGN_STYLE: Automatic
+    INFOPLIST_FILE: Resources/Info.plist
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+targets:
+  WotlweduClient-iOS:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+      - Resources
+      - path: Generated/WotlweduAPI
+        optional: true
+      - path: Config
+        optional: true
+    settings:
+      base:
+        TARGETED_DEVICE_FAMILY: "1,2" # iPhone and iPad
+        PRODUCT_NAME: WotlweduClient
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+    scheme:
+      testTargets: []
+    info:
+      path: Resources/Info.plist
+      properties:
+        UILaunchScreen:
+          UIColorName: "LaunchBackground"
+        UISupportedInterfaceOrientations~iphone:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIUserInterfaceStyle: Unspecified
+        CFBundleDisplayName: "Wotlwedu"
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        ITSAppUsesNonExemptEncryption: false
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: false
+        API_BASE_URL: "$(API_BASE_URL)"
+        API_DEFAULT_TIMEOUT: "$(API_DEFAULT_TIMEOUT)"
+configs:
+  Debug:
+    buildSettings:
+      API_BASE_URL: "https://localhost:9876" # change to your backend URL
+      API_DEFAULT_TIMEOUT: "20"
+      SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+  Release:
+    buildSettings:
+      API_BASE_URL: "https://localhost:9876"
+      API_DEFAULT_TIMEOUT: "20"
+      SWIFT_OPTIMIZATION_LEVEL: "-O"

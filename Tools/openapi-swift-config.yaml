@@ -1,0 +1,16 @@
+generatorName: swift5
+inputSpec: /local/docs/openapi.yaml
+outputDir: /local/Generated/WotlweduAPI
+additionalProperties:
+  projectName: WotlweduAPI
+  useAsyncAwait: true
+  swiftPackagePath: Sources
+  useSPMFileStructure: true
+  hideGenerationTimestamp: true
+  nonPublicApi: false
+  useJSONEncodable: true
+  mapNumberToDouble: true
+  unwrapRequired: true
+globalProperties:
+  models: ""
+  apis: ""

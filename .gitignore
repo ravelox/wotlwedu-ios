@@ -1,0 +1,33 @@
+# --- Xcode (use XcodeGen; don't commit projects/workspaces) ---
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+DerivedData/
+*.xcuserstate
+
+# --- Swift Package Manager ---
+.build/
+.swiftpm/
+
+# --- iOS build artifacts ---
+*.xcarchive
+*.ipa
+*.dSYM
+*.dSYM.zip
+
+# --- Package managers you might try later ---
+Pods/
+Carthage/
+
+# --- Local config & generated code ---
+Config/                     # local overrides (keep out of git)
+Generated/                  # OpenAPI SDK (omit if you DON'T vendor it)
+# If you DO want to vendor only the generated SDK for this project, use:
+# !Generated/WotlweduAPI/**
+# and keep 'Generated/' ignored otherwise.
+
+# --- Misc ---
+*.log
+.DS_Store
+*.zip
+

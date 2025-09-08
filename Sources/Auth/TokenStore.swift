@@ -1,4 +1,6 @@
 import Foundation
+
+#if canImport(Security)
 import Security
 
 struct TokenStore {
@@ -36,3 +38,13 @@ struct TokenStore {
         SecItemDelete(query as CFDictionary)
     }
 }
+#else
+// On platforms without the Security framework (e.g. Linux), provide a minimal
+// no-op implementation so the codebase can be typechecked.
+struct TokenStore {
+    func save(tokens: AuthTokens) throws {}
+    func load() -> AuthTokens? { nil }
+    func clear() {}
+}
+#endif
+

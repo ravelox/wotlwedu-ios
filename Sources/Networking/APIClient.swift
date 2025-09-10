@@ -69,20 +69,20 @@ final class APIClient {
         return try decode(data, url: req.url ?? endpoints.register)
     }
 
-    func me() async throws -> UserProfile {
+    func me() async throws -> AppUser {
         let req = try request(endpoints.me, authorized: true)
         let data = try await perform(req)
         return try decode(data, url: req.url ?? endpoints.me)
     }
 
     // MARK: - Elections
-    func listElections() async throws -> [Election] {
+    func listElections() async throws -> [AppElection] {
         let req = try request(endpoints.elections, authorized: true)
         let data = try await perform(req)
         return try decode(data, url: req.url ?? endpoints.elections)
     }
 
-    func getElection(id: Int) async throws -> Election {
+    func getElection(id: Int) async throws -> AppElection {
         let req = try request(endpoints.election(id: id), authorized: true)
         let data = try await perform(req)
         return try decode(data, url: req.url ?? endpoints.election(id: id))
@@ -96,14 +96,14 @@ final class APIClient {
     struct CreateElectionRequest: Codable { let name: String; let description: String? }
     struct CreateItemRequest: Codable { let name: String; let description: String? }
 
-    func createElection(name: String, description: String?) async throws -> Election {
+    func createElection(name: String, description: String?) async throws -> AppElection {
         let req = try request(endpoints.elections, method: "POST",
                               body: CreateElectionRequest(name: name, description: description), authorized: true)
         let data = try await perform(req)
         return try decode(data, url: req.url ?? endpoints.elections)
     }
 
-    func createItem(electionId: Int, name: String, description: String?) async throws -> ElectionItem {
+    func createItem(electionId: Int, name: String, description: String?) async throws -> AppElectionItem {
         let req = try request(endpoints.items(electionId: electionId), method: "POST",
                               body: CreateItemRequest(name: name, description: description), authorized: true)
         let data = try await perform(req)

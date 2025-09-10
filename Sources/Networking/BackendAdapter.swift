@@ -1,8 +1,8 @@
 import Foundation
 
 protocol Backend {
-    func login(email: String, password: String) async throws -> AuthTokens
-    func register(email: String, password: String, name: String?) async throws -> AuthTokens
+    func login(email: String, password: String) async throws -> AppTokens
+    func register(email: String, password: String, name: String?) async throws -> AppTokens
     func me() async throws -> UserProfile
     func listElections() async throws -> [Election]
     func getElection(id: Int) async throws -> Election
@@ -20,8 +20,8 @@ final class ManualBackend: Backend {
         let eps = Endpoints(baseURLString: cfg.baseURLString, timeout: cfg.timeout)
         self.api = APIClient(endpoints: eps, tokenProvider: tokenProvider)
     }
-    func login(email: String, password: String) async throws -> AuthTokens { try await api.login(email: email, password: password) }
-    func register(email: String, password: String, name: String?) async throws -> AuthTokens { try await api.register(email: email, password: password, name: name) }
+    func login(email: String, password: String) async throws -> AppTokens { try await api.login(email: email, password: password) }
+    func register(email: String, password: String, name: String?) async throws -> AppTokens { try await api.register(email: email, password: password, name: name) }
     func me() async throws -> UserProfile { try await api.me() }
     func listElections() async throws -> [Election] { try await api.listElections() }
     func getElection(id: Int) async throws -> Election { try await api.getElection(id: id) }

@@ -57,13 +57,13 @@ final class APIClient {
     struct LoginRequest: Codable { let email: String; let password: String }
     struct RegisterRequest: Codable { let email: String; let password: String; let name: String? }
 
-    func login(email: String, password: String) async throws -> AuthTokens {
+    func login(email: String, password: String) async throws -> AppTokens {
         let req = try request(endpoints.login, method: "POST", body: LoginRequest(email: email, password: password))
         let data = try await perform(req)
         return try decode(data, url: req.url ?? endpoints.login)
     }
 
-    func register(email: String, password: String, name: String?) async throws -> AuthTokens {
+    func register(email: String, password: String, name: String?) async throws -> AppTokens {
         let req = try request(endpoints.register, method: "POST", body: RegisterRequest(email: email, password: password, name: name))
         let data = try await perform(req)
         return try decode(data, url: req.url ?? endpoints.register)

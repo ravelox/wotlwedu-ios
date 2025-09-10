@@ -7,7 +7,7 @@ struct TokenStore {
     private let service = "com.example.wotlweduclient.tokens"
     private let account = "auth"
 
-    func save(tokens: AuthTokens) throws {
+    func save(tokens: AppTokens) throws {
         let data = try JSONEncoder().encode(tokens)
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                     kSecAttrService as String: service,
@@ -19,7 +19,7 @@ struct TokenStore {
         guard status == errSecSuccess else { throw NSError(domain: NSOSStatusErrorDomain, code: Int(status)) }
     }
 
-    func load() -> AuthTokens? {
+    func load() -> AppTokens? {
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                     kSecAttrService as String: service,
                                     kSecAttrAccount as String: account,
@@ -28,7 +28,7 @@ struct TokenStore {
         var item: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &item)
         guard status == errSecSuccess, let data = item as? Data else { return nil }
-        return try? JSONDecoder().decode(AuthTokens.self, from: data)
+        return try? JSONDecoder().decode(AppTokens.self, from: data)
     }
 
     func clear() {
@@ -42,8 +42,8 @@ struct TokenStore {
 // On platforms without the Security framework (e.g. Linux), provide a minimal
 // no-op implementation so the codebase can be typechecked.
 struct TokenStore {
-    func save(tokens: AuthTokens) throws {}
-    func load() -> AuthTokens? { nil }
+    func save(tokens: AppTokens) throws {}
+    func load() -> AppTokens? { nil }
     func clear() {}
 }
 #endif

@@ -1,102 +1,58 @@
 import Foundation
-#if canImport(WotlweduAPI)
-import WotlweduAPI
-#endif
 
+/// Stores configuration used by the backend client.
 enum GeneratedSDKConfig {
+    private static var baseURL: String = ConfigStore().baseURLString
+    private static var bearerToken: String?
+
+    /// Applies the latest base URL and bearer token. Called whenever the
+    /// session changes.
     static func apply(baseURL: String, bearerToken: String?) {
-        #if canImport(WotlweduAPI)
-        WotlweduAPI.Configuration.basePath = baseURL
-        let token = (bearerToken ?? "")
-        let keys = ["BearerAuth", "bearerAuth", "HTTPBearer", "bearer", "Authorization"]
-        if token.isEmpty {
-            for k in keys { WotlweduAPI.Configuration.apiKey[k] = nil; WotlweduAPI.Configuration.apiKeyPrefix[k] = nil }
-        } else {
-            for k in keys { WotlweduAPI.Configuration.apiKey[k] = token; WotlweduAPI.Configuration.apiKeyPrefix[k] = "Bearer" }
-        }
-        #endif
+        self.baseURL = baseURL
+        self.bearerToken = bearerToken
+    }
+
+    /// Creates an ``APIClient`` configured with the current settings.
+    fileprivate static func apiClient() -> APIClient {
+        let cfg = ConfigStore()
+        let eps = Endpoints(baseURLString: baseURL, timeout: cfg.timeout)
+        return APIClient(endpoints: eps, tokenProvider: { bearerToken })
     }
 }
 
+/// Thin wrapper around ``APIClient`` exposing the functions the rest of the
+/// app expects from the generated backend.
 enum GeneratedBackend {
-    enum NotReady: Error, LocalizedError {
-        case sdkNotGenerated
-        var errorDescription: String? { "Generated SDK not found. Run `make generate-api`." }
-    }
-    
     static func login(email: String, password: String) async throws -> AppTokens {
-        #if canImport(WotlweduAPI)
-        let body = WotlweduAPI.LoginRequest(email: email, password: password)
-        let resp = try await AuthAPI.login(body: body)
-        return AppTokens(accessToken: resp.accessToken, refreshToken: resp.refreshToken)
-        #else
-        throw NotReady.sdkNotGenerated
-        #endif
+        try await GeneratedSDKConfig.apiClient().login(email: email, password: password)
     }
-    
+
     static func register(email: String, password: String, name: String?) async throws -> AppTokens {
-        #if canImport(WotlweduAPI)
-        let body = WotlweduAPI.RegisterRequest(email: email, password: password, name: name)
-        let resp = try await AuthAPI.register(body: body)
-        return AppTokens(accessToken: resp.accessToken, refreshToken: resp.refreshToken)
-        #else
-        throw NotReady.sdkNotGenerated
-        #endif
+        try await GeneratedSDKConfig.apiClient().register(email: email, password: password, name: name)
     }
-    
+
     static func me() async throws -> AppUser {
-        #if canImport(WotlweduAPI)
-        let u = try await UsersAPI.me()
-        return AppUser(id: u.id, email: u.email, name: u.name)
-        #else
-        throw NotReady.sdkNotGenerated
-        #endif
+        try await GeneratedSDKConfig.apiClient().me()
     }
-    
+
     static func listElections() async throws -> [AppElection] {
-        #if canImport(WotlweduAPI)
-        return try await ElectionsAPI.listElections().map { g in
-            AppElection(id: g.id, name: g.name, description: g.description, items: g.items?.map { AppElectionItem(id: $0.id, name: $0.name, description: $0.description, votes: $0.votes) }, imageUrl: g.imageUrl)
-        }
-        #else
-        throw NotReady.sdkNotGenerated
-        #endif
+        try await GeneratedSDKConfig.apiClient().listElections()
     }
-    
+
     static func getElection(id: Int) async throws -> AppElection {
-        #if canImport(WotlweduAPI)
-        let g = try await ElectionsAPI.getElectionById(id: id)
-        return AppElection(id: g.id, name: g.name, description: g.description, items: g.items?.map { AppElectionItem(id: $0.id, name: $0.name, description: $0.description, votes: $0.votes) }, imageUrl: g.imageUrl)
-        #else
-        throw NotReady.sdkNotGenerated
-        #endif
+        try await GeneratedSDKConfig.apiClient().getElection(id: id)
     }
-    
+
     static func createElection(name: String, description: String?) async throws -> AppElection {
-        #if canImport(WotlweduAPI)
-        let body = WotlweduAPI.CreateElectionRequest(name: name, description: description)
-        let g = try await ElectionsAPI.createElection(body: body)
-        return AppElection(id: g.id, name: g.name, description: g.description, items: g.items?.map { AppElectionItem(id: $0.id, name: $0.name, description: $0.description, votes: $0.votes) }, imageUrl: g.imageUrl)
-        #else
-        throw NotReady.sdkNotGenerated
-        #endif
+        try await GeneratedSDKConfig.apiClient().createElection(name: name, description: description)
     }
-    
+
     static func createItem(electionId: Int, name: String, description: String?) async throws -> AppElectionItem {
-        #if canImport(WotlweduAPI)
-        let body = WotlweduAPI.CreateElectionItemRequest(name: name, description: description)
-        let it = try await ElectionsAPI.createElectionItem(electionId: electionId, body: body)
-        return AppElectionItem(id: it.id, name: it.name, description: it.description, votes: it.votes)
-        #else
-        throw NotReady.sdkNotGenerated
-        #endif
+        try await GeneratedSDKConfig.apiClient().createItem(electionId: electionId, name: name, description: description)
     }
-    
+
     static func vote(electionId: Int, itemId: Int) async throws {
-        #if canImport(WotlweduAPI)
-        _ = try await ElectionsAPI.voteItem(electionId: electionId, itemId: itemId)
-        #else
-        throw NotReady.sdkNotGenerated
-        #endif
+        try await GeneratedSDKConfig.apiClient().vote(electionId: electionId, itemId: itemId)
     }
 }
+

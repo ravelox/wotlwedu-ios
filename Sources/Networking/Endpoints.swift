@@ -12,8 +12,8 @@ struct Endpoints {
         self.timeout = timeout
     }
 
-    var login: URL { baseURL.appendingPathComponent("auth").appendingPathComponent("login") }
-    var register: URL { baseURL.appendingPathComponent("auth").appendingPathComponent("register") }
+    var login: URL { baseURL.appendingPathComponent("login") }
+    var register: URL { baseURL.appendingPathComponent("login").appendingPathComponent("register") }
     var me: URL { baseURL.appendingPathComponent("users").appendingPathComponent("me") }
 
     var elections: URL { baseURL.appendingPathComponent("elections") }

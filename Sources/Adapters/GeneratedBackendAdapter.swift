@@ -54,5 +54,15 @@ enum GeneratedBackend {
     static func vote(electionId: Int, itemId: Int) async throws {
         try await GeneratedSDKConfig.apiClient().vote(electionId: electionId, itemId: itemId)
     }
+
+    static func uploadItemImage(electionId: Int, itemId: Int, data: Data, filename: String, mime: String) async throws {
+        try await GeneratedSDKConfig.apiClient().uploadItemImage(
+            electionId: electionId,
+            itemId: itemId,
+            data: data,
+            filename: filename,
+            mime: mime
+        )
+    }
 }
 

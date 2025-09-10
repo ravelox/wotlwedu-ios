@@ -45,14 +45,23 @@ struct AddItemView: View {
     }
 
     private func save() async {
-        guard let api = session.api else { return }
         error = nil
         isBusy = true
         defer { isBusy = false }
         do {
-            let newItem = try await api.createItem(electionId: electionId, name: name, description: description.isEmpty ? nil : description)
+            let newItem = try await GeneratedBackend.createItem(
+                electionId: electionId,
+                name: name,
+                description: description.isEmpty ? nil : description
+            )
             if let imageData {
-                try await api.uploadItemImage(electionId: electionId, itemId: newItem.id, data: imageData, filename: "photo.jpg", mime: "image/jpeg")
+                try await GeneratedBackend.uploadItemImage(
+                    electionId: electionId,
+                    itemId: newItem.id,
+                    data: imageData,
+                    filename: "photo.jpg",
+                    mime: "image/jpeg"
+                )
             }
             dismiss()
         } catch {

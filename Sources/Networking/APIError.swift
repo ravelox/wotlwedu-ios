@@ -10,18 +10,18 @@ enum APIError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .encoding(let error, _):
-            return "Encoding error: \(error.localizedDescription)"
-        case .unauthorized:
-            return "Unauthorized"
-        case .decoding(let error, _):
-            return "Decoding error: \(error.localizedDescription)"
-        case .noData:
-            return "No data received"
-        case .http(let status, _, _):
-            return "HTTP \(status)"
-        case .other(let message, _):
-            return message
+        case .encoding(let error, let url):
+            return "Encoding error: \(error.localizedDescription) (\(url.absoluteString))"
+        case .unauthorized(let url):
+            return "Unauthorized (\(url.absoluteString))"
+        case .decoding(let error, let url):
+            return "Decoding error: \(error.localizedDescription) (\(url.absoluteString))"
+        case .noData(let url):
+            return "No data received (\(url.absoluteString))"
+        case .http(let status, _, let url):
+            return "HTTP \(status) (\(url.absoluteString))"
+        case .other(let message, let url):
+            return "\(message) (\(url.absoluteString))"
         }
     }
 

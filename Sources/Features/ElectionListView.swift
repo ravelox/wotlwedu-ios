@@ -1,17 +1,14 @@
 import SwiftUI
 
 struct ElectionListView: View {
-    @EnvironmentObject var session: SessionStore
-    @State private var elections: [Election] = []
+    @State private var elections: [AppElection] = []
     @State private var isLoading = false
     @State private var error: String?
     @State private var showingCreate = false
-
+    
     var body: some View {
         List {
-            if let error {
-                Text(error).foregroundStyle(.red)
-            }
+            if let error { Text(error).foregroundStyle(.red) }
             ForEach(elections) { election in
                 NavigationLink(value: election) {
                     VStack(alignment: .leading) {
@@ -24,9 +21,8 @@ struct ElectionListView: View {
             }
         }
         .navigationTitle("Elections")
-        .navigationDestination(for: Election.self) { election in
-            ElectionDetailView(election: election)
-        }
+        .navigationDestination(for: AppElection.self) { election in
+            ElectionDetailView(election: election) }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 NavigationLink("Profile") { ProfileView() }
@@ -39,11 +35,10 @@ struct ElectionListView: View {
         .task { await load() }
         .refreshable { await load() }
     }
-
+    
     private func load() async {
-        guard let api = session.api else { return }
         isLoading = true; defer { isLoading = false }
-        do { elections = try await api.listElections() }
-        catch { self.error = (error as? APIError)?.userMessage ?? error.localizedDescription }
+        do { elections = try await GeneratedBackend.listElections() }
+        catch { self.error = error.localizedDescription }
     }
 }

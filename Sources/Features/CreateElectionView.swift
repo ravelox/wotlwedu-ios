@@ -2,12 +2,11 @@ import SwiftUI
 
 struct CreateElectionView: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var session: SessionStore
     @State private var name = ""
     @State private var description = ""
     @State private var error: String?
     @State private var isBusy = false
-
+    
     var body: some View {
         Form {
             Section("Details") {
@@ -25,17 +24,16 @@ struct CreateElectionView: View {
         }
         .navigationTitle("New Election")
     }
-
+    
     private func create() async {
-        guard let api = session.api else { return }
         error = nil
         isBusy = true
         defer { isBusy = false }
         do {
-            _ = try await api.createElection(name: name, description: description.isEmpty ? nil : description)
+            _ = try await GeneratedBackend.createElection(name: name, description: description.isEmpty ? nil : description)
             dismiss()
         } catch {
-            self.error = (error as? APIError)?.userMessage ?? error.localizedDescription
+            self.error = error.localizedDescription
         }
     }
 }

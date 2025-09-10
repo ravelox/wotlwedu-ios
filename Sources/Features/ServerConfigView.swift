@@ -1,4 +1,3 @@
-
 import SwiftUI
 
 struct ServerConfigView: View {
@@ -7,7 +6,7 @@ struct ServerConfigView: View {
     @State private var baseURLString: String = ""
     @State private var timeoutString: String = ""
     @State private var error: String?
-
+    
     var body: some View {
         Form {
             Section("API Server") {
@@ -32,7 +31,7 @@ struct ServerConfigView: View {
             timeoutString = String(Int(session.config.timeout))
         }
     }
-
+    
     private func validateAndSave() -> Bool {
         guard let url = URL(string: baseURLString),
               let scheme = url.scheme, scheme.hasPrefix("http") else {
@@ -42,8 +41,7 @@ struct ServerConfigView: View {
         let t = TimeInterval(timeoutString) ?? 20
         session.config.baseURLString = baseURLString
         session.config.timeout = max(1, t)
-        // Rebuild the API client with the new settings
-        session.rebuildAPI()
+        session.configureGeneratedSDK()
         error = nil
         return true
     }

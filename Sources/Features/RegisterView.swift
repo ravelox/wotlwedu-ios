@@ -7,7 +7,7 @@ struct RegisterView: View {
     @State private var name = ""
     @State private var error: String?
     @State private var isBusy = false
-
+    
     var body: some View {
         Form {
             Section("Create Account") {
@@ -20,9 +20,7 @@ struct RegisterView: View {
                 SecureField("Password", text: $password)
                     .textContentType(.newPassword)
             }
-            if let error {
-                Text(error).foregroundStyle(.red)
-            }
+            if let error { Text(error).foregroundStyle(.red) }
             Button {
                 Task { await register() }
             } label: {
@@ -33,7 +31,7 @@ struct RegisterView: View {
         }
         .navigationTitle("Register")
     }
-
+    
     private func register() async {
         error = nil
         isBusy = true
@@ -41,7 +39,7 @@ struct RegisterView: View {
         do {
             try await session.register(email: email, password: password, name: name.isEmpty ? nil : name)
         } catch {
-            self.error = (error as? APIError)?.userMessage ?? error.localizedDescription
+            self.error = error.localizedDescription
         }
     }
 }

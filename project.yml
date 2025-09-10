@@ -13,6 +13,17 @@ settings:
     CODE_SIGN_STYLE: Automatic
     INFOPLIST_FILE: Resources/Info.plist
     ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+configs:
+  Debug:
+    buildSettings:
+      API_BASE_URL: "https://localhost:9876"
+      API_DEFAULT_TIMEOUT: "20"
+      SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+  Release:
+    buildSettings:
+      API_BASE_URL: "https://localhost:9876"
+      API_DEFAULT_TIMEOUT: "20"
+      SWIFT_OPTIMIZATION_LEVEL: "-O"
 targets:
   WotlweduClient-iOS:
     type: application
@@ -20,13 +31,13 @@ targets:
     sources:
       - Sources
       - Resources
-      - path: Generated/WotlweduAPI
-        optional: true
       - path: Config
         optional: true
+    dependencies:
+      - target: WotlweduAPI
     settings:
       base:
-        TARGETED_DEVICE_FAMILY: "1,2" # iPhone and iPad
+        TARGETED_DEVICE_FAMILY: "1,2"
         PRODUCT_NAME: WotlweduClient
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
     scheme:
@@ -47,23 +58,20 @@ targets:
           - UIInterfaceOrientationLandscapeRight
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
-        UIUserInterfaceStyle: Unspecified
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: false
         CFBundleDisplayName: "Wotlwedu"
         CFBundleShortVersionString: "1.0"
         CFBundleVersion: "1"
         ITSAppUsesNonExemptEncryption: false
-        NSAppTransportSecurity:
-          NSAllowsArbitraryLoads: false
         API_BASE_URL: "$(API_BASE_URL)"
         API_DEFAULT_TIMEOUT: "$(API_DEFAULT_TIMEOUT)"
-configs:
-  Debug:
-    buildSettings:
-      API_BASE_URL: "https://localhost:9876" # change to your backend URL
-      API_DEFAULT_TIMEOUT: "20"
-      SWIFT_OPTIMIZATION_LEVEL: "-Onone"
-  Release:
-    buildSettings:
-      API_BASE_URL: "https://localhost:9876"
-      API_DEFAULT_TIMEOUT: "20"
-      SWIFT_OPTIMIZATION_LEVEL: "-O"
+  WotlweduAPI:
+    type: framework
+    platform: iOS
+    sources:
+      - path: Generated/WotlweduAPI/Sources
+        optional: true
+    settings:
+      base:
+        SKIP_INSTALL: YES

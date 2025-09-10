@@ -10,7 +10,7 @@ open: project
 		open -a "Xcode" WotlweduClient.xcodeproj ; \
 	fi
 
-# --- OpenAPI codegen (requires Docker) ---
+# OpenAPI codegen (requires Docker)
 generate-api:
 	docker run --rm -v $$(pwd):/local openapitools/openapi-generator-cli:v7.8.0 generate \
 		-c /local/Tools/openapi-swift-config.yaml

@@ -74,5 +74,5 @@ targets:
     settings:
       base:
         SKIP_INSTALL: YES
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.wotlweduapi
+        PRODUCT_BUNDLE_IDENTIFIER: com.wotlwedu.api
         GENERATE_INFOPLIST_FILE: YES

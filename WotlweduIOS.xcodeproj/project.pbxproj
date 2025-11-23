@@ -18,18 +18,25 @@
 		21B98580C5903D5798569897 /* ElectionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDCC2A8801EB6B64FBF77500 /* ElectionListView.swift */; };
 		25B3B20D504A371EDA51A99B /* ListListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00E55D429C93451D4CBA142 /* ListListView.swift */; };
 		2BB332E4D3B536B51BFF4379 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B2408412244248EF6337E3C /* Assets.xcassets */; };
+		2E8C97D8FB4B1B6537AB9777 /* IntegrationTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0780E580F959D329D95C1D7 /* IntegrationTestHelpers.swift */; };
 		3A7E737367C45821BBCE9FBD /* WotlweduIOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757E6C00EDA441BE1BA406B3 /* WotlweduIOSApp.swift */; };
 		3DC402E78FA9FD814A757DAD /* WotlweduDomainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17E355A06949FD1058B6DA0F /* WotlweduDomainService.swift */; };
+		3EA1E253D359314183C37B05 /* WotlweduDomainServiceIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A66891BC1520A0813DADAE /* WotlweduDomainServiceIntegrationTests.swift */; };
 		43227205272392D10DADE7EF /* GroupListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DEF30C12D93D51D3729D0D /* GroupListView.swift */; };
 		43D26A00B6193B122F39611F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637DB31A8DA265EE81CA9239 /* LaunchScreen.storyboard */; };
+		456C7F44832055F7ACD5467C /* APIClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CEAE0441350176CF4AF4580 /* APIClientTests.swift */; };
+		4E53CB2D222456EC65AEB807 /* wotlwedu-config.json in Resources */ = {isa = PBXBuildFile; fileRef = 3FDAB23F0FDBBBE22F7179EA /* wotlwedu-config.json */; };
 		4FC0AF0F780B0F54ADA28577 /* WotlweduModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF6895247D60E5FA00290FFA /* WotlweduModels.swift */; };
 		57105E025C9DE88C4094C1B0 /* VotingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C1750C908E2B6823D1CE6F6 /* VotingViewModel.swift */; };
 		5D86B0FD11699E983B2744EF /* MultiSelectList.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE50AC282D266B1A2DC45ABA /* MultiSelectList.swift */; };
 		5E0F7328DB70A6EA522834F7 /* ImageListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEC84F13E003F4A9ECA6253 /* ImageListView.swift */; };
+		6E0E2895B9DAC90196A5B88C /* MockURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83C5C74F6C8D57D16649D256 /* MockURLProtocol.swift */; };
 		8258089B88F72C9B1DC9B6A3 /* VotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5307B09EFE1ACC9BE0265562 /* VotingView.swift */; };
 		8776869ADAB7A2D0CE04F8CD /* FriendListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C2F66D18E60D53A49FBFCF /* FriendListView.swift */; };
+		8EFD3C4DCDEEA2F2551CB79E /* ConfigLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85970E881055BD9DE7FAE329 /* ConfigLoaderTests.swift */; };
 		99A953CDA856B0DB694E60B0 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8495970A9CBC41FBA7E31E9F /* ProfileView.swift */; };
 		9F49D49829D7E5ADD4923D43 /* RoleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E919034606B39AE9030B2750 /* RoleListView.swift */; };
+		9FC57B3536494ECAD83E70E2 /* MockURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 122EA17E19FE8179B360BBBB /* MockURLProtocol.swift */; };
 		A3547F52B0604B262E2BC9DC /* ConfigLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D099AB784E580BB9A7FBF67C /* ConfigLoader.swift */; };
 		A4550D49E23A0B8B3DC747B4 /* wotlwedu-config.json.template in Resources */ = {isa = PBXBuildFile; fileRef = 4C2765D1C2A0FAC6B53D47CD /* wotlwedu-config.json.template */; };
 		A4EC927A6D17C506C0AAC658 /* HomeDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1920178CAF2611A88DDC9714 /* HomeDashboardView.swift */; };
@@ -44,17 +51,40 @@
 		DBA93EDC9BC9BDAFA9E7C062 /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE24FC8746E3AA674E79DB3 /* SessionStore.swift */; };
 		E7C2A90322EF6F69F1F8F48C /* Binding+Nil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CA0D7852FED1D6071E5A4CE /* Binding+Nil.swift */; };
 		EFC819CB6D4B137762B2B2AF /* AuthFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3BB5384AC8085757C2B0B99 /* AuthFlowView.swift */; };
+		EFEF05EFC4FD8A83A7129A91 /* SessionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67885BB6411916FB34B66C41 /* SessionStoreTests.swift */; };
+		F155299DF3ADC13C9B54B916 /* AppViewModelIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70FD8F2BCA3EE2DC2F9BF157 /* AppViewModelIntegrationTests.swift */; };
 		F23E72A1321FCA6836442EE6 /* ItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54110815EC1B3626C06841B /* ItemListView.swift */; };
 		FBC676356FC8C1E37435DBD7 /* RegisterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2865DF9378B523400B1B81 /* RegisterService.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		61E4769AA12D2D55B269B4A5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2ABAD78C832BF35814EB445A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 264A9AB28EF97CA7DE2619A9;
+			remoteInfo = WotlweduIOS;
+		};
+		BDFF90F6068981CFBE2E9583 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2ABAD78C832BF35814EB445A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 264A9AB28EF97CA7DE2619A9;
+			remoteInfo = WotlweduIOS;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		03DEF30C12D93D51D3729D0D /* GroupListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListView.swift; sourceTree = "<group>"; };
+		0CEAE0441350176CF4AF4580 /* APIClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClientTests.swift; sourceTree = "<group>"; };
+		122EA17E19FE8179B360BBBB /* MockURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLProtocol.swift; sourceTree = "<group>"; };
 		17E355A06949FD1058B6DA0F /* WotlweduDomainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WotlweduDomainService.swift; sourceTree = "<group>"; };
 		1920178CAF2611A88DDC9714 /* HomeDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDashboardView.swift; sourceTree = "<group>"; };
 		1CA0D7852FED1D6071E5A4CE /* Binding+Nil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+Nil.swift"; sourceTree = "<group>"; };
 		2D2865DF9378B523400B1B81 /* RegisterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterService.swift; sourceTree = "<group>"; };
+		3FDAB23F0FDBBBE22F7179EA /* wotlwedu-config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "wotlwedu-config.json"; sourceTree = "<group>"; };
 		42989B935DB30590F0553FDE /* PagedListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagedListViewModel.swift; sourceTree = "<group>"; };
+		474DB4DD896A6D189C88E20F /* WotlweduIOSIntegrationTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WotlweduIOSIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AFF1249AC586C5CAFF91CAE /* UserListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserListView.swift; sourceTree = "<group>"; };
 		4C1750C908E2B6823D1CE6F6 /* VotingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingViewModel.swift; sourceTree = "<group>"; };
 		4C2765D1C2A0FAC6B53D47CD /* wotlwedu-config.json.template */ = {isa = PBXFileReference; path = "wotlwedu-config.json.template"; sourceTree = "<group>"; };
@@ -62,14 +92,19 @@
 		5192443342F4CA5065068978 /* CategoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListView.swift; sourceTree = "<group>"; };
 		5307B09EFE1ACC9BE0265562 /* VotingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingView.swift; sourceTree = "<group>"; };
 		5BAD4AAC2E6432682D590062 /* wotlwedu-config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "wotlwedu-config.json"; sourceTree = "<group>"; };
+		67885BB6411916FB34B66C41 /* SessionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreTests.swift; sourceTree = "<group>"; };
 		6DEC84F13E003F4A9ECA6253 /* ImageListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageListView.swift; sourceTree = "<group>"; };
+		70FD8F2BCA3EE2DC2F9BF157 /* AppViewModelIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModelIntegrationTests.swift; sourceTree = "<group>"; };
 		74ABB5B9BB7CF92E94494309 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		757E6C00EDA441BE1BA406B3 /* WotlweduIOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WotlweduIOSApp.swift; sourceTree = "<group>"; };
 		7B9033600C23AAE877443C31 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		7C93DB2E8FC87D6DDB11E2B1 /* WotlweduIOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = WotlweduIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DE24FC8746E3AA674E79DB3 /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
 		7E3047A87F30232944A4C56C /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
+		83C5C74F6C8D57D16649D256 /* MockURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLProtocol.swift; sourceTree = "<group>"; };
 		8495970A9CBC41FBA7E31E9F /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		85970E881055BD9DE7FAE329 /* ConfigLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigLoaderTests.swift; sourceTree = "<group>"; };
+		85A66891BC1520A0813DADAE /* WotlweduDomainServiceIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WotlweduDomainServiceIntegrationTests.swift; sourceTree = "<group>"; };
 		86941BCAEE707F22EB3B99D1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8B2408412244248EF6337E3C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8DE2ACE3215B232F3A001AF7 /* APIResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIResponse.swift; sourceTree = "<group>"; };
@@ -79,6 +114,7 @@
 		AF6895247D60E5FA00290FFA /* WotlweduModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WotlweduModels.swift; sourceTree = "<group>"; };
 		B1F3D28E7B527FBE5743B554 /* WotlweduDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WotlweduDataService.swift; sourceTree = "<group>"; };
 		BE4FB81CC01C2212E1097C8A /* PreferenceListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceListView.swift; sourceTree = "<group>"; };
+		C0780E580F959D329D95C1D7 /* IntegrationTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTestHelpers.swift; sourceTree = "<group>"; };
 		C3BB5384AC8085757C2B0B99 /* AuthFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthFlowView.swift; sourceTree = "<group>"; };
 		D00E55D429C93451D4CBA142 /* ListListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListListView.swift; sourceTree = "<group>"; };
 		D099AB784E580BB9A7FBF67C /* ConfigLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigLoader.swift; sourceTree = "<group>"; };
@@ -86,6 +122,7 @@
 		D9CFFD82E9CF197DEA1FF3EA /* NotificationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationListView.swift; sourceTree = "<group>"; };
 		DCB70C1B0E404F64DAADCCAC /* MediaService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaService.swift; sourceTree = "<group>"; };
 		DE50AC282D266B1A2DC45ABA /* MultiSelectList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiSelectList.swift; sourceTree = "<group>"; };
+		DECA632179D3CD877E666294 /* WotlweduIOSTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WotlweduIOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E919034606B39AE9030B2750 /* RoleListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleListView.swift; sourceTree = "<group>"; };
 		EDCC2A8801EB6B64FBF77500 /* ElectionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectionListView.swift; sourceTree = "<group>"; };
 		F050497F94DC77D2C0901C61 /* AnyEncodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyEncodable.swift; sourceTree = "<group>"; };
@@ -107,10 +144,20 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		0DE98FDCCEB2C10DEAEFBA69 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				83C5C74F6C8D57D16649D256 /* MockURLProtocol.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		2CD093FC0257512AE790A9E6 = {
 			isa = PBXGroup;
 			children = (
 				E3E7BD51FEFA3291DE9FA42A /* WotlweduIOS */,
+				F9C41771FAA9D10FC8ECE013 /* WotlweduIOSIntegrationTests */,
+				90061C84AB2FFDF0C178EC07 /* WotlweduIOSTests */,
 				C528109E0726C3CAA8528DC4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -165,6 +212,26 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		7D3F0FCCB6CB911A86206C2A /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				3FDAB23F0FDBBBE22F7179EA /* wotlwedu-config.json */,
+			);
+			path = Fixtures;
+			sourceTree = "<group>";
+		};
+		90061C84AB2FFDF0C178EC07 /* WotlweduIOSTests */ = {
+			isa = PBXGroup;
+			children = (
+				0CEAE0441350176CF4AF4580 /* APIClientTests.swift */,
+				85970E881055BD9DE7FAE329 /* ConfigLoaderTests.swift */,
+				67885BB6411916FB34B66C41 /* SessionStoreTests.swift */,
+				7D3F0FCCB6CB911A86206C2A /* Fixtures */,
+				0DE98FDCCEB2C10DEAEFBA69 /* Helpers */,
+			);
+			path = WotlweduIOSTests;
+			sourceTree = "<group>";
+		};
 		938A70FEC8D828DD85BFC231 /* Manage */ = {
 			isa = PBXGroup;
 			children = (
@@ -186,6 +253,8 @@
 			isa = PBXGroup;
 			children = (
 				7C93DB2E8FC87D6DDB11E2B1 /* WotlweduIOS.app */,
+				474DB4DD896A6D189C88E20F /* WotlweduIOSIntegrationTests.xctest */,
+				DECA632179D3CD877E666294 /* WotlweduIOSTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -238,6 +307,15 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		E3A59EF824E3980764F02B10 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				C0780E580F959D329D95C1D7 /* IntegrationTestHelpers.swift */,
+				122EA17E19FE8179B360BBBB /* MockURLProtocol.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		E3E7BD51FEFA3291DE9FA42A /* WotlweduIOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -268,9 +346,37 @@
 			path = Networking;
 			sourceTree = "<group>";
 		};
+		F9C41771FAA9D10FC8ECE013 /* WotlweduIOSIntegrationTests */ = {
+			isa = PBXGroup;
+			children = (
+				70FD8F2BCA3EE2DC2F9BF157 /* AppViewModelIntegrationTests.swift */,
+				85A66891BC1520A0813DADAE /* WotlweduDomainServiceIntegrationTests.swift */,
+				E3A59EF824E3980764F02B10 /* Helpers */,
+			);
+			path = WotlweduIOSIntegrationTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1CDFC65EFD428D7B01AD894A /* WotlweduIOSIntegrationTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 378DD911C0E8EF7932E6B771 /* Build configuration list for PBXNativeTarget "WotlweduIOSIntegrationTests" */;
+			buildPhases = (
+				E154A2EB0CC311180E172D13 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4AD64756CD5E68E152E65F0D /* PBXTargetDependency */,
+			);
+			name = WotlweduIOSIntegrationTests;
+			packageProductDependencies = (
+			);
+			productName = WotlweduIOSIntegrationTests;
+			productReference = 474DB4DD896A6D189C88E20F /* WotlweduIOSIntegrationTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		264A9AB28EF97CA7DE2619A9 /* WotlweduIOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D8EF8A0060A25823E19A1764 /* Build configuration list for PBXNativeTarget "WotlweduIOS" */;
@@ -288,6 +394,25 @@
 			productName = WotlweduIOS;
 			productReference = 7C93DB2E8FC87D6DDB11E2B1 /* WotlweduIOS.app */;
 			productType = "com.apple.product-type.application";
+		};
+		BB10EE9E7975A066E773A0B4 /* WotlweduIOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D96B399AC8DA9A0581B8E4F0 /* Build configuration list for PBXNativeTarget "WotlweduIOSTests" */;
+			buildPhases = (
+				7724825320930CF156A9C9AB /* Sources */,
+				393A1E08F31058B8CCA1375A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				86CF47012834567DE329BEBE /* PBXTargetDependency */,
+			);
+			name = WotlweduIOSTests;
+			packageProductDependencies = (
+			);
+			productName = WotlweduIOSTests;
+			productReference = DECA632179D3CD877E666294 /* WotlweduIOSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -313,11 +438,21 @@
 			projectRoot = "";
 			targets = (
 				264A9AB28EF97CA7DE2619A9 /* WotlweduIOS */,
+				1CDFC65EFD428D7B01AD894A /* WotlweduIOSIntegrationTests */,
+				BB10EE9E7975A066E773A0B4 /* WotlweduIOSTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		393A1E08F31058B8CCA1375A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E53CB2D222456EC65AEB807 /* wotlwedu-config.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		87D4A7862BB5C7E4E3AFC6C5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -374,7 +509,42 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7724825320930CF156A9C9AB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				456C7F44832055F7ACD5467C /* APIClientTests.swift in Sources */,
+				8EFD3C4DCDEEA2F2551CB79E /* ConfigLoaderTests.swift in Sources */,
+				6E0E2895B9DAC90196A5B88C /* MockURLProtocol.swift in Sources */,
+				EFEF05EFC4FD8A83A7129A91 /* SessionStoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E154A2EB0CC311180E172D13 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F155299DF3ADC13C9B54B916 /* AppViewModelIntegrationTests.swift in Sources */,
+				2E8C97D8FB4B1B6537AB9777 /* IntegrationTestHelpers.swift in Sources */,
+				9FC57B3536494ECAD83E70E2 /* MockURLProtocol.swift in Sources */,
+				3EA1E253D359314183C37B05 /* WotlweduDomainServiceIntegrationTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4AD64756CD5E68E152E65F0D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 264A9AB28EF97CA7DE2619A9 /* WotlweduIOS */;
+			targetProxy = 61E4769AA12D2D55B269B4A5 /* PBXContainerItemProxy */;
+		};
+		86CF47012834567DE329BEBE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 264A9AB28EF97CA7DE2619A9 /* WotlweduIOS */;
+			targetProxy = BDFF90F6068981CFBE2E9583 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		637DB31A8DA265EE81CA9239 /* LaunchScreen.storyboard */ = {
@@ -529,6 +699,51 @@
 			};
 			name = Debug;
 		};
+		454A237443DDD9B0F0A77494 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WotlweduIOS.app/WotlweduIOS";
+			};
+			name = Debug;
+		};
+		8D168431DF1005758A9E7021 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WotlweduIOS.app/WotlweduIOS";
+			};
+			name = Debug;
+		};
+		A0D33F6B9A16B106F83C1FBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WotlweduIOS.app/WotlweduIOS";
+			};
+			name = Release;
+		};
 		B9955D1B3A20C49B42924BD3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -545,9 +760,33 @@
 			};
 			name = Debug;
 		};
+		F8B1B8A9CF787195BC65C11F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WotlweduIOS.app/WotlweduIOS";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		378DD911C0E8EF7932E6B771 /* Build configuration list for PBXNativeTarget "WotlweduIOSIntegrationTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8D168431DF1005758A9E7021 /* Debug */,
+				A0D33F6B9A16B106F83C1FBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		9AD04F093900FC2637312A7B /* Build configuration list for PBXProject "WotlweduIOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -562,6 +801,15 @@
 			buildConfigurations = (
 				B9955D1B3A20C49B42924BD3 /* Debug */,
 				09503C8C927AD7468782BC64 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D96B399AC8DA9A0581B8E4F0 /* Build configuration list for PBXNativeTarget "WotlweduIOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				454A237443DDD9B0F0A77494 /* Debug */,
+				F8B1B8A9CF787195BC65C11F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

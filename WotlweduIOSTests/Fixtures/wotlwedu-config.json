@@ -1,0 +1,6 @@
+{
+  "apiUrl": "https://example.test/api/",
+  "appVersion": "9.9.9",
+  "defaultStartPage": "home",
+  "errorCountdown": 42
+}

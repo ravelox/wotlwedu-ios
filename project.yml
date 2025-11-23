@@ -25,3 +25,21 @@ targets:
       base:
         PRODUCT_NAME: Wotlwedu
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+  WotlweduIOSTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: WotlweduIOSTests
+    resources:
+      - path: WotlweduIOSTests/Fixtures
+    dependencies:
+      - target: WotlweduIOS
+  WotlweduIOSIntegrationTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: WotlweduIOSIntegrationTests
+    resources:
+      - path: WotlweduIOSIntegrationTests/Fixtures
+    dependencies:
+      - target: WotlweduIOS

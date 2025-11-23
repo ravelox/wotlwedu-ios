@@ -1,0 +1,20 @@
+# Xcode
+DerivedData/
+build/
+*.xcworkspace/
+*.xcuserdata/
+*.xcuserstate
+*.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+
+# Dependency managers
+Pods/
+Carthage/
+SwiftPM/
+.swiftpm/
+
+# Logs and misc
+*.log
+.DS_Store
+
+# App-specific config (untrack secrets/env overrides)
+WotlweduIOS/Resources/wotlwedu-config.json

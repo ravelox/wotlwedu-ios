@@ -64,8 +64,9 @@ private struct ListListContent: View {
                     let saved = try? await service.save(list: updated)
                     let listId = saved?.id ?? updated.id
                     if let listId {
-                        let toAdd = Array(selectedIds.subtracting(initialIds))
-                        let toRemove = Array(initialIds.subtracting(selectedIds))
+                        let selectedNonNil = Set(selectedIds.compactMap { $0 })
+                        let toAdd = Array(selectedNonNil.subtracting(initialIds))
+                        let toRemove = Array(initialIds.subtracting(selectedNonNil))
                         try? await service.addItems(to: listId, itemIds: toAdd)
                         try? await service.removeItems(from: listId, itemIds: toRemove)
                     }
@@ -86,15 +87,15 @@ private struct ListListContent: View {
 private struct ListEditor: View {
     @State var list: WotlweduList
     let items: [WotlweduItem]
-    var onSave: (WotlweduList, Set<String>) -> Void
+    var onSave: (WotlweduList, Set<String?>) -> Void
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedItemIds: Set<String> = []
+    @State private var selectedItemIds: Set<String?> = []
 
-    init(list: WotlweduList, items: [WotlweduItem], onSave: @escaping (WotlweduList, Set<String>) -> Void) {
+    init(list: WotlweduList, items: [WotlweduItem], onSave: @escaping (WotlweduList, Set<String?>) -> Void) {
         self.list = list
         self.items = items
         self.onSave = onSave
-        _selectedItemIds = State(initialValue: Set(list.items?.compactMap { $0.id } ?? []))
+        _selectedItemIds = State(initialValue: Set(list.items?.map { $0.id } ?? []))
     }
 
     var body: some View {
@@ -109,7 +110,7 @@ private struct ListEditor: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        list.items = items.filter { selectedItemIds.contains($0.id ?? "") }
+                        list.items = items.filter { selectedItemIds.contains($0.id) }
                         onSave(list, selectedItemIds)
                         dismiss()
                     }

@@ -67,6 +67,14 @@ private struct RoleListContent: View {
                 }
             }
         }
+        .alert("Error", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { _ in viewModel.errorMessage = nil }
+        )) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
+        }
     }
 
     private func loadLookups() async {
@@ -85,16 +93,16 @@ private struct RoleEditor: View {
     let users: [WotlweduUser]
     var onSave: (WotlweduRole) -> Void
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedCaps: Set<String> = []
-    @State private var selectedUsers: Set<String> = []
+    @State private var selectedCaps: Set<String?> = []
+    @State private var selectedUsers: Set<String?> = []
 
     init(role: WotlweduRole, capabilities: [WotlweduCap], users: [WotlweduUser], onSave: @escaping (WotlweduRole) -> Void) {
         self.role = role
         self.capabilities = capabilities
         self.users = users
         self.onSave = onSave
-        _selectedCaps = State(initialValue: Set(role.capabilities?.compactMap { $0.id } ?? []))
-        _selectedUsers = State(initialValue: Set(role.users?.compactMap { $0.id } ?? []))
+        _selectedCaps = State(initialValue: Set(role.capabilities?.map { $0.id } ?? []))
+        _selectedUsers = State(initialValue: Set(role.users?.map { $0.id } ?? []))
     }
 
     var body: some View {
@@ -115,8 +123,8 @@ private struct RoleEditor: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        role.capabilities = capabilities.filter { selectedCaps.contains($0.id ?? "") }
-                        role.users = users.filter { selectedUsers.contains($0.id ?? "") }
+                        role.capabilities = capabilities.filter { selectedCaps.contains($0.id) }
+                        role.users = users.filter { selectedUsers.contains($0.id) }
                         onSave(role)
                         dismiss()
                     }

@@ -23,7 +23,6 @@
 		3DC402E78FA9FD814A757DAD /* WotlweduDomainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17E355A06949FD1058B6DA0F /* WotlweduDomainService.swift */; };
 		3EA1E253D359314183C37B05 /* WotlweduDomainServiceIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A66891BC1520A0813DADAE /* WotlweduDomainServiceIntegrationTests.swift */; };
 		43227205272392D10DADE7EF /* GroupListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DEF30C12D93D51D3729D0D /* GroupListView.swift */; };
-		43D26A00B6193B122F39611F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 637DB31A8DA265EE81CA9239 /* LaunchScreen.storyboard */; };
 		456C7F44832055F7ACD5467C /* APIClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CEAE0441350176CF4AF4580 /* APIClientTests.swift */; };
 		4E53CB2D222456EC65AEB807 /* wotlwedu-config.json in Resources */ = {isa = PBXBuildFile; fileRef = 3FDAB23F0FDBBBE22F7179EA /* wotlwedu-config.json */; };
 		4FC0AF0F780B0F54ADA28577 /* WotlweduModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF6895247D60E5FA00290FFA /* WotlweduModels.swift */; };
@@ -41,6 +40,7 @@
 		A4550D49E23A0B8B3DC747B4 /* wotlwedu-config.json.template in Resources */ = {isa = PBXBuildFile; fileRef = 4C2765D1C2A0FAC6B53D47CD /* wotlwedu-config.json.template */; };
 		A4EC927A6D17C506C0AAC658 /* HomeDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1920178CAF2611A88DDC9714 /* HomeDashboardView.swift */; };
 		A7DCEFD5F9E0D98CB0875326 /* PagedListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42989B935DB30590F0553FDE /* PagedListViewModel.swift */; };
+		B500FD1B18544E7030D9C3E6 /* wotlwedu-config.json in Resources */ = {isa = PBXBuildFile; fileRef = 365E58DABF20A8FB41D79DA1 /* wotlwedu-config.json */; };
 		BA9AA8CAC55B3E567DFE813C /* NotificationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9CFFD82E9CF197DEA1FF3EA /* NotificationListView.swift */; };
 		BE1579C76603D45C652C0FAE /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F051266CCC9318DF69A45A40 /* AppViewModel.swift */; };
 		BE4EF71A1DB02B8C1FDCC7CA /* MediaService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB70C1B0E404F64DAADCCAC /* MediaService.swift */; };
@@ -82,6 +82,7 @@
 		1920178CAF2611A88DDC9714 /* HomeDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDashboardView.swift; sourceTree = "<group>"; };
 		1CA0D7852FED1D6071E5A4CE /* Binding+Nil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+Nil.swift"; sourceTree = "<group>"; };
 		2D2865DF9378B523400B1B81 /* RegisterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterService.swift; sourceTree = "<group>"; };
+		365E58DABF20A8FB41D79DA1 /* wotlwedu-config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "wotlwedu-config.json"; sourceTree = "<group>"; };
 		3FDAB23F0FDBBBE22F7179EA /* wotlwedu-config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "wotlwedu-config.json"; sourceTree = "<group>"; };
 		42989B935DB30590F0553FDE /* PagedListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagedListViewModel.swift; sourceTree = "<group>"; };
 		474DB4DD896A6D189C88E20F /* WotlweduIOSIntegrationTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WotlweduIOSIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -105,7 +106,6 @@
 		8495970A9CBC41FBA7E31E9F /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		85970E881055BD9DE7FAE329 /* ConfigLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigLoaderTests.swift; sourceTree = "<group>"; };
 		85A66891BC1520A0813DADAE /* WotlweduDomainServiceIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WotlweduDomainServiceIntegrationTests.swift; sourceTree = "<group>"; };
-		86941BCAEE707F22EB3B99D1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8B2408412244248EF6337E3C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8DE2ACE3215B232F3A001AF7 /* APIResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIResponse.swift; sourceTree = "<group>"; };
 		927B886560B62E3C607D9793 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -188,7 +188,6 @@
 			children = (
 				8B2408412244248EF6337E3C /* Assets.xcassets */,
 				927B886560B62E3C607D9793 /* Info.plist */,
-				637DB31A8DA265EE81CA9239 /* LaunchScreen.storyboard */,
 				5BAD4AAC2E6432682D590062 /* wotlwedu-config.json */,
 				4C2765D1C2A0FAC6B53D47CD /* wotlwedu-config.json.template */,
 			);
@@ -247,6 +246,14 @@
 				4AFF1249AC586C5CAFF91CAE /* UserListView.swift */,
 			);
 			path = Manage;
+			sourceTree = "<group>";
+		};
+		B04B2B689C89EC6250446E26 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				365E58DABF20A8FB41D79DA1 /* wotlwedu-config.json */,
+			);
+			path = Fixtures;
 			sourceTree = "<group>";
 		};
 		C528109E0726C3CAA8528DC4 /* Products */ = {
@@ -351,6 +358,7 @@
 			children = (
 				70FD8F2BCA3EE2DC2F9BF157 /* AppViewModelIntegrationTests.swift */,
 				85A66891BC1520A0813DADAE /* WotlweduDomainServiceIntegrationTests.swift */,
+				B04B2B689C89EC6250446E26 /* Fixtures */,
 				E3A59EF824E3980764F02B10 /* Helpers */,
 			);
 			path = WotlweduIOSIntegrationTests;
@@ -364,6 +372,7 @@
 			buildConfigurationList = 378DD911C0E8EF7932E6B771 /* Build configuration list for PBXNativeTarget "WotlweduIOSIntegrationTests" */;
 			buildPhases = (
 				E154A2EB0CC311180E172D13 /* Sources */,
+				EFED078423F466E3D5BF25B2 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -458,9 +467,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				2BB332E4D3B536B51BFF4379 /* Assets.xcassets in Resources */,
-				43D26A00B6193B122F39611F /* LaunchScreen.storyboard in Resources */,
 				1D7C6EF59BA0B359CB37D804 /* wotlwedu-config.json in Resources */,
 				A4550D49E23A0B8B3DC747B4 /* wotlwedu-config.json.template in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EFED078423F466E3D5BF25B2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B500FD1B18544E7030D9C3E6 /* wotlwedu-config.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -545,17 +561,6 @@
 			targetProxy = BDFF90F6068981CFBE2E9583 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		637DB31A8DA265EE81CA9239 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				86941BCAEE707F22EB3B99D1 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		09503C8C927AD7468782BC64 /* Release */ = {

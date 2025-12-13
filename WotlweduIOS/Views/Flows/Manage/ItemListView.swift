@@ -18,6 +18,7 @@ private struct ItemListContent: View {
     @State private var editing: WotlweduItem?
     @State private var categories: [WotlweduCategory] = []
     @State private var images: [WotlweduImage] = []
+    @State private var alertMessage: String?
 
     init(service: WotlweduDomainService) {
         self.service = service
@@ -44,7 +45,15 @@ private struct ItemListContent: View {
                 .swipeActions {
                     Button("Delete", role: .destructive) {
                         Task {
-                            if let id = item.id { try? await service.deleteItem(id: id); await viewModel.load() }
+                            if let id = item.id {
+                                do {
+                                    try await service.deleteItem(id: id)
+                                    alertMessage = "Deleted item \(item.name ?? id)"
+                                    await viewModel.load()
+                                } catch {
+                                    alertMessage = "Delete failed: \(error.localizedDescription)"
+                                }
+                            }
                         }
                     }
                 }
@@ -63,11 +72,24 @@ private struct ItemListContent: View {
         .sheet(item: $editing) { item in
             ItemEditor(item: item, categories: categories, images: images) { updated in
                 Task {
-                    _ = try? await service.save(item: updated)
-                    editing = nil
-                    await viewModel.load()
+                    do {
+                        let saved = try await service.save(item: updated)
+                        alertMessage = "Saved item \(saved.name ?? saved.id ?? "")"
+                        editing = nil
+                        await viewModel.load()
+                    } catch {
+                        alertMessage = "Save failed: \(error.localizedDescription)"
+                    }
                 }
             }
+        }
+        .alert("Status", isPresented: Binding(
+            get: { alertMessage != nil },
+            set: { _ in alertMessage = nil }
+        )) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(alertMessage ?? "")
         }
     }
 

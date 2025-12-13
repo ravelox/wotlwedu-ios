@@ -69,7 +69,8 @@ private struct TwoFactorView: View {
         VStack(alignment: .leading, spacing: 12) {
             if let qr = data.qrCode,
                let encoded = qr.split(separator: ",").last.map(String.init),
-               let image = Data(base64Encoded: encoded)?.flatMap({ UIImage(data: $0) }) {
+               let decoded = Data(base64Encoded: encoded),
+               let image = UIImage(data: decoded) {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()

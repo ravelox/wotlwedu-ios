@@ -11,7 +11,7 @@ final class MediaService {
         struct Payload: Encodable { let name: String; let description: String? }
         let endpoint = Endpoint(path: "image/", method: .post, body: try JSONEncoder.api.encode(Payload(name: name, description: description)))
         let response: APIResponse<WotlweduImage> = try await api.send(endpoint)
-        guard let data = response.data else { throw APIError.server(response.message ?? "Missing image data") }
+        guard let data = response.data else { throw APIError.server(message: response.message ?? "Missing image data", url: nil) }
         return data
     }
 
@@ -19,7 +19,7 @@ final class MediaService {
         struct Payload: Encodable { let name: String; let description: String? }
         let endpoint = Endpoint(path: "image/\(id)", method: .put, body: try JSONEncoder.api.encode(Payload(name: name, description: description)))
         let response: APIResponse<WotlweduImage> = try await api.send(endpoint)
-        guard let data = response.data else { throw APIError.server(response.message ?? "Missing image data") }
+        guard let data = response.data else { throw APIError.server(message: response.message ?? "Missing image data", url: nil) }
         return data
     }
 

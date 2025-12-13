@@ -28,17 +28,17 @@ final class AuthService {
         let payload = ["email": email, "password": password]
         let endpoint = Endpoint(path: "login/", method: .post, body: try JSONEncoder.api.encode(payload))
         let response: APIResponse<AuthTokens> = try await api.send(endpoint)
-        guard let data = response.data else { throw APIError.server(response.message ?? "Missing auth data") }
+        guard let data = response.data else { throw APIError.server(message: response.message ?? "Missing auth data", url: nil) }
         save(tokens: data)
         return data
     }
 
     func refresh() async throws -> AuthTokens {
-        guard let refresh = sessionStore.refreshToken else { throw APIError.unauthorized }
+        guard let refresh = sessionStore.refreshToken else { throw APIError.unauthorized(url: nil) }
         let payload = ["refreshToken": refresh]
         let endpoint = Endpoint(path: "login/refresh", method: .post, body: try JSONEncoder.api.encode(payload))
         let response: APIResponse<AuthTokens> = try await api.send(endpoint)
-        guard let data = response.data else { throw APIError.server(response.message ?? "Missing auth data") }
+        guard let data = response.data else { throw APIError.server(message: response.message ?? "Missing auth data", url: nil) }
         save(tokens: data)
         return data
     }
@@ -46,7 +46,7 @@ final class AuthService {
     func enable2FA() async throws -> TwoFactorBootstrap {
         let endpoint = Endpoint(path: "login/2fa", method: .post)
         let response: APIResponse<TwoFactorBootstrap> = try await api.send(endpoint)
-        guard let data = response.data else { throw APIError.server(response.message ?? "Missing 2FA data") }
+        guard let data = response.data else { throw APIError.server(message: response.message ?? "Missing 2FA data", url: nil) }
         return data
     }
 
@@ -54,7 +54,7 @@ final class AuthService {
         let payload = ["verificationToken": verificationToken, "authToken": authToken]
         let endpoint = Endpoint(path: "login/verify2fa", method: .post, body: try JSONEncoder.api.encode(payload))
         let response: APIResponse<AuthTokens> = try await api.send(endpoint)
-        guard let data = response.data else { throw APIError.server(response.message ?? "Missing auth data") }
+        guard let data = response.data else { throw APIError.server(message: response.message ?? "Missing auth data", url: nil) }
         save(tokens: data)
         return data
     }

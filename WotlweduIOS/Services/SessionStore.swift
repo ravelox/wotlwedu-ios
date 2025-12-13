@@ -27,7 +27,7 @@ final class SessionStore: ObservableObject {
         userId = id
         authToken = auth
         refreshToken = refresh
-        displayName = displayName
+        self.displayName = displayName
         isAdmin = admin
 
         let stored = Stored(id: id, authToken: auth, refreshToken: refresh, displayName: displayName, admin: admin)

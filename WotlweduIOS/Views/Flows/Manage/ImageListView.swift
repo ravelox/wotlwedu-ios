@@ -117,6 +117,8 @@ private struct ImageUploadView: View {
                         Task {
                             await save()
                         }
+                    } label: {
+                        Text("Save")
                     }
                     .disabled(isSaving || name.isEmpty || selectedData == nil)
                 }

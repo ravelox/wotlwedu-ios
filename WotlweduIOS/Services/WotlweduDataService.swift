@@ -18,7 +18,7 @@ final class WotlweduDataService {
         }
         let endpoint = Endpoint(path: path, method: .get, query: query)
         let response: APIResponse<PagedResponse<T>> = try await api.send(endpoint)
-        guard let data = response.data else { throw APIError.server(response.message ?? "No data") }
+        guard let data = response.data else { throw APIError.server(message: response.message ?? "No data", url: nil) }
         return data
     }
 
@@ -27,7 +27,7 @@ final class WotlweduDataService {
         if let detail { query.append(URLQueryItem(name: "detail", value: detail)) }
         let endpoint = Endpoint(path: "\(path)\(id)", method: .get, query: query)
         let response: APIResponse<T> = try await api.send(endpoint)
-        guard let data = response.data else { throw APIError.server(response.message ?? "No detail data") }
+        guard let data = response.data else { throw APIError.server(message: response.message ?? "No detail data", url: nil) }
         return data
     }
 
@@ -36,7 +36,7 @@ final class WotlweduDataService {
         let method: HTTPMethod = id == nil ? .post : .put
         let endpoint = Endpoint(path: "\(path)\(id ?? "")", method: method, body: data)
         let response: APIResponse<T> = try await api.send(endpoint)
-        guard let model = response.data else { throw APIError.server(response.message ?? "No response data") }
+        guard let model = response.data else { throw APIError.server(message: response.message ?? "No response data", url: nil) }
         return model
     }
 

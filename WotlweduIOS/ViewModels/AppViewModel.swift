@@ -31,6 +31,12 @@ final class AppViewModel: ObservableObject {
             config = try configLoader.load()
             buildServices()
             isConfigured = true
+            if isAuthenticated {
+                Task {
+                    await refreshStatus()
+                    await refreshNotifications()
+                }
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -49,6 +55,8 @@ final class AppViewModel: ObservableObject {
         do {
             let tokens = try await authService.login(email: email, password: password)
             applyAuth(tokens: tokens)
+            await refreshStatus()
+            await refreshNotifications()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -69,6 +77,8 @@ final class AppViewModel: ObservableObject {
         isAuthenticated = false
         isAdmin = false
         displayName = nil
+        serverStatus = nil
+        unreadNotifications = 0
     }
 
     func refreshStatus() async {

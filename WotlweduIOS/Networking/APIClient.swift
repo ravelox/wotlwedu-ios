@@ -20,8 +20,8 @@ struct Endpoint {
 enum APIError: Error, LocalizedError {
     case invalidURL
     case invalidResponse
-    case server(String)
-    case unauthorized
+    case server(message: String, url: String?)
+    case unauthorized(url: String?)
     case decoding(Error)
     case transport(Error)
 
@@ -31,9 +31,15 @@ enum APIError: Error, LocalizedError {
             return "Invalid URL"
         case .invalidResponse:
             return "Unexpected response from server"
-        case .server(let message):
+        case .server(let message, let url):
+            if let url {
+                return "\(message) [\(url)]"
+            }
             return message
-        case .unauthorized:
+        case .unauthorized(let url):
+            if let url {
+                return "Authorization required [\(url)]"
+            }
             return "Authorization required"
         case .decoding(let error):
             return "Failed to decode server response: \(error.localizedDescription)"
@@ -48,10 +54,18 @@ final class APIClient {
     private let sessionStore: SessionStore
     private let urlSession: URLSession
 
-    init(config: AppConfig, sessionStore: SessionStore, session: URLSession = .shared) {
+    init(config: AppConfig, sessionStore: SessionStore, session: URLSession? = nil) {
         self.config = config
         self.sessionStore = sessionStore
-        self.urlSession = session
+        if let session {
+            self.urlSession = session
+        } else if config.allowInsecureCertificates == true {
+            let delegate = InsecureSessionDelegate()
+            let configuration = URLSessionConfiguration.default
+            self.urlSession = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
+        } else {
+            self.urlSession = .shared
+        }
     }
 
     func send<T: Decodable>(_ endpoint: Endpoint, decode type: T.Type = T.self) async throws -> T {
@@ -67,13 +81,21 @@ final class APIClient {
             throw APIError.invalidResponse
         }
 
-        if httpResponse.statusCode == 401 {
-            throw APIError.unauthorized
-        }
-
         if !(200...299).contains(httpResponse.statusCode) {
-            let message = String(data: data, encoding: .utf8) ?? "HTTP \(httpResponse.statusCode)"
-            throw APIError.server(message)
+            if httpResponse.statusCode == 401 {
+#if DEBUG
+                let bodyText = String(data: data, encoding: .utf8) ?? ""
+                print("[APIClient] 401 for \(request.url?.absoluteString ?? "(unknown)") body: \(bodyText)")
+#endif
+                throw APIError.unauthorized(url: request.url?.absoluteString)
+            } else {
+                let body = String(data: data, encoding: .utf8) ?? ""
+                var message = "HTTP \(httpResponse.statusCode)"
+                if !body.isEmpty {
+                    message += ": \(body)"
+                }
+                throw APIError.server(message: message, url: request.url?.absoluteString)
+            }
         }
 
         do {
@@ -108,7 +130,23 @@ final class APIClient {
         if endpoint.requiresAuth, let token = sessionStore.authToken {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
+#if DEBUG
+        if endpoint.requiresAuth {
+            let authHeader = request.value(forHTTPHeaderField: "Authorization") ?? "nil"
+            print("[APIClient] Auth header for \(request.url?.absoluteString ?? "(unknown)") -> \(authHeader)")
+        }
+#endif
         return request
+    }
+}
+
+private final class InsecureSessionDelegate: NSObject, URLSessionDelegate {
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        if let trust = challenge.protectionSpace.serverTrust {
+            completionHandler(.useCredential, URLCredential(trust: trust))
+        } else {
+            completionHandler(.performDefaultHandling, nil)
+        }
     }
 }
 

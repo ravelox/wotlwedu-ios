@@ -95,7 +95,7 @@ private struct GroupEditor: View {
     var onSave: (WotlweduGroup) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var selectedCategoryId: String?
-    @State private var memberIds: Set<String> = []
+    @State private var memberIds: Set<String?> = []
 
     init(group: WotlweduGroup, categories: [WotlweduCategory], users: [WotlweduUser], onSave: @escaping (WotlweduGroup) -> Void) {
         self.group = group
@@ -103,7 +103,7 @@ private struct GroupEditor: View {
         self.users = users
         self.onSave = onSave
         _selectedCategoryId = State(initialValue: group.category?.id)
-        _memberIds = State(initialValue: Set(group.users?.compactMap { $0.id } ?? []))
+        _memberIds = State(initialValue: Set(group.users?.map { $0.id } ?? []))
     }
 
     var body: some View {
@@ -132,7 +132,7 @@ private struct GroupEditor: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         let selectedCategory = categories.first { $0.id == selectedCategoryId }
-                        let selectedUsers = users.filter { memberIds.contains($0.id ?? "") }
+                        let selectedUsers = users.filter { memberIds.contains($0.id) }
                         group.category = selectedCategory
                         group.users = selectedUsers
                         onSave(group)

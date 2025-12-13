@@ -2,5 +2,6 @@
   "apiUrl": "https://integration.test/api/",
   "appVersion": "0.1.0",
   "defaultStartPage": "home",
-  "errorCountdown": 15
+  "errorCountdown": 15,
+  "allowInsecureCertificates": true
 }

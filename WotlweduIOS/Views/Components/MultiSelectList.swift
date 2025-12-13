@@ -12,7 +12,7 @@ struct MultiSelectList<Item: Identifiable & Hashable & NamedEntity>: View {
                     Text(item.name ?? "Unnamed")
                     Spacer()
                     if selection.contains(item.id) {
-                        Image(systemName: "checkmark.circle.fill").foregroundStyle(.accentColor)
+                        Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.accentColor)
                     }
                 }
                 .contentShape(Rectangle())

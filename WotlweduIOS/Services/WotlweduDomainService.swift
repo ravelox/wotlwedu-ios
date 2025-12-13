@@ -28,7 +28,7 @@ final class WotlweduDomainService {
     func notifications() async throws -> PagedResponse<WotlweduNotification> {
         let endpoint = Endpoint(path: "notification/", method: .get)
         let response: APIResponse<PagedResponse<WotlweduNotification>> = try await api.send(endpoint)
-        guard let data = response.data else { throw APIError.server(response.message ?? "No notifications") }
+        guard let data = response.data else { throw APIError.server(message: response.message ?? "No notifications", url: nil) }
         return data
     }
 
@@ -282,7 +282,7 @@ final class WotlweduDomainService {
     func nextVote(electionId: String) async throws -> WotlweduVote {
         let endpoint = Endpoint(path: "vote/\(electionId)/next", method: .get)
         let response: APIResponse<WotlweduVote> = try await api.send(endpoint)
-        guard let data = response.data else { throw APIError.server(response.message ?? "No votes available") }
+        guard let data = response.data else { throw APIError.server(message: response.message ?? "No votes available", url: nil) }
         return data
     }
 

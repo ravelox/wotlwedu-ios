@@ -44,3 +44,7 @@ SwiftUI client for the wotlwedu platform, mirroring the flows in the `wotlwedu-m
 - CRUD/listing for categories, groups, items, images (with upload), lists (with item linking), elections (with start/stop), roles/capabilities, users, preferences, friends.
 - Notifications listing with unread badge; server status on the home dashboard.
 - Voting flow for upcoming votes; profile page with 2FA bootstrap/verify and logout.
+
+## AI-assisted features
+- Home dashboard includes AI actions backed by authenticated `/ai/*` API routes.
+- Supports notification digest, smart defaults, prompt-based list suggestions, text categorization/moderation, assistant query, election summary/recommendations, participant suggestions, and image metadata description.

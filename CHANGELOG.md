@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.1] - 2026-02-12
+## [0.2.0] - 2026-02-12
 - Added `/ai/*` endpoint support in `WotlweduDomainService` for recommendations, summaries, suggestions, moderation, categorization, digest/defaults, image description, and assistant query.
 - Added typed AI response models and integrated AI tools into the Home dashboard for interactive usage.
 

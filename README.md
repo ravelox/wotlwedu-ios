@@ -1,6 +1,8 @@
 # wotlwedu-ios
 
-SwiftUI client for the wotlwedu platform, mirroring the flows in the `wotlwedu-minimal` Angular app (auth, notifications, friends, preferences, groups, categories, items, images, lists, elections, voting, roles, users, profile/2FA).
+*wotlwedu* (What'll We Do?) helps groups decide by voting on curated lists (food, places, activities, media, etc.). In the platform, these polls are called **elections**.
+
+This repository contains the SwiftUI iOS client for the wotlwedu ecosystem, mirroring core flows from `wotlwedu-minimal` (auth, notifications, friends, preferences, groups, categories, items, images, lists, elections, voting, roles, users, profile/2FA).
 
 ## Structure
 - `WotlweduIOSApp.swift` – app entry and environment wiring.
@@ -8,15 +10,16 @@ SwiftUI client for the wotlwedu platform, mirroring the flows in the `wotlwedu-m
 - `Services/` – API client, auth, domain services, media upload, config loader, session store.
 - `ViewModels/` – app state, paging helpers, voting/notification view models.
 - `Views/Flows/` – SwiftUI screens grouped by flow (Auth, Main, Manage, Voting, Profile, Notifications).
-- `Resources/` – assets, launch screen, `wotlwedu-config.json` (API settings), `project.yml` for xcodegen.
+- `Resources/` – assets, launch screen, `wotlwedu-config.json` (API settings).
+- `project.yml` (repo root) – XcodeGen spec for regenerating `WotlweduIOS.xcodeproj`.
 
 ## Prerequisites
 - Xcode 15+ (iOS 16 target).
-- xcodegen (`brew install xcodegen`).
+- xcodegen (`brew install xcodegen`) only when regenerating the project.
 - Backend API reachable (configure URL below).
 
 ## Setup
-1. Generate the Xcode project:
+1. Regenerate the Xcode project (optional, only needed after changing `project.yml`):
    ```bash
    cd wotlwedu-ios
    xcodegen generate
@@ -27,7 +30,8 @@ SwiftUI client for the wotlwedu platform, mirroring the flows in the `wotlwedu-m
      "apiUrl": "https://api.wotlwedu.com:9876/",
      "appVersion": "0.2.0",
      "defaultStartPage": "home",
-     "errorCountdown": 30
+     "errorCountdown": 30,
+     "allowInsecureCertificates": true
    }
    ```
 3. Open and build:
@@ -36,9 +40,16 @@ SwiftUI client for the wotlwedu platform, mirroring the flows in the `wotlwedu-m
    ```
    Select the `WotlweduIOS` scheme and run on a simulator or device.
 
+## Test
+Run tests from Xcode or via CLI:
+```bash
+xcodebuild test -project WotlweduIOS.xcodeproj -scheme WotlweduIOS -destination 'platform=iOS Simulator,name=iPhone 15'
+```
+
 ## Notes
 - If `xcodebuild` complains about simulator plug-ins, run `xcodebuild -runFirstLaunch` or repair Xcode toolchain before building.
 - Image upload uses photo library access; the `NSPhotoLibraryUsageDescription` is included in `Info.plist`.
+- `allowInsecureCertificates` is intended for local/dev environments and should be `false` for production.
 
 ## Parity with wotlwedu-minimal
 - CRUD/listing for categories, groups, items, images (with upload), lists (with item linking), elections (with start/stop), roles/capabilities, users, preferences, friends.

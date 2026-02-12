@@ -25,7 +25,7 @@ SwiftUI client for the wotlwedu platform, mirroring the flows in the `wotlwedu-m
    ```json
    {
      "apiUrl": "https://api.wotlwedu.com:9876/",
-     "appVersion": "0.1.0",
+     "appVersion": "0.2.0",
      "defaultStartPage": "home",
      "errorCountdown": 30
    }

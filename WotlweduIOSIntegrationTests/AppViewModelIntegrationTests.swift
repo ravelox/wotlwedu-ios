@@ -6,6 +6,6 @@ final class AppViewModelIntegrationTests: XCTestCase {
         let viewModel = AppViewModel()
         viewModel.bootstrap()
         XCTAssertTrue(viewModel.isConfigured)
-        XCTAssertEqual(viewModel.config.appVersion, "0.1.0") // from default or fixture if found
+        XCTAssertEqual(viewModel.config.appVersion, "0.2.0") // from default or fixture if found
     }
 }

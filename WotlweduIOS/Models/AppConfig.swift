@@ -9,7 +9,7 @@ struct AppConfig: Codable {
 
     static let `default` = AppConfig(
         apiUrl: "https://api.wotlwedu.com:9876/",
-        appVersion: "0.1.0",
+        appVersion: "0.2.0",
         defaultStartPage: "home",
         errorCountdown: 30,
         allowInsecureCertificates: true

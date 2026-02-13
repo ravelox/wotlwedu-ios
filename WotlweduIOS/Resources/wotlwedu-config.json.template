@@ -1,6 +1,6 @@
 {
   "apiUrl": "${WOTLWEDU_API_URL}",
-  "appVersion": "0.2.0",
+  "appVersion": "0.2.1",
   "defaultStartPage": "home",
   "errorCountdown": 30,
   "allowInsecureCertificates": true

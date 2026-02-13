@@ -28,7 +28,7 @@ This repository contains the SwiftUI iOS client for the wotlwedu ecosystem, mirr
    ```json
    {
      "apiUrl": "https://api.wotlwedu.com:9876/",
-     "appVersion": "0.2.0",
+     "appVersion": "0.2.1",
      "defaultStartPage": "home",
      "errorCountdown": 30,
      "allowInsecureCertificates": true
@@ -55,6 +55,11 @@ xcodebuild test -project WotlweduIOS.xcodeproj -scheme WotlweduIOS -destination 
 - CRUD/listing for categories, groups, items, images (with upload), lists (with item linking), elections (with start/stop), roles/capabilities, users, preferences, friends.
 - Notifications listing with unread badge; server status on the home dashboard.
 - Voting flow for upcoming votes; profile page with 2FA bootstrap/verify and logout.
+
+## Tenant/admin concepts
+- Backend now includes tenancy with organizations and organization-scoped workgroups.
+- Auth/user payloads may include: `systemAdmin`, `organizationAdmin`, `workgroupAdmin`, `organizationId`, and `adminWorkgroupId`.
+- UI/admin flows should enforce these scopes when exposing management actions.
 
 ## AI-assisted features
 - Home dashboard includes AI actions backed by authenticated `/ai/*` API routes.

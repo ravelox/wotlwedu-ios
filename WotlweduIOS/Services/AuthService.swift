@@ -7,6 +7,11 @@ struct AuthTokens: Decodable {
     let firstName: String?
     let lastName: String?
     let admin: Bool?
+    let systemAdmin: Bool?
+    let organizationId: String?
+    let organizationAdmin: Bool?
+    let workgroupAdmin: Bool?
+    let adminWorkgroupId: String?
 }
 
 struct TwoFactorBootstrap: Decodable {
@@ -81,6 +86,17 @@ final class AuthService {
 
     private func save(tokens: AuthTokens) {
         let display = [tokens.firstName, tokens.lastName].compactMap { $0 }.joined(separator: " ").trimmingCharacters(in: .whitespaces)
-        sessionStore.save(id: tokens.userId, auth: tokens.authToken, refresh: tokens.refreshToken, displayName: display, admin: tokens.admin ?? false)
+        sessionStore.save(
+            id: tokens.userId,
+            auth: tokens.authToken,
+            refresh: tokens.refreshToken,
+            displayName: display,
+            admin: tokens.admin ?? false,
+            systemAdmin: tokens.systemAdmin ?? (tokens.admin ?? false),
+            organizationId: tokens.organizationId,
+            organizationAdmin: tokens.organizationAdmin ?? false,
+            workgroupAdmin: tokens.workgroupAdmin ?? false,
+            adminWorkgroupId: tokens.adminWorkgroupId
+        )
     }
 }

@@ -26,6 +26,7 @@ struct WotlweduCategory: Codable, Identifiable, NamedEntity, Hashable {
 
 struct WotlweduImage: Codable, Identifiable, NamedEntity, Hashable {
     var id: String?
+    var workgroupId: String?
     var contentType: String?
     var description: String?
     var name: String?
@@ -35,6 +36,7 @@ struct WotlweduImage: Codable, Identifiable, NamedEntity, Hashable {
 
 struct WotlweduItem: Codable, Identifiable, NamedEntity, Hashable {
     var id: String?
+    var workgroupId: String?
     var name: String?
     var description: String?
     var url: String?
@@ -45,6 +47,7 @@ struct WotlweduItem: Codable, Identifiable, NamedEntity, Hashable {
 
 struct WotlweduList: Codable, Identifiable, NamedEntity, Hashable {
     var id: String?
+    var workgroupId: String?
     var name: String?
     var description: String?
     var items: [WotlweduItem]?
@@ -56,6 +59,23 @@ struct WotlweduGroup: Codable, Identifiable, NamedEntity, Hashable {
     var description: String?
     var users: [WotlweduUser]?
     var category: WotlweduCategory?
+}
+
+struct WotlweduWorkgroup: Codable, Identifiable, NamedEntity, Hashable {
+    var id: String?
+    var organizationId: String?
+    var name: String?
+    var description: String?
+    var users: [WotlweduUser]?
+    var category: WotlweduCategory?
+}
+
+struct WotlweduOrganization: Codable, Identifiable, NamedEntity, Hashable {
+    var id: String?
+    var name: String?
+    var description: String?
+    var active: Bool?
+    var creator: String?
 }
 
 struct WotlweduRole: Codable, Identifiable, NamedEntity, Hashable {
@@ -78,6 +98,11 @@ struct WotlweduUser: Codable, Identifiable, NamedEntity, Hashable {
     var verified: Bool?
     var enable2fa: Bool?
     var admin: Bool?
+    var systemAdmin: Bool?
+    var organizationId: String?
+    var organizationAdmin: Bool?
+    var workgroupAdmin: Bool?
+    var adminWorkgroupId: String?
 
     var name: String? { displayName }
     var description: String? { email }
@@ -113,6 +138,7 @@ struct WotlweduPreference: Codable, Identifiable, Hashable {
 
 struct WotlweduElection: Codable, Identifiable, NamedEntity, Hashable {
     var id: String?
+    var workgroupId: String?
     var name: String?
     var description: String?
     var text: String?

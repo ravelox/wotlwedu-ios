@@ -17,9 +17,11 @@ struct PagedResponse<T: Decodable>: Decodable {
     let elections: [T]?
     let votes: [T]?
     let users: [T]?
+    let organizations: [T]?
     let notifications: [T]?
     let preferences: [T]?
     let groups: [T]?
+    let workgroups: [T]?
     let roles: [T]?
     let capabilities: [T]?
 }
@@ -33,9 +35,11 @@ extension PagedResponse {
         elections ??
         votes ??
         users ??
+        organizations ??
         notifications ??
         preferences ??
         groups ??
+        workgroups ??
         roles ??
         capabilities ??
         []

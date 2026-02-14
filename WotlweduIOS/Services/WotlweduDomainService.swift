@@ -13,9 +13,10 @@ final class WotlweduDomainService {
 
     // MARK: - Helper endpoints
     func serverStatus() async throws -> ServerStatus {
-        let endpoint = Endpoint(path: "helper/status", method: .get)
-        let response: APIResponse<ServerStatus> = try await api.send(endpoint)
-        return response.data ?? ServerStatus(version: nil, uptime: nil, message: response.message)
+        struct PingData: Decodable { let version: String?; let date: Date? }
+        let endpoint = Endpoint(path: "ping", method: .get, requiresAuth: false)
+        let response: APIResponse<PingData> = try await api.send(endpoint)
+        return ServerStatus(version: response.data?.version, uptime: nil, message: response.message)
     }
 
     func ping() async throws -> MessageResponse {
@@ -90,29 +91,103 @@ final class WotlweduDomainService {
         try await dataService.pagedList(path: "group/", detail: "user,category", page: page, items: items, filter: filter)
     }
 
-    func save(group: WotlweduGroup) async throws -> WotlweduGroup {
+    func save(group: WotlweduGroup, originalMemberIds: Set<String> = []) async throws -> WotlweduGroup {
         struct Payload: Encodable {
             let name: String
             let description: String?
             let categoryId: String?
-            let userIds: [String]?
         }
         let payload = Payload(
             name: group.name ?? "",
             description: group.description,
-            categoryId: group.category?.id,
-            userIds: group.users?.compactMap { $0.id }
+            categoryId: group.category?.id
         )
-        return try await dataService.save(path: "group/", id: group.id, payload: payload)
+
+        let saved: WotlweduGroup = try await dataService.save(path: "group/", id: group.id, payload: payload)
+
+        let newIds = Set(group.users?.compactMap { $0.id } ?? [])
+        let toAdd = Array(newIds.subtracting(originalMemberIds))
+        let toDel = Array(originalMemberIds.subtracting(newIds))
+        if let id = saved.id {
+            try await bulkUsers(path: "group/\(id)/bulkuserdel", userIds: toDel)
+            try await bulkUsers(path: "group/\(id)/bulkuseradd", userIds: toAdd)
+        }
+        return saved
     }
 
     func deleteGroup(id: String) async throws {
         try await dataService.delete(path: "group/", id: id)
     }
 
+    // MARK: - Workgroups
+    func workgroups(page: Int = 1, items: Int = 50, filter: String? = nil) async throws -> PagedResponse<WotlweduWorkgroup> {
+        try await dataService.pagedList(path: "workgroup/", detail: "user,category", page: page, items: items, filter: filter)
+    }
+
+    func save(workgroup: WotlweduWorkgroup, originalMemberIds: Set<String> = []) async throws -> WotlweduWorkgroup {
+        struct Payload: Encodable {
+            let organizationId: String?
+            let name: String
+            let description: String?
+            let categoryId: String?
+        }
+        let payload = Payload(
+            organizationId: workgroup.organizationId,
+            name: workgroup.name ?? "",
+            description: workgroup.description,
+            categoryId: workgroup.category?.id
+        )
+
+        let saved: WotlweduWorkgroup = try await dataService.save(path: "workgroup/", id: workgroup.id, payload: payload)
+
+        let newIds = Set(workgroup.users?.compactMap { $0.id } ?? [])
+        let toAdd = Array(newIds.subtracting(originalMemberIds))
+        let toDel = Array(originalMemberIds.subtracting(newIds))
+        if let id = saved.id {
+            try await bulkUsers(path: "workgroup/\(id)/bulkuserdel", userIds: toDel)
+            try await bulkUsers(path: "workgroup/\(id)/bulkuseradd", userIds: toAdd)
+        }
+        return saved
+    }
+
+    func deleteWorkgroup(id: String) async throws {
+        try await dataService.delete(path: "workgroup/", id: id)
+    }
+
+    // MARK: - Organizations
+    func organizations(page: Int = 1, items: Int = 50, filter: String? = nil) async throws -> PagedResponse<WotlweduOrganization> {
+        try await dataService.pagedList(path: "organization/", page: page, items: items, filter: filter)
+    }
+
+    func organizationDetail(id: String) async throws -> WotlweduOrganization {
+        try await dataService.detail(path: "organization/", id: id)
+    }
+
+    func save(organization: WotlweduOrganization) async throws -> WotlweduOrganization {
+        struct Payload: Encodable {
+            let name: String
+            let description: String?
+            let active: Bool?
+        }
+        let payload = Payload(
+            name: organization.name ?? "",
+            description: organization.description,
+            active: organization.active
+        )
+        return try await dataService.save(path: "organization/", id: organization.id, payload: payload)
+    }
+
+    func deleteOrganization(id: String) async throws {
+        try await dataService.delete(path: "organization/", id: id)
+    }
+
     // MARK: - Items
-    func items(page: Int = 1, items: Int = 25, filter: String? = nil) async throws -> PagedResponse<WotlweduItem> {
-        try await dataService.pagedList(path: "item/", detail: "image", page: page, items: items, filter: filter)
+    func items(page: Int = 1, items: Int = 25, filter: String? = nil, workgroupId: String? = nil) async throws -> PagedResponse<WotlweduItem> {
+        var extra: [URLQueryItem] = []
+        if let workgroupId, !workgroupId.isEmpty {
+            extra.append(URLQueryItem(name: "workgroupId", value: workgroupId))
+        }
+        return try await dataService.pagedList(path: "item/", detail: "image", page: page, items: items, filter: filter, extraQuery: extra)
     }
 
     func itemDetail(id: String) async throws -> WotlweduItem {
@@ -128,6 +203,7 @@ final class WotlweduDomainService {
             let location: String?
             let imageId: String?
             let categoryId: String?
+            let workgroupId: String?
         }
         let payload = Payload(
             id: item.id,
@@ -136,7 +212,8 @@ final class WotlweduDomainService {
             url: item.url,
             location: item.location,
             imageId: item.image?.id,
-            categoryId: item.category?.id
+            categoryId: item.category?.id,
+            workgroupId: item.workgroupId
         )
         return try await dataService.save(path: "item/", id: item.id, payload: payload)
     }
@@ -155,9 +232,22 @@ final class WotlweduDomainService {
         try await api.sendWithoutDecoding(endpoint)
     }
 
+    // MARK: - Helpers
+    private func bulkUsers(path: String, userIds: [String]) async throws {
+        guard !userIds.isEmpty else { return }
+        struct Payload: Encodable { let userList: [String] }
+        let data = try JSONEncoder.api.encode(Payload(userList: userIds))
+        let endpoint = Endpoint(path: path, method: .put, body: data)
+        try await api.sendWithoutDecoding(endpoint)
+    }
+
     // MARK: - Images
-    func images(page: Int = 1, items: Int = 50, filter: String? = nil) async throws -> PagedResponse<WotlweduImage> {
-        try await dataService.pagedList(path: "image/", detail: "category", page: page, items: items, filter: filter)
+    func images(page: Int = 1, items: Int = 50, filter: String? = nil, workgroupId: String? = nil) async throws -> PagedResponse<WotlweduImage> {
+        var extra: [URLQueryItem] = []
+        if let workgroupId, !workgroupId.isEmpty {
+            extra.append(URLQueryItem(name: "workgroupId", value: workgroupId))
+        }
+        return try await dataService.pagedList(path: "image/", detail: "category", page: page, items: items, filter: filter, extraQuery: extra)
     }
 
     func deleteImage(id: String) async throws {
@@ -175,8 +265,12 @@ final class WotlweduDomainService {
     }
 
     // MARK: - Lists
-    func lists(page: Int = 1, items: Int = 25, filter: String? = nil) async throws -> PagedResponse<WotlweduList> {
-        try await dataService.pagedList(path: "list/", page: page, items: items, filter: filter)
+    func lists(page: Int = 1, items: Int = 25, filter: String? = nil, workgroupId: String? = nil) async throws -> PagedResponse<WotlweduList> {
+        var extra: [URLQueryItem] = []
+        if let workgroupId, !workgroupId.isEmpty {
+            extra.append(URLQueryItem(name: "workgroupId", value: workgroupId))
+        }
+        return try await dataService.pagedList(path: "list/", page: page, items: items, filter: filter, extraQuery: extra)
     }
 
     func listDetail(id: String) async throws -> WotlweduList {
@@ -187,10 +281,12 @@ final class WotlweduDomainService {
         struct Payload: Encodable {
             let name: String
             let description: String?
+            let workgroupId: String?
         }
         let payload = Payload(
             name: list.name ?? "",
-            description: list.description
+            description: list.description,
+            workgroupId: list.workgroupId
         )
         return try await dataService.save(path: "list/", id: list.id, payload: payload)
     }
@@ -222,8 +318,12 @@ final class WotlweduDomainService {
     }
 
     // MARK: - Elections
-    func elections(page: Int = 1, items: Int = 25, filter: String? = nil) async throws -> PagedResponse<WotlweduElection> {
-        try await dataService.pagedList(path: "election/", detail: "group,list,category,image", page: page, items: items, filter: filter)
+    func elections(page: Int = 1, items: Int = 25, filter: String? = nil, workgroupId: String? = nil) async throws -> PagedResponse<WotlweduElection> {
+        var extra: [URLQueryItem] = []
+        if let workgroupId, !workgroupId.isEmpty {
+            extra.append(URLQueryItem(name: "workgroupId", value: workgroupId))
+        }
+        return try await dataService.pagedList(path: "election/", detail: "group,list,category,image", page: page, items: items, filter: filter, extraQuery: extra)
     }
 
     func electionDetail(id: String) async throws -> WotlweduElection {
@@ -243,6 +343,7 @@ final class WotlweduDomainService {
             let groupId: String?
             let categoryId: String?
             let imageId: String?
+            let workgroupId: String?
         }
         let payload = Payload(
             id: election.id,
@@ -255,7 +356,8 @@ final class WotlweduDomainService {
             listId: election.list?.id,
             groupId: election.group?.id,
             categoryId: election.category?.id,
-            imageId: election.image?.id
+            imageId: election.image?.id,
+            workgroupId: election.workgroupId
         )
         return try await dataService.save(path: "election/", id: election.id, payload: payload)
     }
@@ -461,6 +563,11 @@ final class WotlweduDomainService {
             let enable2fa: Bool?
             let imageId: String?
             let admin: Bool?
+            let systemAdmin: Bool?
+            let organizationId: String?
+            let organizationAdmin: Bool?
+            let workgroupAdmin: Bool?
+            let adminWorkgroupId: String?
         }
         let payload = Payload(
             email: user.email ?? "",
@@ -471,7 +578,12 @@ final class WotlweduDomainService {
             verified: user.verified,
             enable2fa: user.enable2fa,
             imageId: user.image?.id,
-            admin: user.admin
+            admin: user.admin,
+            systemAdmin: user.systemAdmin ?? user.admin,
+            organizationId: user.organizationId,
+            organizationAdmin: user.organizationAdmin,
+            workgroupAdmin: user.workgroupAdmin,
+            adminWorkgroupId: user.adminWorkgroupId
         )
         return try await dataService.save(path: "user/", id: user.id, payload: payload)
     }

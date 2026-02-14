@@ -7,17 +7,25 @@ final class MediaService {
         self.api = api
     }
 
-    func createImageRecord(name: String, description: String?) async throws -> WotlweduImage {
-        struct Payload: Encodable { let name: String; let description: String? }
-        let endpoint = Endpoint(path: "image/", method: .post, body: try JSONEncoder.api.encode(Payload(name: name, description: description)))
+    func createImageRecord(name: String, description: String?, workgroupId: String? = nil) async throws -> WotlweduImage {
+        struct Payload: Encodable { let name: String; let description: String?; let workgroupId: String? }
+        let endpoint = Endpoint(
+            path: "image/",
+            method: .post,
+            body: try JSONEncoder.api.encode(Payload(name: name, description: description, workgroupId: workgroupId))
+        )
         let response: APIResponse<WotlweduImage> = try await api.send(endpoint)
         guard let data = response.data else { throw APIError.server(message: response.message ?? "Missing image data", url: nil) }
         return data
     }
 
-    func updateImageRecord(id: String, name: String, description: String?) async throws -> WotlweduImage {
-        struct Payload: Encodable { let name: String; let description: String? }
-        let endpoint = Endpoint(path: "image/\(id)", method: .put, body: try JSONEncoder.api.encode(Payload(name: name, description: description)))
+    func updateImageRecord(id: String, name: String, description: String?, workgroupId: String? = nil) async throws -> WotlweduImage {
+        struct Payload: Encodable { let name: String; let description: String?; let workgroupId: String? }
+        let endpoint = Endpoint(
+            path: "image/\(id)",
+            method: .put,
+            body: try JSONEncoder.api.encode(Payload(name: name, description: description, workgroupId: workgroupId))
+        )
         let response: APIResponse<WotlweduImage> = try await api.send(endpoint)
         guard let data = response.data else { throw APIError.server(message: response.message ?? "Missing image data", url: nil) }
         return data

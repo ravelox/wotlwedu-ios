@@ -53,7 +53,7 @@ private struct GroupListContent: View {
                 }
             }
         }
-        .navigationTitle("Groups")
+        .navigationTitle("Audience Groups")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
@@ -66,9 +66,10 @@ private struct GroupListContent: View {
             await loadLookups()
         }
         .sheet(item: $editing) { group in
+            let originalIds = Set(group.users?.compactMap { $0.id } ?? [])
             GroupEditor(group: group, categories: categories, users: users) { updated in
                 Task {
-                    _ = try? await service.save(group: updated)
+                    _ = try? await service.save(group: updated, originalMemberIds: originalIds)
                     editing = nil
                     await viewModel.load()
                 }

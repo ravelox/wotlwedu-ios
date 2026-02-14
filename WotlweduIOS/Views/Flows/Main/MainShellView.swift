@@ -5,6 +5,8 @@ enum MainRoute: Hashable {
     case preferences
     case categories
     case groups
+    case workgroups
+    case organizations
     case items
     case images
     case lists
@@ -33,6 +35,10 @@ struct MainShellView: View {
                         CategoryListView()
                     case .groups:
                         GroupListView()
+                    case .workgroups:
+                        WorkgroupListView()
+                    case .organizations:
+                        OrganizationListView()
                     case .items:
                         ItemListView()
                     case .images:

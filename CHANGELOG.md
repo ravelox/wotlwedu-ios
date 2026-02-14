@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.2] - 2026-02-14
+- Bump app/config version metadata to `0.2.2`.
+- Add organization/workgroup management UI and workgroup-scoped management flows for items/images/lists/elections.
+
 ## [0.2.1] - 2026-02-13
 - Bump app/config version metadata to `0.2.1`.
 - Document backend tenancy/admin concepts for client compatibility (`organization`, `workgroup`, `systemAdmin`, `organizationAdmin`, `workgroupAdmin`).

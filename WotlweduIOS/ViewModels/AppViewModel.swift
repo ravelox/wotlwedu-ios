@@ -6,13 +6,19 @@ final class AppViewModel: ObservableObject {
     @Published var config: AppConfig = .default
     @Published var isConfigured = false
     @Published var isAuthenticated = false
-    @Published var isAdmin = false
+    @Published var isSystemAdmin = false
+    @Published var isOrganizationAdmin = false
+    @Published var isWorkgroupAdmin = false
+    @Published var organizationId: String?
+    @Published var adminWorkgroupId: String?
     @Published var displayName: String?
     @Published var serverStatus: ServerStatus?
     @Published var unreadNotifications: Int = 0
     @Published var errorMessage: String?
+    @Published var activeWorkgroupId: String?
 
     let sessionStore = SessionStore()
+    private let workgroupScopeKey = "wotlwedu-active-workgroup"
 
     private(set) var apiClient: APIClient?
     private(set) var authService: AuthService?
@@ -23,7 +29,12 @@ final class AppViewModel: ObservableObject {
     init() {
         displayName = sessionStore.displayName
         isAuthenticated = sessionStore.authToken != nil
-        isAdmin = sessionStore.isAdmin
+        isSystemAdmin = sessionStore.isSystemAdmin
+        isOrganizationAdmin = sessionStore.isOrganizationAdmin
+        isWorkgroupAdmin = sessionStore.isWorkgroupAdmin
+        organizationId = sessionStore.organizationId
+        adminWorkgroupId = sessionStore.adminWorkgroupId
+        activeWorkgroupId = UserDefaults.standard.string(forKey: workgroupScopeKey)
     }
 
     func bootstrap() {
@@ -75,10 +86,15 @@ final class AppViewModel: ObservableObject {
     func logout() {
         authService?.logout()
         isAuthenticated = false
-        isAdmin = false
+        isSystemAdmin = false
+        isOrganizationAdmin = false
+        isWorkgroupAdmin = false
+        organizationId = nil
+        adminWorkgroupId = nil
         displayName = nil
         serverStatus = nil
         unreadNotifications = 0
+        setActiveWorkgroupId(nil)
     }
 
     func refreshStatus() async {
@@ -147,7 +163,26 @@ final class AppViewModel: ObservableObject {
 
     private func applyAuth(tokens: AuthTokens) {
         displayName = [tokens.firstName, tokens.lastName].compactMap { $0 }.joined(separator: " ").trimmingCharacters(in: .whitespaces)
-        isAdmin = tokens.admin ?? false
+        isSystemAdmin = tokens.systemAdmin ?? (tokens.admin ?? false)
+        isOrganizationAdmin = tokens.organizationAdmin ?? false
+        isWorkgroupAdmin = tokens.workgroupAdmin ?? false
+        organizationId = tokens.organizationId
+        adminWorkgroupId = tokens.adminWorkgroupId
         isAuthenticated = true
+
+        // Default active scope for workgroup admins when none has been selected yet.
+        if (activeWorkgroupId == nil || activeWorkgroupId == "") && (tokens.workgroupAdmin ?? false), let wg = tokens.adminWorkgroupId {
+            setActiveWorkgroupId(wg)
+        }
+    }
+
+    func setActiveWorkgroupId(_ id: String?) {
+        if let id, !id.isEmpty {
+            UserDefaults.standard.set(id, forKey: workgroupScopeKey)
+            activeWorkgroupId = id
+        } else {
+            UserDefaults.standard.removeObject(forKey: workgroupScopeKey)
+            activeWorkgroupId = nil
+        }
     }
 }

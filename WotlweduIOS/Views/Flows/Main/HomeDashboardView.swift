@@ -26,7 +26,7 @@ struct HomeDashboardView: View {
         ("Cast vote", "checkmark.circle", .votes),
         ("Friends", "person.2", .friends),
         ("Preferences", "slider.horizontal.3", .preferences),
-        ("Groups", "person.3.sequence", .groups),
+        ("Audience Groups", "person.3.sequence", .groups),
         ("Categories", "tag", .categories),
         ("Items", "list.bullet", .items),
         ("Images", "photo.on.rectangle", .images),
@@ -36,6 +36,8 @@ struct HomeDashboardView: View {
     ]
 
     private let adminActions: [(title: String, icon: String, route: MainRoute)] = [
+        ("Workgroups", "person.3", .workgroups),
+        ("Organizations", "building.2", .organizations),
         ("Users", "person.crop.rectangle", .users),
         ("Roles", "lock.shield", .roles)
     ]
@@ -86,7 +88,7 @@ struct HomeDashboardView: View {
                     }
                 }
 
-                if appViewModel.isAdmin {
+                if appViewModel.isSystemAdmin || appViewModel.isOrganizationAdmin || appViewModel.isWorkgroupAdmin {
                     Text("Admin").font(.headline)
                     ForEach(adminActions, id: \.route) { action in
                         Button {
@@ -328,7 +330,12 @@ struct HomeDashboardView: View {
     private func loadElectionList() async {
         guard let service = appViewModel.domainService else { return }
         do {
-            let response = try await service.elections(page: 1, items: 50, filter: nil)
+            let response = try await service.elections(
+                page: 1,
+                items: 50,
+                filter: nil,
+                workgroupId: appViewModel.activeWorkgroupId
+            )
             aiElections = response.collection
             if selectedElectionId == nil {
                 selectedElectionId = aiElections.first?.id

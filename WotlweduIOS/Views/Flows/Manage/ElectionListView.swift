@@ -5,7 +5,7 @@ struct ElectionListView: View {
 
     var body: some View {
         if let service = appViewModel.domainService {
-            ElectionListContent(service: service)
+            ElectionListContent(service: service, workgroupId: appViewModel.activeWorkgroupId)
         } else {
             Text("Configuration not loaded.")
         }
@@ -14,6 +14,7 @@ struct ElectionListView: View {
 
 private struct ElectionListContent: View {
     let service: WotlweduDomainService
+    let workgroupId: String?
     @StateObject private var viewModel: PagedListViewModel<WotlweduElection>
     @State private var editing: WotlweduElection?
     @State private var lists: [WotlweduList] = []
@@ -21,10 +22,11 @@ private struct ElectionListContent: View {
     @State private var categories: [WotlweduCategory] = []
     @State private var images: [WotlweduImage] = []
 
-    init(service: WotlweduDomainService) {
+    init(service: WotlweduDomainService, workgroupId: String?) {
         self.service = service
+        self.workgroupId = workgroupId
         _viewModel = StateObject(wrappedValue: PagedListViewModel<WotlweduElection> { page, items, filter in
-            let response = try await service.elections(page: page, items: items, filter: filter)
+            let response = try await service.elections(page: page, items: items, filter: filter, workgroupId: workgroupId)
             return PagedResult(items: response.collection, page: response.page ?? 1, total: response.total ?? response.collection.count, itemsPerPage: response.itemsPerPage ?? items)
         })
     }
@@ -55,7 +57,23 @@ private struct ElectionListContent: View {
         .navigationTitle("Elections")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button { editing = WotlweduElection(id: nil, name: "", description: "", text: "", electionType: 0, expiration: nil, statusId: nil, status: nil, list: nil, group: nil, category: nil, image: nil) } label: { Image(systemName: "plus") }
+                Button {
+                    editing = WotlweduElection(
+                        id: nil,
+                        workgroupId: workgroupId,
+                        name: "",
+                        description: "",
+                        text: "",
+                        electionType: 0,
+                        expiration: nil,
+                        statusId: nil,
+                        status: nil,
+                        list: nil,
+                        group: nil,
+                        category: nil,
+                        image: nil
+                    )
+                } label: { Image(systemName: "plus") }
             }
         }
         .task {
@@ -74,10 +92,10 @@ private struct ElectionListContent: View {
     }
 
     private func loadLookups() async {
-        async let ls = service.lists(page: 1, items: 200, filter: nil)
+        async let ls = service.lists(page: 1, items: 200, filter: nil, workgroupId: workgroupId)
         async let gs = service.groups(page: 1, items: 200, filter: nil)
         async let cs = service.categories(page: 1, items: 200, filter: nil)
-        async let ims = service.images(page: 1, items: 200, filter: nil)
+        async let ims = service.images(page: 1, items: 200, filter: nil, workgroupId: workgroupId)
         if let res = try? await ls { lists = res.collection.sortedByName() }
         if let res = try? await gs { groups = res.collection.sortedByName() }
         if let res = try? await cs { categories = res.collection.sortedByName() }

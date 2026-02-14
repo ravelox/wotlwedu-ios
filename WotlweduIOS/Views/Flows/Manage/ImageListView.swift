@@ -7,7 +7,7 @@ struct ImageListView: View {
 
     var body: some View {
         if let service = appViewModel.domainService {
-            ImageListContent(service: service)
+            ImageListContent(service: service, workgroupId: appViewModel.activeWorkgroupId)
         } else {
             Text("Configuration not loaded.")
         }
@@ -16,14 +16,16 @@ struct ImageListView: View {
 
 private struct ImageListContent: View {
     let service: WotlweduDomainService
+    let workgroupId: String?
     @StateObject private var viewModel: PagedListViewModel<WotlweduImage>
     @State private var editing: WotlweduImage?
     @State private var showingUploader = false
 
-    init(service: WotlweduDomainService) {
+    init(service: WotlweduDomainService, workgroupId: String?) {
         self.service = service
+        self.workgroupId = workgroupId
         _viewModel = StateObject(wrappedValue: PagedListViewModel<WotlweduImage> { page, items, filter in
-            let response = try await service.images(page: page, items: items, filter: filter)
+            let response = try await service.images(page: page, items: items, filter: filter, workgroupId: workgroupId)
             return PagedResult(items: response.collection, page: response.page ?? 1, total: response.total ?? response.collection.count, itemsPerPage: response.itemsPerPage ?? items)
         })
     }
@@ -59,7 +61,7 @@ private struct ImageListContent: View {
         }
         .task { await viewModel.load() }
         .sheet(isPresented: $showingUploader) {
-            ImageUploadView { newImage in
+            ImageUploadView(workgroupId: workgroupId) { newImage in
                 Task {
                     editing = nil
                     await viewModel.load()
@@ -70,7 +72,12 @@ private struct ImageListContent: View {
             ImageMetaEditor(image: image) { updated in
                 Task {
                     if let id = updated.id {
-                        _ = try? await service.mediaService.updateImageRecord(id: id, name: updated.name ?? "", description: updated.description)
+                        _ = try? await service.mediaService.updateImageRecord(
+                            id: id,
+                            name: updated.name ?? "",
+                            description: updated.description,
+                            workgroupId: updated.workgroupId
+                        )
                         await viewModel.load()
                     }
                     editing = nil
@@ -89,6 +96,7 @@ private struct ImageUploadView: View {
     @State private var selectedData: Data?
     @State private var isSaving = false
 
+    let workgroupId: String?
     var onComplete: (WotlweduImage) -> Void
 
     var body: some View {
@@ -138,7 +146,11 @@ private struct ImageUploadView: View {
         guard let data = selectedData, let service = appViewModel.domainService else { return }
         isSaving = true
         do {
-            let imageRecord = try await service.mediaService.createImageRecord(name: name, description: description)
+            let imageRecord = try await service.mediaService.createImageRecord(
+                name: name,
+                description: description,
+                workgroupId: workgroupId
+            )
             if let id = imageRecord.id {
                 try await service.mediaService.uploadImageFile(imageId: id, data: data)
             }

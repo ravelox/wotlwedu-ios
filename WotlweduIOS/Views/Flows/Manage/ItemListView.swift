@@ -5,7 +5,7 @@ struct ItemListView: View {
 
     var body: some View {
         if let service = appViewModel.domainService {
-            ItemListContent(service: service)
+            ItemListContent(service: service, workgroupId: appViewModel.activeWorkgroupId)
         } else {
             Text("Configuration not loaded.")
         }
@@ -14,16 +14,18 @@ struct ItemListView: View {
 
 private struct ItemListContent: View {
     let service: WotlweduDomainService
+    let workgroupId: String?
     @StateObject private var viewModel: PagedListViewModel<WotlweduItem>
     @State private var editing: WotlweduItem?
     @State private var categories: [WotlweduCategory] = []
     @State private var images: [WotlweduImage] = []
     @State private var alertMessage: String?
 
-    init(service: WotlweduDomainService) {
+    init(service: WotlweduDomainService, workgroupId: String?) {
         self.service = service
+        self.workgroupId = workgroupId
         _viewModel = StateObject(wrappedValue: PagedListViewModel<WotlweduItem> { page, items, filter in
-            let response = try await service.items(page: page, items: items, filter: filter)
+            let response = try await service.items(page: page, items: items, filter: filter, workgroupId: workgroupId)
             return PagedResult(items: response.collection, page: response.page ?? 1, total: response.total ?? response.collection.count, itemsPerPage: response.itemsPerPage ?? items)
         })
     }
@@ -62,7 +64,18 @@ private struct ItemListContent: View {
         .navigationTitle("Items")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button { editing = WotlweduItem(id: nil, name: "", description: "", url: nil, location: nil, image: nil, category: nil) } label: { Image(systemName: "plus") }
+                Button {
+                    editing = WotlweduItem(
+                        id: nil,
+                        workgroupId: workgroupId,
+                        name: "",
+                        description: "",
+                        url: nil,
+                        location: nil,
+                        image: nil,
+                        category: nil
+                    )
+                } label: { Image(systemName: "plus") }
             }
         }
         .task {
@@ -97,7 +110,7 @@ private struct ItemListContent: View {
         if let catData = try? await service.categories(page: 1, items: 200, filter: nil) {
             categories = catData.collection.sortedByName()
         }
-        if let imageData = try? await service.images(page: 1, items: 200, filter: nil) {
+        if let imageData = try? await service.images(page: 1, items: 200, filter: nil, workgroupId: workgroupId) {
             images = imageData.collection.sortedByName()
         }
     }

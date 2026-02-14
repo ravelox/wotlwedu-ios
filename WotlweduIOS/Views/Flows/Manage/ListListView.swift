@@ -5,7 +5,7 @@ struct ListListView: View {
 
     var body: some View {
         if let service = appViewModel.domainService {
-            ListListContent(service: service)
+            ListListContent(service: service, workgroupId: appViewModel.activeWorkgroupId)
         } else {
             Text("Configuration not loaded.")
         }
@@ -14,14 +14,16 @@ struct ListListView: View {
 
 private struct ListListContent: View {
     let service: WotlweduDomainService
+    let workgroupId: String?
     @StateObject private var viewModel: PagedListViewModel<WotlweduList>
     @State private var editing: WotlweduList?
     @State private var items: [WotlweduItem] = []
 
-    init(service: WotlweduDomainService) {
+    init(service: WotlweduDomainService, workgroupId: String?) {
         self.service = service
+        self.workgroupId = workgroupId
         _viewModel = StateObject(wrappedValue: PagedListViewModel<WotlweduList> { page, items, filter in
-            let response = try await service.lists(page: page, items: items, filter: filter)
+            let response = try await service.lists(page: page, items: items, filter: filter, workgroupId: workgroupId)
             return PagedResult(items: response.collection, page: response.page ?? 1, total: response.total ?? response.collection.count, itemsPerPage: response.itemsPerPage ?? items)
         })
     }
@@ -50,7 +52,9 @@ private struct ListListContent: View {
         .navigationTitle("Lists")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button { editing = WotlweduList(id: nil, name: "", description: "", items: []) } label: { Image(systemName: "plus") }
+                Button {
+                    editing = WotlweduList(id: nil, workgroupId: workgroupId, name: "", description: "", items: [])
+                } label: { Image(systemName: "plus") }
             }
         }
         .task {
@@ -78,7 +82,7 @@ private struct ListListContent: View {
     }
 
     private func loadItems() async {
-        if let result = try? await service.items(page: 1, items: 500, filter: nil) {
+        if let result = try? await service.items(page: 1, items: 500, filter: nil, workgroupId: workgroupId) {
             items = result.collection.sortedByName()
         }
     }

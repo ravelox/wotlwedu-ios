@@ -60,7 +60,3 @@ xcodebuild test -project WotlweduIOS.xcodeproj -scheme WotlweduIOS -destination 
 - Backend now includes tenancy with organizations and organization-scoped workgroups.
 - Auth/user payloads may include: `systemAdmin`, `organizationAdmin`, `workgroupAdmin`, `organizationId`, and `adminWorkgroupId`.
 - UI/admin flows should enforce these scopes when exposing management actions.
-
-## AI-assisted features
-- Home dashboard includes AI actions backed by authenticated `/ai/*` API routes.
-- Supports notification digest, smart defaults, prompt-based list suggestions, text categorization/moderation, assistant query, election summary/recommendations, participant suggestions, and image metadata description.

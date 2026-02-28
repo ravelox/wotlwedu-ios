@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.5] - 2026-02-28
+- Add richer notification handling with optimistic unread-count updates, per-type primary actions, and preview/accept flows for shared items, images, and lists.
+- Update the iOS notification client to use paged inbox fetches and numeric notification status IDs compatible with the backend notification API.
+- Improve notification-related model decoding so numeric status ids and notification object references round-trip safely.
+
 ## [0.2.4] - 2026-02-28
 - Add category selection to iOS list and image create/edit flows.
 - Persist image and list `categoryId` values through the iOS domain/media services.

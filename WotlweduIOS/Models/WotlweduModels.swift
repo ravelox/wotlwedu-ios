@@ -10,6 +10,31 @@ struct WotlweduStatus: Codable, Identifiable, Hashable {
     var id: String?
     var name: String?
     var object: String?
+
+    init(id: String? = nil, name: String? = nil, object: String? = nil) {
+        self.id = id
+        self.name = name
+        self.object = object
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case object
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let stringId = try? container.decode(String.self, forKey: .id) {
+            id = stringId
+        } else if let intId = try? container.decode(Int.self, forKey: .id) {
+            id = String(intId)
+        } else {
+            id = nil
+        }
+        name = try container.decodeIfPresent(String.self, forKey: .name)
+        object = try container.decodeIfPresent(String.self, forKey: .object)
+    }
 }
 
 struct WotlweduCap: Codable, Identifiable, NamedEntity, Hashable {
@@ -126,10 +151,28 @@ struct WotlweduFriend: Codable, Identifiable, Hashable {
 struct WotlweduNotification: Codable, Identifiable, Hashable {
     var id: String?
     var type: Int?
+    var objectId: String?
     var status: WotlweduStatus?
     var text: String?
     var user: WotlweduUser?
     var sender: WotlweduUser?
+    var createdAt: Date?
+}
+
+enum NotificationStatusId {
+    static let unread = 100
+    static let read = 101
+    static let archived = 102
+}
+
+enum NotificationTypeId {
+    static let friendRequest = 103
+    static let electionStart = 104
+    static let electionEnd = 105
+    static let electionExpired = 106
+    static let shareImage = 107
+    static let shareItem = 108
+    static let shareList = 109
 }
 
 struct WotlweduPreference: Codable, Identifiable, Hashable {

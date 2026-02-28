@@ -28,7 +28,7 @@ This repository contains the SwiftUI iOS client for the wotlwedu ecosystem, mirr
    ```json
    {
      "apiUrl": "https://api.wotlwedu.com:9876/",
-     "appVersion": "0.2.4",
+     "appVersion": "0.2.5",
      "defaultStartPage": "home",
      "errorCountdown": 30,
      "allowInsecureCertificates": true
@@ -54,8 +54,13 @@ xcodebuild test -project WotlweduIOS.xcodeproj -scheme WotlweduIOS -destination 
 
 ## Parity with wotlwedu-minimal
 - CRUD/listing for categories, groups, items, images (with upload and category assignment), lists (with item linking and category assignment), elections (with start/stop), roles/capabilities, users, preferences, friends.
-- Notifications listing with unread badge; server status on the home dashboard.
+- Notifications listing with unread badge, optimistic local unread updates, and type-specific actions for friend requests and shared items/images/lists.
 - Voting flow for upcoming votes; profile page with 2FA bootstrap/verify and logout.
+
+## Notification behavior
+- Notification inbox fetches are paged to match the backend contract.
+- Mark read/unread and delete actions update local badge state immediately.
+- Shared item/image/list notifications support preview and accept flows, and friend requests support accept/block directly from the inbox.
 
 ## Tenant/admin concepts
 - Backend now includes tenancy with organizations and organization-scoped workgroups.

@@ -26,8 +26,15 @@ final class WotlweduDomainService {
     }
 
     // MARK: - Notifications
-    func notifications() async throws -> PagedResponse<WotlweduNotification> {
-        let endpoint = Endpoint(path: "notification/", method: .get)
+    func notifications(page: Int = 1, items: Int = 25) async throws -> PagedResponse<WotlweduNotification> {
+        let endpoint = Endpoint(
+            path: "notification/",
+            method: .get,
+            query: [
+                URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "items", value: "\(items)")
+            ]
+        )
         let response: APIResponse<PagedResponse<WotlweduNotification>> = try await api.send(endpoint)
         guard let data = response.data else { throw APIError.server(message: response.message ?? "No notifications", url: nil) }
         return data
@@ -45,8 +52,8 @@ final class WotlweduDomainService {
         try await api.sendWithoutDecoding(endpoint)
     }
 
-    func setNotificationStatus(id: String, status: String) async throws {
-        let endpoint = Endpoint(path: "notification/status/\(id)/\(status)", method: .put)
+    func setNotificationStatus(id: String, statusId: Int) async throws {
+        let endpoint = Endpoint(path: "notification/status/\(id)/\(statusId)", method: .put)
         try await api.sendWithoutDecoding(endpoint)
     }
 
@@ -190,8 +197,12 @@ final class WotlweduDomainService {
         return try await dataService.pagedList(path: "item/", detail: "image,category", page: page, items: items, filter: filter, extraQuery: extra)
     }
 
-    func itemDetail(id: String) async throws -> WotlweduItem {
-        try await dataService.detail(path: "item/", id: id, detail: "image,category")
+    func itemDetail(id: String, notificationId: String? = nil) async throws -> WotlweduItem {
+        if let notificationId, !notificationId.isEmpty {
+            try await dataService.detail(path: "item/", id: "\(id)/notif/\(notificationId)", detail: "image,category")
+        } else {
+            try await dataService.detail(path: "item/", id: id, detail: "image,category")
+        }
     }
 
     func save(item: WotlweduItem) async throws -> WotlweduItem {
@@ -250,6 +261,14 @@ final class WotlweduDomainService {
         return try await dataService.pagedList(path: "image/", detail: "category", page: page, items: items, filter: filter, extraQuery: extra)
     }
 
+    func imageDetail(id: String, notificationId: String? = nil) async throws -> WotlweduImage {
+        if let notificationId, !notificationId.isEmpty {
+            try await dataService.detail(path: "image/", id: "\(id)/notif/\(notificationId)", detail: "category")
+        } else {
+            try await dataService.detail(path: "image/", id: id, detail: "category")
+        }
+    }
+
     func deleteImage(id: String) async throws {
         try await dataService.delete(path: "image/", id: id)
     }
@@ -273,8 +292,12 @@ final class WotlweduDomainService {
         return try await dataService.pagedList(path: "list/", detail: "category,item,image", page: page, items: items, filter: filter, extraQuery: extra)
     }
 
-    func listDetail(id: String) async throws -> WotlweduList {
-        try await dataService.detail(path: "list/", id: id, detail: "category,item,image")
+    func listDetail(id: String, notificationId: String? = nil) async throws -> WotlweduList {
+        if let notificationId, !notificationId.isEmpty {
+            try await dataService.detail(path: "list/", id: "\(id)/notif/\(notificationId)", detail: "category,item,image")
+        } else {
+            try await dataService.detail(path: "list/", id: id, detail: "category,item,image")
+        }
     }
 
     func save(list: WotlweduList) async throws -> WotlweduList {

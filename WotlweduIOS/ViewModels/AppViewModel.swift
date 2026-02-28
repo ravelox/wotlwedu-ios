@@ -144,6 +144,14 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    func setUnreadNotifications(_ value: Int) {
+        unreadNotifications = max(0, value)
+    }
+
+    func adjustUnreadNotifications(by delta: Int) {
+        setUnreadNotifications(unreadNotifications + delta)
+    }
+
     func register(_ registration: WotlweduRegistration) async {
         guard let registerService else { return }
         do {

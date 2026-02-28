@@ -187,11 +187,11 @@ final class WotlweduDomainService {
         if let workgroupId, !workgroupId.isEmpty {
             extra.append(URLQueryItem(name: "workgroupId", value: workgroupId))
         }
-        return try await dataService.pagedList(path: "item/", detail: "image", page: page, items: items, filter: filter, extraQuery: extra)
+        return try await dataService.pagedList(path: "item/", detail: "image,category", page: page, items: items, filter: filter, extraQuery: extra)
     }
 
     func itemDetail(id: String) async throws -> WotlweduItem {
-        try await dataService.detail(path: "item/", id: id, detail: "image")
+        try await dataService.detail(path: "item/", id: id, detail: "image,category")
     }
 
     func save(item: WotlweduItem) async throws -> WotlweduItem {
@@ -270,22 +270,24 @@ final class WotlweduDomainService {
         if let workgroupId, !workgroupId.isEmpty {
             extra.append(URLQueryItem(name: "workgroupId", value: workgroupId))
         }
-        return try await dataService.pagedList(path: "list/", page: page, items: items, filter: filter, extraQuery: extra)
+        return try await dataService.pagedList(path: "list/", detail: "category,item,image", page: page, items: items, filter: filter, extraQuery: extra)
     }
 
     func listDetail(id: String) async throws -> WotlweduList {
-        try await dataService.detail(path: "list/", id: id, detail: "item")
+        try await dataService.detail(path: "list/", id: id, detail: "category,item,image")
     }
 
     func save(list: WotlweduList) async throws -> WotlweduList {
         struct Payload: Encodable {
             let name: String
             let description: String?
+            let categoryId: String?
             let workgroupId: String?
         }
         let payload = Payload(
             name: list.name ?? "",
             description: list.description,
+            categoryId: list.category?.id,
             workgroupId: list.workgroupId
         )
         return try await dataService.save(path: "list/", id: list.id, payload: payload)

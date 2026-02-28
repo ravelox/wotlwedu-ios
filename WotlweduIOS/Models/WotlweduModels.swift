@@ -31,6 +31,7 @@ struct WotlweduImage: Codable, Identifiable, NamedEntity, Hashable {
     var description: String?
     var name: String?
     var filename: String?
+    var category: WotlweduCategory?
     var url: String?
 }
 
@@ -50,6 +51,7 @@ struct WotlweduList: Codable, Identifiable, NamedEntity, Hashable {
     var workgroupId: String?
     var name: String?
     var description: String?
+    var category: WotlweduCategory?
     var items: [WotlweduItem]?
 }
 

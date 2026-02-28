@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.4] - 2026-02-28
+- Add category selection to iOS list and image create/edit flows.
+- Persist image and list `categoryId` values through the iOS domain/media services.
+- Include category details in iOS list/item fetches so edit forms preload existing category assignments.
+
 ## [0.2.3] - 2026-02-28
 - Add a login-screen `Settings` tab to override `apiUrl`, `defaultStartPage`, `errorCountdown`, and `allowInsecureCertificates`.
 - Persist login settings overrides locally and rebuild services immediately after saving.

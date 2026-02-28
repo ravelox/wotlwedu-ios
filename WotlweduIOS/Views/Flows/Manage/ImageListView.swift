@@ -20,6 +20,7 @@ private struct ImageListContent: View {
     @StateObject private var viewModel: PagedListViewModel<WotlweduImage>
     @State private var editing: WotlweduImage?
     @State private var showingUploader = false
+    @State private var categories: [WotlweduCategory] = []
 
     init(service: WotlweduDomainService, workgroupId: String?) {
         self.service = service
@@ -37,6 +38,9 @@ private struct ImageListContent: View {
                     Text(image.name ?? "Image").font(.headline)
                     if let description = image.description {
                         Text(description).font(.subheadline).foregroundStyle(.secondary)
+                    }
+                    if let category = image.category?.name {
+                        Text("Category: \(category)").font(.caption).foregroundStyle(.secondary)
                     }
                     if let url = image.url {
                         Text(url).font(.caption).foregroundStyle(.secondary)
@@ -59,9 +63,12 @@ private struct ImageListContent: View {
                 Button { showingUploader = true } label: { Image(systemName: "plus") }
             }
         }
-        .task { await viewModel.load() }
+        .task {
+            await viewModel.load()
+            await loadCategories()
+        }
         .sheet(isPresented: $showingUploader) {
-            ImageUploadView(workgroupId: workgroupId) { newImage in
+            ImageUploadView(workgroupId: workgroupId, categories: categories) { newImage in
                 Task {
                     editing = nil
                     await viewModel.load()
@@ -69,20 +76,27 @@ private struct ImageListContent: View {
             }
         }
         .sheet(item: $editing) { image in
-            ImageMetaEditor(image: image) { updated in
+            ImageMetaEditor(image: image, categories: categories) { updated in
                 Task {
                     if let id = updated.id {
                         _ = try? await service.mediaService.updateImageRecord(
                             id: id,
                             name: updated.name ?? "",
                             description: updated.description,
-                            workgroupId: updated.workgroupId
+                            workgroupId: updated.workgroupId,
+                            categoryId: updated.category?.id
                         )
                         await viewModel.load()
                     }
                     editing = nil
                 }
             }
+        }
+    }
+
+    private func loadCategories() async {
+        if let result = try? await service.categories(page: 1, items: 200, filter: nil) {
+            categories = result.collection.sortedByName()
         }
     }
 }
@@ -95,8 +109,10 @@ private struct ImageUploadView: View {
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedData: Data?
     @State private var isSaving = false
+    @State private var selectedCategoryId: String?
 
     let workgroupId: String?
+    let categories: [WotlweduCategory]
     var onComplete: (WotlweduImage) -> Void
 
     var body: some View {
@@ -104,6 +120,15 @@ private struct ImageUploadView: View {
             Form {
                 TextField("Name", text: $name)
                 TextField("Description", text: $description)
+                Picker("Category", selection: Binding(
+                    get: { selectedCategoryId ?? "" },
+                    set: { selectedCategoryId = $0.isEmpty ? nil : $0 }
+                )) {
+                    Text("None").tag("")
+                    ForEach(categories) { category in
+                        Text(category.name ?? "Unnamed").tag(category.id ?? "")
+                    }
+                }
                 PhotosPicker(selection: $selectedItem, matching: .images) {
                     HStack {
                         Image(systemName: "photo")
@@ -149,7 +174,8 @@ private struct ImageUploadView: View {
             let imageRecord = try await service.mediaService.createImageRecord(
                 name: name,
                 description: description,
-                workgroupId: workgroupId
+                workgroupId: workgroupId,
+                categoryId: selectedCategoryId
             )
             if let id = imageRecord.id {
                 try await service.mediaService.uploadImageFile(imageId: id, data: data)
@@ -165,20 +191,39 @@ private struct ImageUploadView: View {
 
 private struct ImageMetaEditor: View {
     @State var image: WotlweduImage
+    let categories: [WotlweduCategory]
     var onSave: (WotlweduImage) -> Void
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedCategoryId: String?
+
+    init(image: WotlweduImage, categories: [WotlweduCategory], onSave: @escaping (WotlweduImage) -> Void) {
+        self.image = image
+        self.categories = categories
+        self.onSave = onSave
+        _selectedCategoryId = State(initialValue: image.category?.id)
+    }
 
     var body: some View {
         NavigationStack {
             Form {
                 TextField("Name", text: Binding($image.name, replacingNilWith: ""))
                 TextField("Description", text: Binding($image.description, replacingNilWith: ""))
+                Picker("Category", selection: Binding(
+                    get: { selectedCategoryId ?? "" },
+                    set: { selectedCategoryId = $0.isEmpty ? nil : $0 }
+                )) {
+                    Text("None").tag("")
+                    ForEach(categories) { category in
+                        Text(category.name ?? "Unnamed").tag(category.id ?? "")
+                    }
+                }
             }
             .navigationTitle("Edit Image")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        image.category = categories.first { $0.id == selectedCategoryId }
                         onSave(image)
                         dismiss()
                     }

@@ -18,6 +18,7 @@ private struct ListListContent: View {
     @StateObject private var viewModel: PagedListViewModel<WotlweduList>
     @State private var editing: WotlweduList?
     @State private var items: [WotlweduItem] = []
+    @State private var categories: [WotlweduCategory] = []
 
     init(service: WotlweduDomainService, workgroupId: String?) {
         self.service = service
@@ -34,6 +35,9 @@ private struct ListListContent: View {
                 VStack(alignment: .leading) {
                     Text(list.name ?? "List").font(.headline)
                     if let desc = list.description { Text(desc).font(.subheadline) }
+                    if let category = list.category?.name {
+                        Text("Category: \(category)").font(.caption).foregroundStyle(.secondary)
+                    }
                     if let count = list.items?.count {
                         Text("\(count) items").font(.caption).foregroundStyle(.secondary)
                     }
@@ -53,17 +57,18 @@ private struct ListListContent: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    editing = WotlweduList(id: nil, workgroupId: workgroupId, name: "", description: "", items: [])
+                    editing = WotlweduList(id: nil, workgroupId: workgroupId, name: "", description: "", category: nil, items: [])
                 } label: { Image(systemName: "plus") }
             }
         }
         .task {
             await viewModel.load()
             await loadItems()
+            await loadCategories()
         }
         .sheet(item: $editing) { list in
             let initialIds = Set(list.items?.compactMap { $0.id } ?? [])
-            ListEditor(list: list, items: items) { updated, selectedIds in
+            ListEditor(list: list, items: items, categories: categories) { updated, selectedIds in
                 Task {
                     let saved = try? await service.save(list: updated)
                     let listId = saved?.id ?? updated.id
@@ -86,20 +91,30 @@ private struct ListListContent: View {
             items = result.collection.sortedByName()
         }
     }
+
+    private func loadCategories() async {
+        if let result = try? await service.categories(page: 1, items: 200, filter: nil) {
+            categories = result.collection.sortedByName()
+        }
+    }
 }
 
 private struct ListEditor: View {
     @State var list: WotlweduList
     let items: [WotlweduItem]
+    let categories: [WotlweduCategory]
     var onSave: (WotlweduList, Set<String?>) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var selectedItemIds: Set<String?> = []
+    @State private var selectedCategoryId: String?
 
-    init(list: WotlweduList, items: [WotlweduItem], onSave: @escaping (WotlweduList, Set<String?>) -> Void) {
+    init(list: WotlweduList, items: [WotlweduItem], categories: [WotlweduCategory], onSave: @escaping (WotlweduList, Set<String?>) -> Void) {
         self.list = list
         self.items = items
+        self.categories = categories
         self.onSave = onSave
         _selectedItemIds = State(initialValue: Set(list.items?.map { $0.id } ?? []))
+        _selectedCategoryId = State(initialValue: list.category?.id)
     }
 
     var body: some View {
@@ -107,6 +122,15 @@ private struct ListEditor: View {
             Form {
                 TextField("Name", text: Binding($list.name, replacingNilWith: ""))
                 TextField("Description", text: Binding($list.description, replacingNilWith: ""))
+                Picker("Category", selection: Binding(
+                    get: { selectedCategoryId ?? "" },
+                    set: { selectedCategoryId = $0.isEmpty ? nil : $0 }
+                )) {
+                    Text("None").tag("")
+                    ForEach(categories) { category in
+                        Text(category.name ?? "Unnamed").tag(category.id ?? "")
+                    }
+                }
                 MultiSelectList(title: "Items", items: items, selection: $selectedItemIds)
             }
             .navigationTitle(list.id == nil ? "New List" : "Edit List")
@@ -114,6 +138,7 @@ private struct ListEditor: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
+                        list.category = categories.first { $0.id == selectedCategoryId }
                         list.items = items.filter { selectedItemIds.contains($0.id) }
                         onSave(list, selectedItemIds)
                         dismiss()

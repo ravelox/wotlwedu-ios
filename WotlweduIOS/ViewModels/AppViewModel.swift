@@ -53,6 +53,35 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    func saveConfig(apiUrl: String, defaultStartPage: String, errorCountdown: Int, allowInsecureCertificates: Bool) {
+        let trimmedApiUrl = apiUrl.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedApiUrl.isEmpty else {
+            errorMessage = "API URL must not be empty"
+            return
+        }
+
+        let overrides = AppConfigOverrides(
+            apiUrl: trimmedApiUrl,
+            defaultStartPage: defaultStartPage,
+            errorCountdown: max(1, errorCountdown),
+            allowInsecureCertificates: allowInsecureCertificates
+        )
+
+        do {
+            try configLoader.saveOverrides(overrides)
+            config = try configLoader.load()
+            buildServices()
+            isConfigured = true
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func resetConfigOverrides() {
+        configLoader.clearOverrides()
+        bootstrap()
+    }
+
     private func buildServices() {
         let api = APIClient(config: config, sessionStore: sessionStore)
         self.apiClient = api

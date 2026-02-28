@@ -40,5 +40,13 @@ struct RootView: View {
         } message: {
             Text(appViewModel.errorMessage ?? "")
         }
+        .task(id: appViewModel.errorMessage) {
+            guard appViewModel.errorMessage != nil else { return }
+            let countdown = max(1, appViewModel.config.errorCountdown)
+            try? await Task.sleep(nanoseconds: UInt64(countdown) * 1_000_000_000)
+            if !Task.isCancelled {
+                appViewModel.errorMessage = nil
+            }
+        }
     }
 }

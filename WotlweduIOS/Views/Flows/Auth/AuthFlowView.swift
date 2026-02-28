@@ -1,9 +1,17 @@
 import SwiftUI
 
 struct AuthFlowView: View {
+    private enum AuthTab: String, CaseIterable, Identifiable {
+        case signIn = "Sign In"
+        case settings = "Settings"
+
+        var id: String { rawValue }
+    }
+
     @EnvironmentObject var appViewModel: AppViewModel
     @State private var showingRegister = false
     @State private var showingReset = false
+    @State private var selectedTab: AuthTab = .signIn
 
     var body: some View {
         NavigationStack {
@@ -19,14 +27,25 @@ struct AuthFlowView: View {
                 Text("What'll We Do?")
                     .foregroundStyle(.secondary)
 
-                LoginForm(showingReset: $showingReset)
-
-                Button(showingRegister ? "Back to login" : "Create account") {
-                    showingRegister.toggle()
+                Picker("Section", selection: $selectedTab) {
+                    ForEach(AuthTab.allCases) { tab in
+                        Text(tab.rawValue).tag(tab)
+                    }
                 }
+                .pickerStyle(.segmented)
 
-                if showingRegister {
-                    RegisterForm()
+                if selectedTab == .signIn {
+                    LoginForm(showingReset: $showingReset)
+
+                    Button(showingRegister ? "Back to login" : "Create account") {
+                        showingRegister.toggle()
+                    }
+
+                    if showingRegister {
+                        RegisterForm()
+                    }
+                } else {
+                    LoginSettingsForm()
                 }
             }
             .padding()
@@ -130,6 +149,102 @@ private struct RegisterForm: View {
             .disabled(email.isEmpty || password.isEmpty || isLoading)
             .buttonStyle(.bordered)
         }
+    }
+}
+
+private struct LoginSettingsForm: View {
+    @EnvironmentObject var appViewModel: AppViewModel
+    @State private var apiUrl = ""
+    @State private var defaultStartPage = "home"
+    @State private var errorCountdown = 30
+    @State private var allowInsecureCertificates = false
+    @State private var loaded = false
+    @State private var saveMessage: String?
+
+    private let startPageOptions = [
+        "home",
+        "notifications",
+        "preferences",
+        "categories",
+        "groups",
+        "workgroups",
+        "organizations",
+        "items",
+        "images",
+        "lists",
+        "elections",
+        "votes",
+        "roles",
+        "users",
+        "friends",
+        "profile"
+    ]
+
+    var body: some View {
+        Form {
+            Section("Connection") {
+                TextField("API URL", text: $apiUrl)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .keyboardType(.URL)
+
+                Toggle("Allow insecure certificates", isOn: $allowInsecureCertificates)
+            }
+
+            Section("Behavior") {
+                Picker("Default start page", selection: $defaultStartPage) {
+                    ForEach(startPageOptions, id: \.self) { option in
+                        Text(option).tag(option)
+                    }
+                }
+
+                Stepper(value: $errorCountdown, in: 1...300) {
+                    Text("Error countdown: \(errorCountdown)s")
+                }
+            }
+
+            Section {
+                Button("Save settings") {
+                    appViewModel.saveConfig(
+                        apiUrl: apiUrl,
+                        defaultStartPage: defaultStartPage,
+                        errorCountdown: errorCountdown,
+                        allowInsecureCertificates: allowInsecureCertificates
+                    )
+                    saveMessage = "Settings saved"
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button("Reset to bundled defaults", role: .destructive) {
+                    appViewModel.resetConfigOverrides()
+                    applyConfig(appViewModel.config)
+                    saveMessage = "Settings reset"
+                }
+            }
+
+            if let saveMessage {
+                Section {
+                    Text(saveMessage)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 360)
+        .onAppear {
+            guard !loaded else { return }
+            applyConfig(appViewModel.config)
+            loaded = true
+        }
+    }
+
+    private func applyConfig(_ config: AppConfig) {
+        apiUrl = config.apiUrl
+        defaultStartPage = startPageOptions.contains(config.defaultStartPage.lowercased())
+            ? config.defaultStartPage.lowercased()
+            : "home"
+        errorCountdown = max(1, config.errorCountdown)
+        allowInsecureCertificates = config.allowInsecureCertificates ?? false
     }
 }
 

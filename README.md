@@ -28,7 +28,7 @@ This repository contains the SwiftUI iOS client for the wotlwedu ecosystem, mirr
    ```json
    {
      "apiUrl": "https://api.wotlwedu.com:9876/",
-     "appVersion": "0.2.2",
+     "appVersion": "0.2.3",
      "defaultStartPage": "home",
      "errorCountdown": 30,
      "allowInsecureCertificates": true
@@ -50,6 +50,7 @@ xcodebuild test -project WotlweduIOS.xcodeproj -scheme WotlweduIOS -destination 
 - If `xcodebuild` complains about simulator plug-ins, run `xcodebuild -runFirstLaunch` or repair Xcode toolchain before building.
 - Image upload uses photo library access; the `NSPhotoLibraryUsageDescription` is included in `Info.plist`.
 - `allowInsecureCertificates` is intended for local/dev environments and should be `false` for production.
+- The login screen now includes a `Settings` tab for overriding `apiUrl`, `defaultStartPage`, `errorCountdown`, and `allowInsecureCertificates` without editing the bundled config file.
 
 ## Parity with wotlwedu-minimal
 - CRUD/listing for categories, groups, items, images (with upload), lists (with item linking), elections (with start/stop), roles/capabilities, users, preferences, friends.

@@ -21,6 +21,7 @@ enum MainRoute: Hashable {
 struct MainShellView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @State private var path = NavigationPath()
+    @State private var appliedDefaultStartPage = false
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -92,6 +93,52 @@ struct MainShellView: View {
         .task {
             await appViewModel.refreshStatus()
             await appViewModel.refreshNotifications()
+        }
+        .task {
+            guard !appliedDefaultStartPage else { return }
+            appliedDefaultStartPage = true
+            if let route = route(for: appViewModel.config.defaultStartPage) {
+                path.append(route)
+            }
+        }
+    }
+
+    private func route(for startPage: String) -> MainRoute? {
+        switch startPage.lowercased() {
+        case "", "home":
+            return nil
+        case "notifications":
+            return .notifications
+        case "preferences":
+            return .preferences
+        case "categories":
+            return .categories
+        case "groups":
+            return .groups
+        case "workgroups":
+            return .workgroups
+        case "organizations":
+            return .organizations
+        case "items":
+            return .items
+        case "images":
+            return .images
+        case "lists":
+            return .lists
+        case "elections":
+            return .elections
+        case "votes":
+            return .votes
+        case "roles":
+            return .roles
+        case "users":
+            return .users
+        case "friends":
+            return .friends
+        case "profile":
+            return .profile
+        default:
+            return nil
         }
     }
 }

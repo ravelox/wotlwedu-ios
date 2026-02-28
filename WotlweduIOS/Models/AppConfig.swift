@@ -9,9 +9,16 @@ struct AppConfig: Codable {
 
     static let `default` = AppConfig(
         apiUrl: "https://api.wotlwedu.com:9876/",
-        appVersion: "0.2.1",
+        appVersion: "0.2.3",
         defaultStartPage: "home",
         errorCountdown: 30,
         allowInsecureCertificates: true
     )
+}
+
+struct AppConfigOverrides: Codable {
+    var apiUrl: String
+    var defaultStartPage: String
+    var errorCountdown: Int
+    var allowInsecureCertificates: Bool?
 }

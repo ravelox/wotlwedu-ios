@@ -21,6 +21,7 @@ private struct ImageListContent: View {
     @State private var editing: WotlweduImage?
     @State private var showingUploader = false
     @State private var categories: [WotlweduCategory] = []
+    @State private var collapsedCategories: Set<String> = []
 
     init(service: WotlweduDomainService, workgroupId: String?) {
         self.service = service
@@ -33,27 +34,30 @@ private struct ImageListContent: View {
 
     var body: some View {
         List {
-            ForEach(viewModel.items) { image in
-                VStack(alignment: .leading) {
-                    Text(image.name ?? "Image").font(.headline)
-                    if let description = image.description {
-                        Text(description).font(.subheadline).foregroundStyle(.secondary)
-                    }
-                    if let category = image.category?.name {
-                        Text("Category: \(category)").font(.caption).foregroundStyle(.secondary)
-                    }
-                    if let url = image.url {
-                        Text(url).font(.caption).foregroundStyle(.secondary)
-                    }
-                }
-                .contentShape(Rectangle())
-                .onTapGesture { editing = image }
-                .swipeActions {
-                    Button("Delete", role: .destructive) {
-                        Task {
-                            if let id = image.id { try? await service.deleteImage(id: id); await viewModel.load() }
+            ForEach(viewModel.items.groupedByCategory()) { group in
+                DisclosureGroup(isExpanded: expansionBinding(for: group.categoryName)) {
+                    ForEach(group.items) { image in
+                        VStack(alignment: .leading) {
+                            Text(image.name ?? "Image").font(.headline)
+                            if let description = image.description {
+                                Text(description).font(.subheadline).foregroundStyle(.secondary)
+                            }
+                            if let url = image.url {
+                                Text(url).font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture { editing = image }
+                        .swipeActions {
+                            Button("Delete", role: .destructive) {
+                                Task {
+                                    if let id = image.id { try? await service.deleteImage(id: id); await viewModel.load() }
+                                }
+                            }
                         }
                     }
+                } label: {
+                    Text(group.categoryName).font(.subheadline.weight(.semibold))
                 }
             }
         }
@@ -98,6 +102,19 @@ private struct ImageListContent: View {
         if let result = try? await service.categories(page: 1, items: 200, filter: nil) {
             categories = result.collection.sortedByName()
         }
+    }
+
+    private func expansionBinding(for categoryName: String) -> Binding<Bool> {
+        Binding(
+            get: { !collapsedCategories.contains(categoryName) },
+            set: { isExpanded in
+                if isExpanded {
+                    collapsedCategories.remove(categoryName)
+                } else {
+                    collapsedCategories.insert(categoryName)
+                }
+            }
+        )
     }
 }
 

@@ -19,6 +19,7 @@ private struct ListListContent: View {
     @State private var editing: WotlweduList?
     @State private var items: [WotlweduItem] = []
     @State private var categories: [WotlweduCategory] = []
+    @State private var collapsedCategories: Set<String> = []
 
     init(service: WotlweduDomainService, workgroupId: String?) {
         self.service = service
@@ -31,25 +32,28 @@ private struct ListListContent: View {
 
     var body: some View {
         List {
-            ForEach(viewModel.items) { list in
-                VStack(alignment: .leading) {
-                    Text(list.name ?? "List").font(.headline)
-                    if let desc = list.description { Text(desc).font(.subheadline) }
-                    if let category = list.category?.name {
-                        Text("Category: \(category)").font(.caption).foregroundStyle(.secondary)
-                    }
-                    if let count = list.items?.count {
-                        Text("\(count) items").font(.caption).foregroundStyle(.secondary)
-                    }
-                }
-                .contentShape(Rectangle())
-                .onTapGesture { editing = list }
-                .swipeActions {
-                    Button("Delete", role: .destructive) {
-                        Task {
-                            if let id = list.id { try? await service.deleteList(id: id); await viewModel.load() }
+            ForEach(viewModel.items.groupedByCategory()) { group in
+                DisclosureGroup(isExpanded: expansionBinding(for: group.categoryName)) {
+                    ForEach(group.items) { list in
+                        VStack(alignment: .leading) {
+                            Text(list.name ?? "List").font(.headline)
+                            if let desc = list.description { Text(desc).font(.subheadline) }
+                            if let count = list.items?.count {
+                                Text("\(count) items").font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture { editing = list }
+                        .swipeActions {
+                            Button("Delete", role: .destructive) {
+                                Task {
+                                    if let id = list.id { try? await service.deleteList(id: id); await viewModel.load() }
+                                }
+                            }
                         }
                     }
+                } label: {
+                    Text(group.categoryName).font(.subheadline.weight(.semibold))
                 }
             }
         }
@@ -96,6 +100,19 @@ private struct ListListContent: View {
         if let result = try? await service.categories(page: 1, items: 200, filter: nil) {
             categories = result.collection.sortedByName()
         }
+    }
+
+    private func expansionBinding(for categoryName: String) -> Binding<Bool> {
+        Binding(
+            get: { !collapsedCategories.contains(categoryName) },
+            set: { isExpanded in
+                if isExpanded {
+                    collapsedCategories.remove(categoryName)
+                } else {
+                    collapsedCategories.insert(categoryName)
+                }
+            }
+        )
     }
 }
 

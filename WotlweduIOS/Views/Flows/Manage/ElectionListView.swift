@@ -21,6 +21,7 @@ private struct ElectionListContent: View {
     @State private var groups: [WotlweduGroup] = []
     @State private var categories: [WotlweduCategory] = []
     @State private var images: [WotlweduImage] = []
+    @State private var collapsedCategories: Set<String> = []
 
     init(service: WotlweduDomainService, workgroupId: String?) {
         self.service = service
@@ -33,24 +34,30 @@ private struct ElectionListContent: View {
 
     var body: some View {
         List {
-            ForEach(viewModel.items) { election in
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(election.name ?? "Election").font(.headline)
-                    if let desc = election.description { Text(desc).font(.subheadline) }
-                    if let status = election.status?.name {
-                        Text(status).font(.caption).foregroundStyle(.secondary)
-                    }
-                }
-                .contentShape(Rectangle())
-                .onTapGesture { editing = election }
-                .swipeActions {
-                    Button("Delete", role: .destructive) {
-                        Task {
-                            if let id = election.id { try? await service.deleteElection(id: id); await viewModel.load() }
+            ForEach(viewModel.items.groupedByCategory()) { group in
+                DisclosureGroup(isExpanded: expansionBinding(for: group.categoryName)) {
+                    ForEach(group.items) { election in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(election.name ?? "Election").font(.headline)
+                            if let desc = election.description { Text(desc).font(.subheadline) }
+                            if let status = election.status?.name {
+                                Text(status).font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture { editing = election }
+                        .swipeActions {
+                            Button("Delete", role: .destructive) {
+                                Task {
+                                    if let id = election.id { try? await service.deleteElection(id: id); await viewModel.load() }
+                                }
+                            }
+                            Button("Start") { Task { if let id = election.id { try? await service.startElection(id: id); await viewModel.load() } } }.tint(.green)
+                            Button("Stop") { Task { if let id = election.id { try? await service.stopElection(id: id); await viewModel.load() } } }.tint(.orange)
                         }
                     }
-                    Button("Start") { Task { if let id = election.id { try? await service.startElection(id: id); await viewModel.load() } } }.tint(.green)
-                    Button("Stop") { Task { if let id = election.id { try? await service.stopElection(id: id); await viewModel.load() } } }.tint(.orange)
+                } label: {
+                    Text(group.categoryName).font(.subheadline.weight(.semibold))
                 }
             }
         }
@@ -100,6 +107,19 @@ private struct ElectionListContent: View {
         if let res = try? await gs { groups = res.collection.sortedByName() }
         if let res = try? await cs { categories = res.collection.sortedByName() }
         if let res = try? await ims { images = res.collection.sortedByName() }
+    }
+
+    private func expansionBinding(for categoryName: String) -> Binding<Bool> {
+        Binding(
+            get: { !collapsedCategories.contains(categoryName) },
+            set: { isExpanded in
+                if isExpanded {
+                    collapsedCategories.remove(categoryName)
+                } else {
+                    collapsedCategories.insert(categoryName)
+                }
+            }
+        )
     }
 }
 

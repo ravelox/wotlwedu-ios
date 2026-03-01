@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.6] - 2026-03-01
+- Group item, image, list, election, group, and workgroup management views into collapsible category sections.
+- Preserve category label casing in list rendering by displaying category names exactly as returned by the backend.
+- Align bundled config metadata and README examples to app version `0.2.6`.
+
 ## [0.2.5] - 2026-02-28
 - Add richer notification handling with optimistic unread-count updates, per-type primary actions, and preview/accept flows for shared items, images, and lists.
 - Update the iOS notification client to use paged inbox fetches and numeric notification status IDs compatible with the backend notification API.

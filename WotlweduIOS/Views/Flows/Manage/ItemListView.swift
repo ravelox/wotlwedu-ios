@@ -20,6 +20,7 @@ private struct ItemListContent: View {
     @State private var categories: [WotlweduCategory] = []
     @State private var images: [WotlweduImage] = []
     @State private var alertMessage: String?
+    @State private var collapsedCategories: Set<String> = []
 
     init(service: WotlweduDomainService, workgroupId: String?) {
         self.service = service
@@ -32,32 +33,35 @@ private struct ItemListContent: View {
 
     var body: some View {
         List {
-            ForEach(viewModel.items) { item in
-                VStack(alignment: .leading) {
-                    Text(item.name ?? "Untitled").font(.headline)
-                    if let description = item.description {
-                        Text(description).font(.subheadline).foregroundStyle(.secondary)
-                    }
-                    if let category = item.category?.name {
-                        Text("Category: \(category)").font(.caption)
-                    }
-                }
-                .contentShape(Rectangle())
-                .onTapGesture { editing = item }
-                .swipeActions {
-                    Button("Delete", role: .destructive) {
-                        Task {
-                            if let id = item.id {
-                                do {
-                                    try await service.deleteItem(id: id)
-                                    alertMessage = "Deleted item \(item.name ?? id)"
-                                    await viewModel.load()
-                                } catch {
-                                    alertMessage = "Delete failed: \(error.localizedDescription)"
+            ForEach(viewModel.items.groupedByCategory()) { group in
+                DisclosureGroup(isExpanded: expansionBinding(for: group.categoryName)) {
+                    ForEach(group.items) { item in
+                        VStack(alignment: .leading) {
+                            Text(item.name ?? "Untitled").font(.headline)
+                            if let description = item.description {
+                                Text(description).font(.subheadline).foregroundStyle(.secondary)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture { editing = item }
+                        .swipeActions {
+                            Button("Delete", role: .destructive) {
+                                Task {
+                                    if let id = item.id {
+                                        do {
+                                            try await service.deleteItem(id: id)
+                                            alertMessage = "Deleted item \(item.name ?? id)"
+                                            await viewModel.load()
+                                        } catch {
+                                            alertMessage = "Delete failed: \(error.localizedDescription)"
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
+                } label: {
+                    Text(group.categoryName).font(.subheadline.weight(.semibold))
                 }
             }
         }
@@ -113,6 +117,19 @@ private struct ItemListContent: View {
         if let imageData = try? await service.images(page: 1, items: 200, filter: nil, workgroupId: workgroupId) {
             images = imageData.collection.sortedByName()
         }
+    }
+
+    private func expansionBinding(for categoryName: String) -> Binding<Bool> {
+        Binding(
+            get: { !collapsedCategories.contains(categoryName) },
+            set: { isExpanded in
+                if isExpanded {
+                    collapsedCategories.remove(categoryName)
+                } else {
+                    collapsedCategories.insert(categoryName)
+                }
+            }
+        )
     }
 }
 

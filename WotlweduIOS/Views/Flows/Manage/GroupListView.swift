@@ -18,6 +18,7 @@ private struct GroupListContent: View {
     @State private var editing: WotlweduGroup?
     @State private var categories: [WotlweduCategory] = []
     @State private var users: [WotlweduUser] = []
+    @State private var collapsedCategories: Set<String> = []
 
     init(service: WotlweduDomainService) {
         self.service = service
@@ -29,27 +30,30 @@ private struct GroupListContent: View {
 
     var body: some View {
         List {
-            ForEach(viewModel.items) { group in
-                VStack(alignment: .leading) {
-                    Text(group.name ?? "Untitled").font(.headline)
-                    if let category = group.category?.name {
-                        Text("Category: \(category)").font(.subheadline)
-                    }
-                    if let count = group.users?.count {
-                        Text("\(count) members").font(.caption).foregroundStyle(.secondary)
-                    }
-                }
-                .contentShape(Rectangle())
-                .onTapGesture { editing = group }
-                .swipeActions {
-                    Button("Delete", role: .destructive) {
-                        Task {
-                            if let id = group.id {
-                                try? await service.deleteGroup(id: id)
-                                await viewModel.load()
+            ForEach(viewModel.items.groupedByCategory()) { categoryGroup in
+                DisclosureGroup(isExpanded: expansionBinding(for: categoryGroup.categoryName)) {
+                    ForEach(categoryGroup.items) { group in
+                        VStack(alignment: .leading) {
+                            Text(group.name ?? "Untitled").font(.headline)
+                            if let count = group.users?.count {
+                                Text("\(count) members").font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture { editing = group }
+                        .swipeActions {
+                            Button("Delete", role: .destructive) {
+                                Task {
+                                    if let id = group.id {
+                                        try? await service.deleteGroup(id: id)
+                                        await viewModel.load()
+                                    }
+                                }
                             }
                         }
                     }
+                } label: {
+                    Text(categoryGroup.categoryName).font(.subheadline.weight(.semibold))
                 }
             }
         }
@@ -86,6 +90,19 @@ private struct GroupListContent: View {
         if let userData = try? await usrs {
             users = userData.collection.sortedByName()
         }
+    }
+
+    private func expansionBinding(for categoryName: String) -> Binding<Bool> {
+        Binding(
+            get: { !collapsedCategories.contains(categoryName) },
+            set: { isExpanded in
+                if isExpanded {
+                    collapsedCategories.remove(categoryName)
+                } else {
+                    collapsedCategories.insert(categoryName)
+                }
+            }
+        )
     }
 }
 

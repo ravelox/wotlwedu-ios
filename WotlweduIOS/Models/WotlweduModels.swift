@@ -6,6 +6,10 @@ protocol NamedEntity {
     var description: String? { get }
 }
 
+protocol CategorizedEntity {
+    var category: WotlweduCategory? { get }
+}
+
 struct WotlweduStatus: Codable, Identifiable, Hashable {
     var id: String?
     var name: String?
@@ -49,7 +53,7 @@ struct WotlweduCategory: Codable, Identifiable, NamedEntity, Hashable {
     var description: String?
 }
 
-struct WotlweduImage: Codable, Identifiable, NamedEntity, Hashable {
+struct WotlweduImage: Codable, Identifiable, NamedEntity, CategorizedEntity, Hashable {
     var id: String?
     var workgroupId: String?
     var contentType: String?
@@ -60,7 +64,7 @@ struct WotlweduImage: Codable, Identifiable, NamedEntity, Hashable {
     var url: String?
 }
 
-struct WotlweduItem: Codable, Identifiable, NamedEntity, Hashable {
+struct WotlweduItem: Codable, Identifiable, NamedEntity, CategorizedEntity, Hashable {
     var id: String?
     var workgroupId: String?
     var name: String?
@@ -71,7 +75,7 @@ struct WotlweduItem: Codable, Identifiable, NamedEntity, Hashable {
     var category: WotlweduCategory?
 }
 
-struct WotlweduList: Codable, Identifiable, NamedEntity, Hashable {
+struct WotlweduList: Codable, Identifiable, NamedEntity, CategorizedEntity, Hashable {
     var id: String?
     var workgroupId: String?
     var name: String?
@@ -80,7 +84,7 @@ struct WotlweduList: Codable, Identifiable, NamedEntity, Hashable {
     var items: [WotlweduItem]?
 }
 
-struct WotlweduGroup: Codable, Identifiable, NamedEntity, Hashable {
+struct WotlweduGroup: Codable, Identifiable, NamedEntity, CategorizedEntity, Hashable {
     var id: String?
     var name: String?
     var description: String?
@@ -88,7 +92,7 @@ struct WotlweduGroup: Codable, Identifiable, NamedEntity, Hashable {
     var category: WotlweduCategory?
 }
 
-struct WotlweduWorkgroup: Codable, Identifiable, NamedEntity, Hashable {
+struct WotlweduWorkgroup: Codable, Identifiable, NamedEntity, CategorizedEntity, Hashable {
     var id: String?
     var organizationId: String?
     var name: String?
@@ -181,7 +185,7 @@ struct WotlweduPreference: Codable, Identifiable, Hashable {
     var value: String?
 }
 
-struct WotlweduElection: Codable, Identifiable, NamedEntity, Hashable {
+struct WotlweduElection: Codable, Identifiable, NamedEntity, CategorizedEntity, Hashable {
     var id: String?
     var workgroupId: String?
     var name: String?
@@ -219,8 +223,30 @@ struct ServerStatus: Decodable {
     var message: String?
 }
 
+struct CategoryGroup<Element: Identifiable>: Identifiable {
+    let categoryName: String
+    let items: [Element]
+
+    var id: String { categoryName }
+}
+
 extension Array where Element: NamedEntity & Identifiable {
     func sortedByName() -> [Element] {
         return sorted { ($0.name ?? "").localizedCaseInsensitiveCompare($1.name ?? "") == .orderedAscending }
+    }
+}
+
+extension Array where Element: NamedEntity & CategorizedEntity & Identifiable {
+    func groupedByCategory() -> [CategoryGroup<Element>] {
+        let grouped = Dictionary(grouping: self) { element in
+            let trimmedName = element.category?.name?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            return trimmedName.isEmpty ? "Uncategorized" : trimmedName
+        }
+
+        return grouped
+            .map { CategoryGroup(categoryName: $0.key, items: $0.value.sortedByName()) }
+            .sorted {
+                $0.categoryName.localizedCaseInsensitiveCompare($1.categoryName) == .orderedAscending
+            }
     }
 }

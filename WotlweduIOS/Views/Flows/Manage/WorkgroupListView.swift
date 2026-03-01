@@ -20,6 +20,7 @@ private struct WorkgroupListContent: View {
     @State private var categories: [WotlweduCategory] = []
     @State private var users: [WotlweduUser] = []
     @State private var organizations: [WotlweduOrganization] = []
+    @State private var collapsedCategories: Set<String> = []
 
     init(service: WotlweduDomainService, isSystemAdmin: Bool) {
         self.service = service
@@ -32,27 +33,33 @@ private struct WorkgroupListContent: View {
 
     var body: some View {
         List {
-            ForEach(viewModel.items) { workgroup in
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(workgroup.name ?? "Untitled").font(.headline)
-                    if let orgId = workgroup.organizationId {
-                        Text("Org: \(orgId)").font(.caption).foregroundStyle(.secondary)
-                    }
-                    if let count = workgroup.users?.count {
-                        Text("\(count) members").font(.caption).foregroundStyle(.secondary)
-                    }
-                }
-                .contentShape(Rectangle())
-                .onTapGesture { editing = workgroup }
-                .swipeActions {
-                    Button("Delete", role: .destructive) {
-                        Task {
-                            if let id = workgroup.id {
-                                try? await service.deleteWorkgroup(id: id)
-                                await viewModel.load()
+            ForEach(viewModel.items.groupedByCategory()) { categoryGroup in
+                DisclosureGroup(isExpanded: expansionBinding(for: categoryGroup.categoryName)) {
+                    ForEach(categoryGroup.items) { workgroup in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(workgroup.name ?? "Untitled").font(.headline)
+                            if let orgId = workgroup.organizationId {
+                                Text("Org: \(orgId)").font(.caption).foregroundStyle(.secondary)
+                            }
+                            if let count = workgroup.users?.count {
+                                Text("\(count) members").font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture { editing = workgroup }
+                        .swipeActions {
+                            Button("Delete", role: .destructive) {
+                                Task {
+                                    if let id = workgroup.id {
+                                        try? await service.deleteWorkgroup(id: id)
+                                        await viewModel.load()
+                                    }
+                                }
                             }
                         }
                     }
+                } label: {
+                    Text(categoryGroup.categoryName).font(.subheadline.weight(.semibold))
                 }
             }
         }
@@ -107,6 +114,19 @@ private struct WorkgroupListContent: View {
         if let orgData = try? await orgs {
             organizations = orgData.collection.sortedByName()
         }
+    }
+
+    private func expansionBinding(for categoryName: String) -> Binding<Bool> {
+        Binding(
+            get: { !collapsedCategories.contains(categoryName) },
+            set: { isExpanded in
+                if isExpanded {
+                    collapsedCategories.remove(categoryName)
+                } else {
+                    collapsedCategories.insert(categoryName)
+                }
+            }
+        )
     }
 }
 
@@ -197,4 +217,3 @@ private struct WorkgroupEditor: View {
         }
     }
 }
-

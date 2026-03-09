@@ -59,10 +59,12 @@ final class APIClient {
         self.sessionStore = sessionStore
         if let session {
             self.urlSession = session
+#if DEBUG
         } else if config.allowInsecureCertificates == true {
             let delegate = InsecureSessionDelegate()
             let configuration = URLSessionConfiguration.default
             self.urlSession = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
+#endif
         } else {
             self.urlSession = .shared
         }

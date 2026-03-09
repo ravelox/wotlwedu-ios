@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.7] - 2026-03-09
+- Harden auth/session token restoration and API client handling for malformed persisted values.
+- Align registration and password-reset client behavior with backend token validation hardening.
+- Bump bundled app/config metadata references to `0.2.7`.
+
 ## [0.2.6] - 2026-03-01
 - Group item, image, list, election, group, and workgroup management views into collapsible category sections.
 - Preserve category label casing in list rendering by displaying category names exactly as returned by the backend.

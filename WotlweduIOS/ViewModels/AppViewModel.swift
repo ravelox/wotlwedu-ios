@@ -53,7 +53,11 @@ final class AppViewModel: ObservableObject {
                 }
             }
         } catch {
-            errorMessage = error.localizedDescription
+            if error.localizedDescription.contains("Invalid social link token") {
+                errorMessage = "Link confirmation expired. Sign in with Google again to restart linking."
+            } else {
+                errorMessage = error.localizedDescription
+            }
         }
     }
 

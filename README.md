@@ -28,7 +28,7 @@ This repository contains the SwiftUI iOS client for the wotlwedu ecosystem, mirr
    ```json
    {
      "apiUrl": "https://api.wotlwedu.com:9876/",
-     "appVersion": "0.2.9",
+     "appVersion": "0.2.10",
      "defaultStartPage": "home",
      "errorCountdown": 30,
      "allowInsecureCertificates": true
@@ -58,6 +58,7 @@ xcodebuild test -project WotlweduIOS.xcodeproj -scheme WotlweduIOS -destination 
 - The login screen now includes a `Settings` tab for overriding `apiUrl`, `defaultStartPage`, `errorCountdown`, and `allowInsecureCertificates` without editing the bundled config file.
 - Google Sign-In is available when the Google build settings above are configured.
 - The login flow accepts an optional invite token and can consume incoming URLs containing `?invite=...`.
+- The profile flow now shows linked sign-in methods, recent account activity, and organization audit activity when the backend grants access.
 
 ## Parity with wotlwedu-minimal
 - CRUD/listing for categories, groups, items, images (with upload and category assignment), lists (with item linking and category assignment), elections (with start/stop), roles/capabilities, users, preferences, friends.
@@ -66,6 +67,7 @@ xcodebuild test -project WotlweduIOS.xcodeproj -scheme WotlweduIOS -destination 
 - Categorized item, image, list, election, group, and workgroup management lists render in collapsible category sections using the category name exactly as entered.
 - Google sign-in with backend ID-token verification through `/login/google`.
 - Invite-aware onboarding through `/login/invite/:token` plus organization-admin invite create/list/resend/revoke controls in the profile flow.
+- Linked sign-in method visibility with unlink support for removable providers, plus user/org audit feeds in the profile flow.
 
 ## Notification behavior
 - Notification inbox fetches are paged to match the backend contract.

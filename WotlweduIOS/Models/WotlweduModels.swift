@@ -226,12 +226,45 @@ struct WotlweduOrganizationInvite: Codable, Identifiable, Hashable {
     var createdAt: Date?
     var expiresAt: Date?
     var acceptedAt: Date?
+    var invitedByName: String?
+    var acceptedByName: String?
     var revokedAt: Date?
+    var revokedByName: String?
     var organizationName: String?
 }
 
 struct WotlweduInviteLookup: Codable {
     var invite: WotlweduOrganizationInvite?
+}
+
+struct WotlweduSignInMethod: Codable, Identifiable, Hashable {
+    var id: String?
+    var provider: String?
+    var email: String?
+    var subjectPreview: String?
+    var createdAt: Date?
+    var updatedAt: Date?
+}
+
+struct WotlweduSignInMethodsEnvelope: Codable {
+    var passwordEnabled: Bool?
+    var linkedProviders: [WotlweduSignInMethod]?
+}
+
+struct WotlweduAuthAudit: Codable, Identifiable, Hashable {
+    var id: String?
+    var eventType: String?
+    var outcome: String?
+    var actorUserId: String?
+    var targetUserId: String?
+    var organizationId: String?
+    var inviteId: String?
+    var provider: String?
+    var email: String?
+    var ipAddress: String?
+    var userAgent: String?
+    var message: String?
+    var createdAt: Date?
 }
 
 struct ServerStatus: Decodable {

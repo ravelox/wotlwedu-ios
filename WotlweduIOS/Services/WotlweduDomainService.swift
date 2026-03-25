@@ -180,6 +180,16 @@ final class WotlweduDomainService {
         return response.data?.collection ?? []
     }
 
+    func organizationAuthAudit(organizationId: String, outcome: String? = nil, items: Int = 20) async throws -> [WotlweduAuthAudit] {
+        var query: [URLQueryItem] = [URLQueryItem(name: "items", value: "\(items)")]
+        if let outcome, !outcome.isEmpty, outcome != "all" {
+            query.append(URLQueryItem(name: "outcome", value: outcome))
+        }
+        let endpoint = Endpoint(path: "organization/\(organizationId)/authaudit", method: .get, query: query)
+        let response: APIResponse<PagedResponse<WotlweduAuthAudit>> = try await api.send(endpoint)
+        return response.data?.collection ?? []
+    }
+
     func createOrganizationInvite(organizationId: String, email: String) async throws {
         let endpoint = Endpoint(
             path: "organization/\(organizationId)/invite",
@@ -197,6 +207,28 @@ final class WotlweduDomainService {
     func revokeOrganizationInvite(organizationId: String, inviteId: String) async throws {
         let endpoint = Endpoint(path: "organization/\(organizationId)/invite/\(inviteId)", method: .delete)
         try await api.sendWithoutDecoding(endpoint)
+    }
+
+    func userSignInMethods(userId: String) async throws -> WotlweduSignInMethodsEnvelope {
+        struct MethodsResponse: Decodable { let methods: WotlweduSignInMethodsEnvelope? }
+        let endpoint = Endpoint(path: "user/\(userId)/signin-method", method: .get)
+        let response: APIResponse<MethodsResponse> = try await api.send(endpoint)
+        return response.data?.methods ?? WotlweduSignInMethodsEnvelope(passwordEnabled: false, linkedProviders: [])
+    }
+
+    func unlinkSignInMethod(userId: String, identityId: String) async throws {
+        let endpoint = Endpoint(path: "user/\(userId)/signin-method/\(identityId)", method: .delete)
+        try await api.sendWithoutDecoding(endpoint)
+    }
+
+    func userAuthAudit(userId: String, items: Int = 10) async throws -> [WotlweduAuthAudit] {
+        let endpoint = Endpoint(
+            path: "user/\(userId)/authaudit",
+            method: .get,
+            query: [URLQueryItem(name: "items", value: "\(items)")]
+        )
+        let response: APIResponse<PagedResponse<WotlweduAuthAudit>> = try await api.send(endpoint)
+        return response.data?.collection ?? []
     }
 
     func save(organization: WotlweduOrganization) async throws -> WotlweduOrganization {

@@ -37,6 +37,10 @@ private struct ProfileContent: View {
     @State private var inviteEmail = ""
     @State private var inviteFilter: InviteFilter = .all
     @State private var invites: [WotlweduOrganizationInvite] = []
+    @State private var signInMethods = WotlweduSignInMethodsEnvelope(passwordEnabled: false, linkedProviders: [])
+    @State private var userAudits: [WotlweduAuthAudit] = []
+    @State private var organizationAudits: [WotlweduAuthAudit] = []
+    @State private var auditOutcomeFilter = "all"
 
     var body: some View {
         List {
@@ -67,6 +71,44 @@ private struct ProfileContent: View {
                 Button("Enable 2FA") { Task { await enable2FA() } }
                 if let twoFAData {
                     TwoFactorView(data: twoFAData)
+                }
+            }
+
+            Section("Sign-In Methods") {
+                Text(signInMethods.passwordEnabled == true ? "Password: Enabled" : "Password: Disabled")
+                    .font(.subheadline)
+                ForEach(signInMethods.linkedProviders ?? []) { method in
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text((method.provider ?? "social").capitalized).font(.headline)
+                        if let email = method.email {
+                            Text(email).font(.caption).foregroundStyle(.secondary)
+                        }
+                        if let updatedAt = method.updatedAt {
+                            Text("Updated \(updatedAt.formatted())").font(.caption).foregroundStyle(.secondary)
+                        }
+                        if let identityId = method.id {
+                            Button("Unlink", role: .destructive) {
+                                Task { await unlinkMethod(identityId: identityId) }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Section("Recent Account Activity") {
+                if userAudits.isEmpty {
+                    Text("No account activity recorded.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(userAudits) { audit in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(audit.eventType ?? "Activity").font(.headline)
+                            Text(audit.message ?? "").font(.caption).foregroundStyle(.secondary)
+                            if let createdAt = audit.createdAt {
+                                Text(createdAt.formatted()).font(.caption2).foregroundStyle(.secondary)
+                            }
+                        }
+                    }
                 }
             }
 
@@ -111,11 +153,14 @@ private struct ProfileContent: View {
                             if let expiresAt = invite.expiresAt {
                                 Text("Expires \(expiresAt.formatted())").font(.caption).foregroundStyle(.secondary)
                             }
+                            if let invitedByName = invite.invitedByName, !invitedByName.isEmpty {
+                                Text("Invited by \(invitedByName)").font(.caption).foregroundStyle(.secondary)
+                            }
                             if let acceptedAt = invite.acceptedAt {
-                                Text("Accepted \(acceptedAt.formatted())").font(.caption).foregroundStyle(.secondary)
+                                Text("Accepted \(acceptedAt.formatted())\(invite.acceptedByName.map { " by \($0)" } ?? "")").font(.caption).foregroundStyle(.secondary)
                             }
                             if let revokedAt = invite.revokedAt {
-                                Text("Revoked \(revokedAt.formatted())").font(.caption).foregroundStyle(.secondary)
+                                Text("Revoked \(revokedAt.formatted())\(invite.revokedByName.map { " by \($0)" } ?? "")").font(.caption).foregroundStyle(.secondary)
                             }
                             if let token = invite.token {
                                 Text("Token: \(token)")
@@ -143,6 +188,34 @@ private struct ProfileContent: View {
                         .padding(.vertical, 4)
                     }
                 }
+
+                Section("Organization Audit Feed") {
+                    Picker("Outcome", selection: $auditOutcomeFilter) {
+                        Text("All").tag("all")
+                        Text("Success").tag("success")
+                        Text("Pending").tag("pending")
+                        Text("Blocked").tag("blocked")
+                    }
+                    .pickerStyle(.segmented)
+                    .onChange(of: auditOutcomeFilter) { _ in
+                        Task { await loadOrganizationAudits() }
+                    }
+
+                    if organizationAudits.isEmpty {
+                        Text("No organization activity for this filter.")
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ForEach(organizationAudits) { audit in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(audit.eventType ?? "Activity").font(.headline)
+                                Text(audit.message ?? "").font(.caption).foregroundStyle(.secondary)
+                                if let createdAt = audit.createdAt {
+                                    Text(createdAt.formatted()).font(.caption2).foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             Section {
@@ -158,6 +231,9 @@ private struct ProfileContent: View {
             await loadOrganization()
             await loadWorkgroups()
             await loadInvites()
+            await loadSignInMethods()
+            await loadUserAudits()
+            await loadOrganizationAudits()
         }
     }
 
@@ -200,6 +276,36 @@ private struct ProfileContent: View {
         }
     }
 
+    private func loadSignInMethods() async {
+        guard let userId = appViewModel.sessionStore.userId else { return }
+        do {
+            signInMethods = try await service.userSignInMethods(userId: userId)
+        } catch {
+            appViewModel.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func loadUserAudits() async {
+        guard let userId = appViewModel.sessionStore.userId else { return }
+        do {
+            userAudits = try await service.userAuthAudit(userId: userId)
+        } catch {
+            appViewModel.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func loadOrganizationAudits() async {
+        guard canManageInvites, let organizationId = appViewModel.organizationId else { return }
+        do {
+            organizationAudits = try await service.organizationAuthAudit(
+                organizationId: organizationId,
+                outcome: auditOutcomeFilter
+            )
+        } catch {
+            appViewModel.errorMessage = error.localizedDescription
+        }
+    }
+
     private func createInvite() async {
         guard let organizationId = appViewModel.organizationId else { return }
         do {
@@ -229,6 +335,17 @@ private struct ProfileContent: View {
         do {
             try await service.revokeOrganizationInvite(organizationId: organizationId, inviteId: inviteId)
             await loadInvites()
+        } catch {
+            appViewModel.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func unlinkMethod(identityId: String) async {
+        guard let userId = appViewModel.sessionStore.userId else { return }
+        do {
+            try await service.unlinkSignInMethod(userId: userId, identityId: identityId)
+            await loadSignInMethods()
+            await loadUserAudits()
         } catch {
             appViewModel.errorMessage = error.localizedDescription
         }

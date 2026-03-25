@@ -19,6 +19,7 @@ final class AppViewModel: ObservableObject {
     @Published var activeWorkgroupId: String?
     @Published var inviteToken: String?
     @Published var inviteDetails: WotlweduOrganizationInvite?
+    @Published var pendingGoogleLinkToken: String?
 
     let sessionStore = SessionStore()
     private let workgroupScopeKey = "wotlwedu-active-workgroup"
@@ -96,6 +97,7 @@ final class AppViewModel: ObservableObject {
     func login(email: String, password: String) async {
         guard let authService else { return }
         do {
+            pendingGoogleLinkToken = nil
             let tokens = try await authService.login(email: email, password: password)
             applyAuth(tokens: tokens)
             await refreshStatus()
@@ -108,7 +110,28 @@ final class AppViewModel: ObservableObject {
     func loginWithGoogle(idToken: String, inviteToken: String?) async {
         guard let authService else { return }
         do {
-            let tokens = try await authService.loginGoogle(idToken: idToken, inviteToken: inviteToken)
+            let result = try await authService.loginGoogle(idToken: idToken, inviteToken: inviteToken)
+            if result.linkRequired == true {
+                pendingGoogleLinkToken = result.linkToken
+                return
+            }
+            guard let tokens = result.tokens else {
+                throw APIError.server(message: "Missing auth data", url: nil)
+            }
+            pendingGoogleLinkToken = nil
+            applyAuth(tokens: tokens)
+            await refreshStatus()
+            await refreshNotifications()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func confirmGoogleLink() async {
+        guard let authService, let pendingGoogleLinkToken else { return }
+        do {
+            let tokens = try await authService.confirmGoogleLink(linkToken: pendingGoogleLinkToken)
+            self.pendingGoogleLinkToken = nil
             applyAuth(tokens: tokens)
             await refreshStatus()
             await refreshNotifications()
@@ -151,6 +174,7 @@ final class AppViewModel: ObservableObject {
         unreadNotifications = 0
         inviteToken = nil
         inviteDetails = nil
+        pendingGoogleLinkToken = nil
         setActiveWorkgroupId(nil)
     }
 

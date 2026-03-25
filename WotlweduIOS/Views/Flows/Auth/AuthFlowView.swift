@@ -99,6 +99,25 @@ private struct LoginForm: View {
                 .background(RoundedRectangle(cornerRadius: 12).fill(Color.blue.opacity(0.08)))
             }
 
+            if appViewModel.pendingGoogleLinkToken != nil {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Confirmation required")
+                        .font(.subheadline.weight(.semibold))
+                    Text("Google authentication succeeded. Confirm to link this Google sign-in to your existing Wotlwedu account.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    Button("Confirm Link") {
+                        Task {
+                            await appViewModel.confirmGoogleLink()
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+                .background(RoundedRectangle(cornerRadius: 12).fill(Color.orange.opacity(0.1)))
+            }
+
             Button {
                 Task {
                     isLoading = true
@@ -169,6 +188,7 @@ private struct LoginForm: View {
             clientID: clientId,
             serverClientID: serverClientId
         )
+        let currentInviteToken = inviteTokenText.trimmingCharacters(in: .whitespacesAndNewlines)
 
         isGoogleLoading = true
         GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { result, error in
@@ -189,10 +209,9 @@ private struct LoginForm: View {
                     return
                 }
 
-                let inviteToken = inviteTokenText.trimmingCharacters(in: .whitespacesAndNewlines)
                 await appViewModel.loginWithGoogle(
                     idToken: idToken,
-                    inviteToken: inviteToken.isEmpty ? nil : inviteToken
+                    inviteToken: currentInviteToken.isEmpty ? nil : currentInviteToken
                 )
                 await MainActor.run {
                     isGoogleLoading = false

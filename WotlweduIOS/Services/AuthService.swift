@@ -14,6 +14,40 @@ struct AuthTokens: Decodable {
     let adminWorkgroupId: String?
 }
 
+struct SocialAuthResult: Decodable {
+    let userId: String?
+    let authToken: String?
+    let refreshToken: String?
+    let firstName: String?
+    let lastName: String?
+    let admin: Bool?
+    let systemAdmin: Bool?
+    let organizationId: String?
+    let organizationAdmin: Bool?
+    let workgroupAdmin: Bool?
+    let adminWorkgroupId: String?
+    let linkRequired: Bool?
+    let linkToken: String?
+    let provider: String?
+
+    var tokens: AuthTokens? {
+        guard let userId, let authToken, let refreshToken else { return nil }
+        return AuthTokens(
+            userId: userId,
+            authToken: authToken,
+            refreshToken: refreshToken,
+            firstName: firstName,
+            lastName: lastName,
+            admin: admin,
+            systemAdmin: systemAdmin,
+            organizationId: organizationId,
+            organizationAdmin: organizationAdmin,
+            workgroupAdmin: workgroupAdmin,
+            adminWorkgroupId: adminWorkgroupId
+        )
+    }
+}
+
 struct TwoFactorBootstrap: Decodable {
     let secret: String?
     let qrCode: String?
@@ -38,7 +72,7 @@ final class AuthService {
         return data
     }
 
-    func loginGoogle(idToken: String, inviteToken: String?) async throws -> AuthTokens {
+    func loginGoogle(idToken: String, inviteToken: String?) async throws -> SocialAuthResult {
         struct Payload: Encodable {
             let idToken: String
             let inviteToken: String?
@@ -47,6 +81,22 @@ final class AuthService {
         let payload = Payload(idToken: idToken, inviteToken: inviteToken)
         let endpoint = Endpoint(
             path: "login/google",
+            method: .post,
+            body: try JSONEncoder.api.encode(payload),
+            requiresAuth: false
+        )
+        let response: APIResponse<SocialAuthResult> = try await api.send(endpoint)
+        guard let data = response.data else { throw APIError.server(message: response.message ?? "Missing auth data", url: nil) }
+        if let tokens = data.tokens {
+            save(tokens: tokens)
+        }
+        return data
+    }
+
+    func confirmGoogleLink(linkToken: String) async throws -> AuthTokens {
+        let payload = ["linkToken": linkToken]
+        let endpoint = Endpoint(
+            path: "login/google/link",
             method: .post,
             body: try JSONEncoder.api.encode(payload),
             requiresAuth: false

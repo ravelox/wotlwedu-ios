@@ -2,7 +2,7 @@
 
 Last updated: 2026-03-24
 Repo: `wotlwedu-ios`
-Current version: `0.2.9`
+Current version: `0.2.10`
 
 ## Current Focus
 
@@ -19,7 +19,7 @@ This repo has been updated to expose sign-in method visibility and audit/activit
   - organization audit activity for users with access
   - richer invite metadata display
 
-## Main Files Changed In This Uncommitted Slice
+## Key Files For This Baseline
 
 - [WotlweduIOS/Models/WotlweduModels.swift](/Users/dkelly/Projects/wotlwedu/wotlwedu-ios/WotlweduIOS/Models/WotlweduModels.swift)
 - [WotlweduIOS/Services/WotlweduDomainService.swift](/Users/dkelly/Projects/wotlwedu/wotlwedu-ios/WotlweduIOS/Services/WotlweduDomainService.swift)
@@ -42,5 +42,5 @@ xcodebuild build -project WotlweduIOS.xcodeproj -scheme WotlweduIOS -sdk iphones
 
 ## Likely Next Actions
 
-1. Stage, commit, tag, and push this uncommitted slice if accepted.
+1. Keep parity with backend auth/invite/audit behavior.
 2. Optionally refine the support/admin presentation of audit rows in the profile flow.

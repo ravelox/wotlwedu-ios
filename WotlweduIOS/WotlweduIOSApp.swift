@@ -1,4 +1,5 @@
 import SwiftUI
+import GoogleSignIn
 
 @main
 struct WotlweduIOSApp: App {
@@ -8,6 +9,10 @@ struct WotlweduIOSApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(appViewModel)
+                .onOpenURL { url in
+                    GIDSignIn.sharedInstance.handle(url)
+                    appViewModel.consumeIncomingURL(url)
+                }
         }
     }
 }

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import GoogleSignIn
 
 @MainActor
 final class AppViewModel: ObservableObject {
@@ -16,6 +17,8 @@ final class AppViewModel: ObservableObject {
     @Published var unreadNotifications: Int = 0
     @Published var errorMessage: String?
     @Published var activeWorkgroupId: String?
+    @Published var inviteToken: String?
+    @Published var inviteDetails: WotlweduOrganizationInvite?
 
     let sessionStore = SessionStore()
     private let workgroupScopeKey = "wotlwedu-active-workgroup"
@@ -102,6 +105,28 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    func loginWithGoogle(idToken: String, inviteToken: String?) async {
+        guard let authService else { return }
+        do {
+            let tokens = try await authService.loginGoogle(idToken: idToken, inviteToken: inviteToken)
+            applyAuth(tokens: tokens)
+            await refreshStatus()
+            await refreshNotifications()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func lookupInvite(token: String) async {
+        guard let authService else { return }
+        do {
+            inviteDetails = try await authService.inviteLookup(token: token)
+            inviteToken = token
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
     func verify2FA(verificationToken: String, authToken: String) async {
         guard let authService else { return }
         do {
@@ -113,6 +138,7 @@ final class AppViewModel: ObservableObject {
     }
 
     func logout() {
+        GIDSignIn.sharedInstance.signOut()
         authService?.logout()
         isAuthenticated = false
         isSystemAdmin = false
@@ -123,7 +149,21 @@ final class AppViewModel: ObservableObject {
         displayName = nil
         serverStatus = nil
         unreadNotifications = 0
+        inviteToken = nil
+        inviteDetails = nil
         setActiveWorkgroupId(nil)
+    }
+
+    func consumeIncomingURL(_ url: URL) {
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let token = components.queryItems?.first(where: { $0.name == "invite" })?.value,
+              !token.isEmpty else {
+            return
+        }
+
+        Task {
+            await lookupInvite(token: token)
+        }
     }
 
     func refreshStatus() async {

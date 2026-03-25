@@ -2,7 +2,7 @@
 
 *wotlwedu* (What'll We Do?) helps groups decide by voting on curated lists (food, places, activities, media, etc.). In the platform, these polls are called **elections**.
 
-This repository contains the SwiftUI iOS client for the wotlwedu ecosystem, mirroring core flows from `wotlwedu-minimal` (auth, notifications, friends, preferences, groups, categories, items, images, lists, elections, voting, roles, users, profile/2FA).
+This repository contains the SwiftUI iOS client for the wotlwedu ecosystem, mirroring core flows from `wotlwedu-minimal` (auth, notifications, friends, preferences, groups, categories, items, images, lists, elections, voting, roles, users, profile/2FA) and the newer social-sign-in / organization-invite onboarding flow from the web clients.
 
 ## Structure
 - `WotlweduIOSApp.swift` – app entry and environment wiring.
@@ -28,13 +28,18 @@ This repository contains the SwiftUI iOS client for the wotlwedu ecosystem, mirr
    ```json
    {
      "apiUrl": "https://api.wotlwedu.com:9876/",
-     "appVersion": "0.2.7",
+     "appVersion": "0.2.8",
      "defaultStartPage": "home",
      "errorCountdown": 30,
      "allowInsecureCertificates": true
    }
    ```
-3. Open and build:
+3. Configure Google Sign-In build settings in Xcode or `project.yml`, then regenerate the project if you edit `project.yml`:
+   - `GOOGLE_IOS_CLIENT_ID`
+   - `GOOGLE_SERVER_CLIENT_ID`
+   - `GOOGLE_REVERSED_CLIENT_ID`
+   These values come from your Google iOS OAuth client and web/server OAuth client. The reversed client ID is used for the app URL scheme in `Info.plist`.
+4. Open and build:
    ```bash
    open WotlweduIOS.xcodeproj
    ```
@@ -51,12 +56,16 @@ xcodebuild test -project WotlweduIOS.xcodeproj -scheme WotlweduIOS -destination 
 - Image upload uses photo library access; the `NSPhotoLibraryUsageDescription` is included in `Info.plist`.
 - `allowInsecureCertificates` is intended for local/dev environments and should be `false` for production.
 - The login screen now includes a `Settings` tab for overriding `apiUrl`, `defaultStartPage`, `errorCountdown`, and `allowInsecureCertificates` without editing the bundled config file.
+- Google Sign-In is available when the Google build settings above are configured.
+- The login flow accepts an optional invite token and can consume incoming URLs containing `?invite=...`.
 
 ## Parity with wotlwedu-minimal
 - CRUD/listing for categories, groups, items, images (with upload and category assignment), lists (with item linking and category assignment), elections (with start/stop), roles/capabilities, users, preferences, friends.
 - Notifications listing with unread badge, optimistic local unread updates, and type-specific actions for friend requests and shared items/images/lists.
 - Voting flow for upcoming votes; profile page with 2FA bootstrap/verify and logout.
 - Categorized item, image, list, election, group, and workgroup management lists render in collapsible category sections using the category name exactly as entered.
+- Google sign-in with backend ID-token verification through `/login/google`.
+- Invite-aware onboarding through `/login/invite/:token` plus organization-admin invite create/list/resend/revoke controls in the profile flow.
 
 ## Notification behavior
 - Notification inbox fetches are paged to match the backend contract.

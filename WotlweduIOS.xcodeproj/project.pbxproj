@@ -23,9 +23,8 @@
 		3DC402E78FA9FD814A757DAD /* WotlweduDomainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17E355A06949FD1058B6DA0F /* WotlweduDomainService.swift */; };
 		3EA1E253D359314183C37B05 /* WotlweduDomainServiceIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A66891BC1520A0813DADAE /* WotlweduDomainServiceIntegrationTests.swift */; };
 		43227205272392D10DADE7EF /* GroupListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DEF30C12D93D51D3729D0D /* GroupListView.swift */; };
-		AABBCCDD0011223344556677 /* WorkgroupListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C6A1B4D9E0481A9B3C8D1E /* WorkgroupListView.swift */; };
-		8899AABBCCDDEEFF00112233 /* OrganizationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D2E3F4A5B60718293A4B5C /* OrganizationListView.swift */; };
 		456C7F44832055F7ACD5467C /* APIClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CEAE0441350176CF4AF4580 /* APIClientTests.swift */; };
+		46FF5BA452BD314F164561AB /* OrganizationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAAF0964F20F805BD963B12 /* OrganizationListView.swift */; };
 		4E53CB2D222456EC65AEB807 /* wotlwedu-config.json in Resources */ = {isa = PBXBuildFile; fileRef = 3FDAB23F0FDBBBE22F7179EA /* wotlwedu-config.json */; };
 		4FC0AF0F780B0F54ADA28577 /* WotlweduModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF6895247D60E5FA00290FFA /* WotlweduModels.swift */; };
 		57105E025C9DE88C4094C1B0 /* VotingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C1750C908E2B6823D1CE6F6 /* VotingViewModel.swift */; };
@@ -35,12 +34,14 @@
 		8258089B88F72C9B1DC9B6A3 /* VotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5307B09EFE1ACC9BE0265562 /* VotingView.swift */; };
 		8776869ADAB7A2D0CE04F8CD /* FriendListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C2F66D18E60D53A49FBFCF /* FriendListView.swift */; };
 		8EFD3C4DCDEEA2F2551CB79E /* ConfigLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85970E881055BD9DE7FAE329 /* ConfigLoaderTests.swift */; };
+		93FDA0B3A7C0A594CF191AF3 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 69D3EC921B1E24C36674F4B0 /* GoogleSignIn */; };
 		99A953CDA856B0DB694E60B0 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8495970A9CBC41FBA7E31E9F /* ProfileView.swift */; };
 		9F49D49829D7E5ADD4923D43 /* RoleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E919034606B39AE9030B2750 /* RoleListView.swift */; };
 		9FC57B3536494ECAD83E70E2 /* MockURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 122EA17E19FE8179B360BBBB /* MockURLProtocol.swift */; };
 		A3547F52B0604B262E2BC9DC /* ConfigLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D099AB784E580BB9A7FBF67C /* ConfigLoader.swift */; };
 		A4550D49E23A0B8B3DC747B4 /* wotlwedu-config.json.template in Resources */ = {isa = PBXBuildFile; fileRef = 4C2765D1C2A0FAC6B53D47CD /* wotlwedu-config.json.template */; };
 		A4EC927A6D17C506C0AAC658 /* HomeDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1920178CAF2611A88DDC9714 /* HomeDashboardView.swift */; };
+		A6C92EC31E1AC6D94FCA0462 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 97ECCD5D5CC490E6D3B9FF77 /* GoogleSignInSwift */; };
 		A7DCEFD5F9E0D98CB0875326 /* PagedListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42989B935DB30590F0553FDE /* PagedListViewModel.swift */; };
 		B500FD1B18544E7030D9C3E6 /* wotlwedu-config.json in Resources */ = {isa = PBXBuildFile; fileRef = 365E58DABF20A8FB41D79DA1 /* wotlwedu-config.json */; };
 		BA9AA8CAC55B3E567DFE813C /* NotificationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9CFFD82E9CF197DEA1FF3EA /* NotificationListView.swift */; };
@@ -56,6 +57,7 @@
 		EFEF05EFC4FD8A83A7129A91 /* SessionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67885BB6411916FB34B66C41 /* SessionStoreTests.swift */; };
 		F155299DF3ADC13C9B54B916 /* AppViewModelIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70FD8F2BCA3EE2DC2F9BF157 /* AppViewModelIntegrationTests.swift */; };
 		F23E72A1321FCA6836442EE6 /* ItemListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54110815EC1B3626C06841B /* ItemListView.swift */; };
+		F5F766BBCB416B9224F6EF7E /* WorkgroupListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 261274AAA4B302827AF976BB /* WorkgroupListView.swift */; };
 		FBC676356FC8C1E37435DBD7 /* RegisterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2865DF9378B523400B1B81 /* RegisterService.swift */; };
 /* End PBXBuildFile section */
 
@@ -78,13 +80,12 @@
 
 /* Begin PBXFileReference section */
 		03DEF30C12D93D51D3729D0D /* GroupListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupListView.swift; sourceTree = "<group>"; };
-		C1D2E3F4A5B60718293A4B5C /* OrganizationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizationListView.swift; sourceTree = "<group>"; };
-		F2C6A1B4D9E0481A9B3C8D1E /* WorkgroupListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkgroupListView.swift; sourceTree = "<group>"; };
 		0CEAE0441350176CF4AF4580 /* APIClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClientTests.swift; sourceTree = "<group>"; };
 		122EA17E19FE8179B360BBBB /* MockURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLProtocol.swift; sourceTree = "<group>"; };
 		17E355A06949FD1058B6DA0F /* WotlweduDomainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WotlweduDomainService.swift; sourceTree = "<group>"; };
 		1920178CAF2611A88DDC9714 /* HomeDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDashboardView.swift; sourceTree = "<group>"; };
 		1CA0D7852FED1D6071E5A4CE /* Binding+Nil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+Nil.swift"; sourceTree = "<group>"; };
+		261274AAA4B302827AF976BB /* WorkgroupListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkgroupListView.swift; sourceTree = "<group>"; };
 		2D2865DF9378B523400B1B81 /* RegisterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterService.swift; sourceTree = "<group>"; };
 		365E58DABF20A8FB41D79DA1 /* wotlwedu-config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "wotlwedu-config.json"; sourceTree = "<group>"; };
 		3FDAB23F0FDBBBE22F7179EA /* wotlwedu-config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "wotlwedu-config.json"; sourceTree = "<group>"; };
@@ -112,6 +113,7 @@
 		85A66891BC1520A0813DADAE /* WotlweduDomainServiceIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WotlweduDomainServiceIntegrationTests.swift; sourceTree = "<group>"; };
 		8B2408412244248EF6337E3C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8DE2ACE3215B232F3A001AF7 /* APIResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIResponse.swift; sourceTree = "<group>"; };
+		8EAAF0964F20F805BD963B12 /* OrganizationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizationListView.swift; sourceTree = "<group>"; };
 		927B886560B62E3C607D9793 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		97C2F66D18E60D53A49FBFCF /* FriendListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendListView.swift; sourceTree = "<group>"; };
 		A54110815EC1B3626C06841B /* ItemListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListView.swift; sourceTree = "<group>"; };
@@ -132,6 +134,18 @@
 		F050497F94DC77D2C0901C61 /* AnyEncodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyEncodable.swift; sourceTree = "<group>"; };
 		F051266CCC9318DF69A45A40 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6E6CBA018D6EC3493C05B92A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				93FDA0B3A7C0A594CF191AF3 /* GoogleSignIn in Frameworks */,
+				A6C92EC31E1AC6D94FCA0462 /* GoogleSignInSwift in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		0321F899575773F9BED8814F /* Services */ = {
@@ -235,25 +249,25 @@
 			path = WotlweduIOSTests;
 			sourceTree = "<group>";
 		};
-			938A70FEC8D828DD85BFC231 /* Manage */ = {
-				isa = PBXGroup;
-				children = (
-					5192443342F4CA5065068978 /* CategoryListView.swift */,
-					EDCC2A8801EB6B64FBF77500 /* ElectionListView.swift */,
-					97C2F66D18E60D53A49FBFCF /* FriendListView.swift */,
-					03DEF30C12D93D51D3729D0D /* GroupListView.swift */,
-					6DEC84F13E003F4A9ECA6253 /* ImageListView.swift */,
-					A54110815EC1B3626C06841B /* ItemListView.swift */,
-					D00E55D429C93451D4CBA142 /* ListListView.swift */,
-					C1D2E3F4A5B60718293A4B5C /* OrganizationListView.swift */,
-					BE4FB81CC01C2212E1097C8A /* PreferenceListView.swift */,
-					E919034606B39AE9030B2750 /* RoleListView.swift */,
-					4AFF1249AC586C5CAFF91CAE /* UserListView.swift */,
-					F2C6A1B4D9E0481A9B3C8D1E /* WorkgroupListView.swift */,
-				);
-				path = Manage;
-				sourceTree = "<group>";
-			};
+		938A70FEC8D828DD85BFC231 /* Manage */ = {
+			isa = PBXGroup;
+			children = (
+				5192443342F4CA5065068978 /* CategoryListView.swift */,
+				EDCC2A8801EB6B64FBF77500 /* ElectionListView.swift */,
+				97C2F66D18E60D53A49FBFCF /* FriendListView.swift */,
+				03DEF30C12D93D51D3729D0D /* GroupListView.swift */,
+				6DEC84F13E003F4A9ECA6253 /* ImageListView.swift */,
+				A54110815EC1B3626C06841B /* ItemListView.swift */,
+				D00E55D429C93451D4CBA142 /* ListListView.swift */,
+				8EAAF0964F20F805BD963B12 /* OrganizationListView.swift */,
+				BE4FB81CC01C2212E1097C8A /* PreferenceListView.swift */,
+				E919034606B39AE9030B2750 /* RoleListView.swift */,
+				4AFF1249AC586C5CAFF91CAE /* UserListView.swift */,
+				261274AAA4B302827AF976BB /* WorkgroupListView.swift */,
+			);
+			path = Manage;
+			sourceTree = "<group>";
+		};
 		B04B2B689C89EC6250446E26 /* Fixtures */ = {
 			isa = PBXGroup;
 			children = (
@@ -398,6 +412,7 @@
 			buildPhases = (
 				513CE814452BF90012EB9B8C /* Sources */,
 				87D4A7862BB5C7E4E3AFC6C5 /* Resources */,
+				6E6CBA018D6EC3493C05B92A /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -405,6 +420,8 @@
 			);
 			name = WotlweduIOS;
 			packageProductDependencies = (
+				69D3EC921B1E24C36674F4B0 /* GoogleSignIn */,
+				97ECCD5D5CC490E6D3B9FF77 /* GoogleSignInSwift */,
 			);
 			productName = WotlweduIOS;
 			productReference = 7C93DB2E8FC87D6DDB11E2B1 /* WotlweduIOS.app */;
@@ -437,9 +454,10 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = 9AD04F093900FC2637312A7B /* Build configuration list for PBXProject "WotlweduIOS" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -448,7 +466,11 @@
 			);
 			mainGroup = 2CD093FC0257512AE790A9E6;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DD9DDBA9BDEF4B020ED2E1A5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
+			productRefGroup = C528109E0726C3CAA8528DC4 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -489,10 +511,10 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-			513CE814452BF90012EB9B8C /* Sources */ = {
-				isa = PBXSourcesBuildPhase;
-				buildActionMask = 2147483647;
-				files = (
+		513CE814452BF90012EB9B8C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 				C8BFE9546EAB391F4EADBF59 /* APIClient.swift in Sources */,
 				046D84FD5CCF2E76B844A5F3 /* APIResponse.swift in Sources */,
 				01C78A0228149E4BFF168174 /* AnyEncodable.swift in Sources */,
@@ -504,35 +526,35 @@
 				1DF6F8C5603736CEF81045D7 /* CategoryListView.swift in Sources */,
 				A3547F52B0604B262E2BC9DC /* ConfigLoader.swift in Sources */,
 				21B98580C5903D5798569897 /* ElectionListView.swift in Sources */,
-					8776869ADAB7A2D0CE04F8CD /* FriendListView.swift in Sources */,
-					43227205272392D10DADE7EF /* GroupListView.swift in Sources */,
-					A4EC927A6D17C506C0AAC658 /* HomeDashboardView.swift in Sources */,
-					5E0F7328DB70A6EA522834F7 /* ImageListView.swift in Sources */,
-					F23E72A1321FCA6836442EE6 /* ItemListView.swift in Sources */,
-					25B3B20D504A371EDA51A99B /* ListListView.swift in Sources */,
-					1DC8E6D10DB86E8D2A7C1373 /* MainShellView.swift in Sources */,
-					BE4EF71A1DB02B8C1FDCC7CA /* MediaService.swift in Sources */,
-					5D86B0FD11699E983B2744EF /* MultiSelectList.swift in Sources */,
-					BA9AA8CAC55B3E567DFE813C /* NotificationListView.swift in Sources */,
-					8899AABBCCDDEEFF00112233 /* OrganizationListView.swift in Sources */,
-					14F306DD1C995647374CFA6E /* NotificationViewModel.swift in Sources */,
-					A7DCEFD5F9E0D98CB0875326 /* PagedListViewModel.swift in Sources */,
-					CF2B17042AF45792FC838BA5 /* PreferenceListView.swift in Sources */,
-					99A953CDA856B0DB694E60B0 /* ProfileView.swift in Sources */,
-					FBC676356FC8C1E37435DBD7 /* RegisterService.swift in Sources */,
-					9F49D49829D7E5ADD4923D43 /* RoleListView.swift in Sources */,
-					DBA93EDC9BC9BDAFA9E7C062 /* SessionStore.swift in Sources */,
-					C4F4DB598A57C61CFD49F0FA /* UserListView.swift in Sources */,
-					8258089B88F72C9B1DC9B6A3 /* VotingView.swift in Sources */,
-					57105E025C9DE88C4094C1B0 /* VotingViewModel.swift in Sources */,
-					AABBCCDD0011223344556677 /* WorkgroupListView.swift in Sources */,
-					1E05F8444A0A0D8BD46E85CE /* WotlweduDataService.swift in Sources */,
-					3DC402E78FA9FD814A757DAD /* WotlweduDomainService.swift in Sources */,
-					3A7E737367C45821BBCE9FBD /* WotlweduIOSApp.swift in Sources */,
-					4FC0AF0F780B0F54ADA28577 /* WotlweduModels.swift in Sources */,
-				);
-				runOnlyForDeploymentPostprocessing = 0;
-			};
+				8776869ADAB7A2D0CE04F8CD /* FriendListView.swift in Sources */,
+				43227205272392D10DADE7EF /* GroupListView.swift in Sources */,
+				A4EC927A6D17C506C0AAC658 /* HomeDashboardView.swift in Sources */,
+				5E0F7328DB70A6EA522834F7 /* ImageListView.swift in Sources */,
+				F23E72A1321FCA6836442EE6 /* ItemListView.swift in Sources */,
+				25B3B20D504A371EDA51A99B /* ListListView.swift in Sources */,
+				1DC8E6D10DB86E8D2A7C1373 /* MainShellView.swift in Sources */,
+				BE4EF71A1DB02B8C1FDCC7CA /* MediaService.swift in Sources */,
+				5D86B0FD11699E983B2744EF /* MultiSelectList.swift in Sources */,
+				BA9AA8CAC55B3E567DFE813C /* NotificationListView.swift in Sources */,
+				14F306DD1C995647374CFA6E /* NotificationViewModel.swift in Sources */,
+				46FF5BA452BD314F164561AB /* OrganizationListView.swift in Sources */,
+				A7DCEFD5F9E0D98CB0875326 /* PagedListViewModel.swift in Sources */,
+				CF2B17042AF45792FC838BA5 /* PreferenceListView.swift in Sources */,
+				99A953CDA856B0DB694E60B0 /* ProfileView.swift in Sources */,
+				FBC676356FC8C1E37435DBD7 /* RegisterService.swift in Sources */,
+				9F49D49829D7E5ADD4923D43 /* RoleListView.swift in Sources */,
+				DBA93EDC9BC9BDAFA9E7C062 /* SessionStore.swift in Sources */,
+				C4F4DB598A57C61CFD49F0FA /* UserListView.swift in Sources */,
+				8258089B88F72C9B1DC9B6A3 /* VotingView.swift in Sources */,
+				57105E025C9DE88C4094C1B0 /* VotingViewModel.swift in Sources */,
+				F5F766BBCB416B9224F6EF7E /* WorkgroupListView.swift in Sources */,
+				1E05F8444A0A0D8BD46E85CE /* WotlweduDataService.swift in Sources */,
+				3DC402E78FA9FD814A757DAD /* WotlweduDomainService.swift in Sources */,
+				3A7E737367C45821BBCE9FBD /* WotlweduIOSApp.swift in Sources */,
+				4FC0AF0F780B0F54ADA28577 /* WotlweduModels.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7724825320930CF156A9C9AB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -632,6 +654,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				GOOGLE_IOS_CLIENT_ID = "";
+				GOOGLE_REVERSED_CLIENT_ID = "";
+				GOOGLE_SERVER_CLIENT_ID = "";
 				INFOPLIST_FILE = WotlweduIOS/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -697,6 +722,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				GOOGLE_IOS_CLIENT_ID = "";
+				GOOGLE_REVERSED_CLIENT_ID = "";
+				GOOGLE_SERVER_CLIENT_ID = "";
 				INFOPLIST_FILE = WotlweduIOS/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -828,6 +856,30 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DD9DDBA9BDEF4B020ED2E1A5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		69D3EC921B1E24C36674F4B0 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DD9DDBA9BDEF4B020ED2E1A5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		97ECCD5D5CC490E6D3B9FF77 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DD9DDBA9BDEF4B020ED2E1A5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2ABAD78C832BF35814EB445A /* Project object */;
 }

@@ -217,6 +217,23 @@ struct WotlweduRegistration: Codable {
     var auth: String?
 }
 
+struct WotlweduOrganizationInvite: Codable, Identifiable, Hashable {
+    var id: String?
+    var organizationId: String?
+    var email: String?
+    var token: String?
+    var status: String?
+    var createdAt: Date?
+    var expiresAt: Date?
+    var acceptedAt: Date?
+    var revokedAt: Date?
+    var organizationName: String?
+}
+
+struct WotlweduInviteLookup: Codable {
+    var invite: WotlweduOrganizationInvite?
+}
+
 struct ServerStatus: Decodable {
     var version: String?
     var uptime: String?

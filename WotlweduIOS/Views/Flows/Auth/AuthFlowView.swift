@@ -1,4 +1,7 @@
 import SwiftUI
+import UIKit
+import GoogleSignIn
+import GoogleSignInSwift
 
 struct AuthFlowView: View {
     private enum AuthTab: String, CaseIterable, Identifiable {
@@ -60,6 +63,8 @@ private struct LoginForm: View {
     @State private var email = ""
     @State private var password = ""
     @State private var isLoading = false
+    @State private var inviteTokenText = ""
+    @State private var isGoogleLoading = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -74,6 +79,25 @@ private struct LoginForm: View {
                 .textContentType(.password)
                 .padding()
                 .background(RoundedRectangle(cornerRadius: 10).fill(Color(.secondarySystemBackground)))
+
+            TextField("Invite token (optional)", text: $inviteTokenText)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .padding()
+                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.secondarySystemBackground)))
+
+            if let invite = appViewModel.inviteDetails {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Invitation ready")
+                        .font(.subheadline.weight(.semibold))
+                    Text("Sign in with Google to join \(invite.organizationName ?? "the organization") as \(invite.email ?? "the invited account").")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+                .background(RoundedRectangle(cornerRadius: 12).fill(Color.blue.opacity(0.08)))
+            }
 
             Button {
                 Task {
@@ -91,11 +115,89 @@ private struct LoginForm: View {
             .disabled(email.isEmpty || password.isEmpty || isLoading)
             .buttonStyle(.borderedProminent)
 
+            if googleConfigured {
+                GoogleSignInButton(action: handleGoogleSignIn)
+                    .frame(height: 50)
+                    .disabled(isGoogleLoading)
+            }
+
             Button("Forgot password?") { showingReset = true }
                 .font(.footnote)
                 .sheet(isPresented: $showingReset) {
                     PasswordResetRequestView()
                 }
+
+            if !inviteTokenText.isEmpty {
+                Button("Check invite") {
+                    Task {
+                        await appViewModel.lookupInvite(token: inviteTokenText)
+                    }
+                }
+                .font(.footnote)
+            }
+        }
+        .onAppear {
+            if let inviteToken = appViewModel.inviteToken, inviteTokenText.isEmpty {
+                inviteTokenText = inviteToken
+            }
+        }
+    }
+
+    private var googleConfigured: Bool {
+        let clientId = (Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String) ?? ""
+        let serverClientId = (Bundle.main.object(forInfoDictionaryKey: "GIDServerClientID") as? String) ?? ""
+        return !clientId.isEmpty && !serverClientId.isEmpty
+    }
+
+    private func handleGoogleSignIn() {
+        guard googleConfigured else {
+            appViewModel.errorMessage = "Google Sign-In is not configured."
+            return
+        }
+
+        guard let rootViewController = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap(\.windows)
+            .first(where: \.isKeyWindow)?.rootViewController else {
+            appViewModel.errorMessage = "Unable to present Google Sign-In."
+            return
+        }
+
+        let clientId = (Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String) ?? ""
+        let serverClientId = (Bundle.main.object(forInfoDictionaryKey: "GIDServerClientID") as? String) ?? ""
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(
+            clientID: clientId,
+            serverClientID: serverClientId
+        )
+
+        isGoogleLoading = true
+        GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { result, error in
+            Task {
+                await MainActor.run {
+                    if let error {
+                        appViewModel.errorMessage = error.localizedDescription
+                        isGoogleLoading = false
+                        return
+                    }
+                }
+
+                guard let idToken = result?.user.idToken?.tokenString else {
+                    await MainActor.run {
+                        appViewModel.errorMessage = "Google Sign-In did not return an ID token."
+                        isGoogleLoading = false
+                    }
+                    return
+                }
+
+                let inviteToken = inviteTokenText.trimmingCharacters(in: .whitespacesAndNewlines)
+                await appViewModel.loginWithGoogle(
+                    idToken: idToken,
+                    inviteToken: inviteToken.isEmpty ? nil : inviteToken
+                )
+                await MainActor.run {
+                    isGoogleLoading = false
+                }
+            }
         }
     }
 }

@@ -38,6 +38,34 @@ final class AuthService {
         return data
     }
 
+    func loginGoogle(idToken: String, inviteToken: String?) async throws -> AuthTokens {
+        struct Payload: Encodable {
+            let idToken: String
+            let inviteToken: String?
+        }
+
+        let payload = Payload(idToken: idToken, inviteToken: inviteToken)
+        let endpoint = Endpoint(
+            path: "login/google",
+            method: .post,
+            body: try JSONEncoder.api.encode(payload),
+            requiresAuth: false
+        )
+        let response: APIResponse<AuthTokens> = try await api.send(endpoint)
+        guard let data = response.data else { throw APIError.server(message: response.message ?? "Missing auth data", url: nil) }
+        save(tokens: data)
+        return data
+    }
+
+    func inviteLookup(token: String) async throws -> WotlweduOrganizationInvite {
+        let endpoint = Endpoint(path: "login/invite/\(token)", method: .get, requiresAuth: false)
+        let response: APIResponse<WotlweduInviteLookup> = try await api.send(endpoint)
+        guard let data = response.data?.invite else {
+            throw APIError.server(message: response.message ?? "Invite not found", url: nil)
+        }
+        return data
+    }
+
     func refresh() async throws -> AuthTokens {
         guard let refresh = sessionStore.refreshToken else { throw APIError.unauthorized(url: nil) }
         let payload = ["refreshToken": refresh]

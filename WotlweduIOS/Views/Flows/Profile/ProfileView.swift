@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ProfileView: View {
     @EnvironmentObject var appViewModel: AppViewModel
@@ -13,13 +14,29 @@ struct ProfileView: View {
 }
 
 private struct ProfileContent: View {
+    private enum InviteFilter: String, CaseIterable, Identifiable {
+        case all
+        case pending
+        case accepted
+        case revoked
+        case expired
+
+        var id: String { rawValue }
+
+        var label: String { rawValue.capitalized }
+    }
+
     let service: WotlweduDomainService
     @EnvironmentObject var appViewModel: AppViewModel
     @State private var user: WotlweduUser?
+    @State private var organization: WotlweduOrganization?
     @State private var show2FA = false
     @State private var twoFAData: TwoFactorBootstrap?
     @State private var workgroups: [WotlweduWorkgroup] = []
     @State private var selectedWorkgroupId: String = ""
+    @State private var inviteEmail = ""
+    @State private var inviteFilter: InviteFilter = .all
+    @State private var invites: [WotlweduOrganizationInvite] = []
 
     var body: some View {
         List {
@@ -28,6 +45,9 @@ private struct ProfileContent: View {
                     Text(user.displayName).font(.headline)
                     Text(user.email ?? "").foregroundStyle(.secondary)
                     if user.admin == true { Text("Administrator").font(.caption).foregroundStyle(.secondary) }
+                    if let organizationName = organization?.name {
+                        Text(organizationName).font(.caption).foregroundStyle(.secondary)
+                    }
                 }
             }
 
@@ -50,6 +70,81 @@ private struct ProfileContent: View {
                 }
             }
 
+            if canManageInvites {
+                Section("Organization Invitations") {
+                    TextField("Invite email", text: $inviteEmail)
+                        .textInputAutocapitalization(.never)
+                        .keyboardType(.emailAddress)
+
+                    Button("Send Invite") {
+                        Task { await createInvite() }
+                    }
+                    .disabled(inviteEmail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                    Picker("Status", selection: $inviteFilter) {
+                        ForEach(InviteFilter.allCases) { status in
+                            Text(status.label).tag(status)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .onChange(of: inviteFilter) { _ in
+                        Task { await loadInvites() }
+                    }
+
+                    ForEach(invites) { invite in
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text(invite.email ?? "Unknown email")
+                                    .font(.headline)
+                                Spacer()
+                                Text((invite.status ?? "unknown").capitalized)
+                                    .font(.caption.weight(.semibold))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.secondary.opacity(0.12))
+                                    .clipShape(Capsule())
+                            }
+
+                            if let createdAt = invite.createdAt {
+                                Text("Created \(createdAt.formatted())").font(.caption).foregroundStyle(.secondary)
+                            }
+                            if let expiresAt = invite.expiresAt {
+                                Text("Expires \(expiresAt.formatted())").font(.caption).foregroundStyle(.secondary)
+                            }
+                            if let acceptedAt = invite.acceptedAt {
+                                Text("Accepted \(acceptedAt.formatted())").font(.caption).foregroundStyle(.secondary)
+                            }
+                            if let revokedAt = invite.revokedAt {
+                                Text("Revoked \(revokedAt.formatted())").font(.caption).foregroundStyle(.secondary)
+                            }
+                            if let token = invite.token {
+                                Text("Token: \(token)")
+                                    .font(.caption2)
+                                    .textSelection(.enabled)
+                            }
+
+                            if invite.status == "pending", let inviteId = invite.id {
+                                HStack {
+                                    Button("Resend") {
+                                        Task { await resendInvite(inviteId: inviteId) }
+                                    }
+                                    Button("Revoke", role: .destructive) {
+                                        Task { await revokeInvite(inviteId: inviteId) }
+                                    }
+                                    if let token = invite.token {
+                                        Button("Copy Token") {
+                                            UIPasteboard.general.string = token
+                                        }
+                                    }
+                                }
+                                .buttonStyle(.borderless)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+            }
+
             Section {
                 Button("Log out", role: .destructive) {
                     appViewModel.logout()
@@ -60,8 +155,14 @@ private struct ProfileContent: View {
         .task {
             selectedWorkgroupId = appViewModel.activeWorkgroupId ?? ""
             await loadUser()
+            await loadOrganization()
             await loadWorkgroups()
+            await loadInvites()
         }
+    }
+
+    private var canManageInvites: Bool {
+        appViewModel.organizationId != nil && (appViewModel.isOrganizationAdmin || appViewModel.isSystemAdmin)
     }
 
     private func loadUser() async {
@@ -77,9 +178,59 @@ private struct ProfileContent: View {
         }
     }
 
+    private func loadOrganization() async {
+        guard let organizationId = appViewModel.organizationId else { return }
+        if let detail = try? await service.organizationDetail(id: organizationId) {
+            organization = detail
+        }
+    }
+
     private func loadWorkgroups() async {
         if let result = try? await service.workgroups(page: 1, items: 200, filter: nil) {
             workgroups = result.collection
+        }
+    }
+
+    private func loadInvites() async {
+        guard canManageInvites, let organizationId = appViewModel.organizationId else { return }
+        do {
+            invites = try await service.organizationInvites(organizationId: organizationId, status: inviteFilter.rawValue)
+        } catch {
+            appViewModel.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func createInvite() async {
+        guard let organizationId = appViewModel.organizationId else { return }
+        do {
+            try await service.createOrganizationInvite(
+                organizationId: organizationId,
+                email: inviteEmail.trimmingCharacters(in: .whitespacesAndNewlines)
+            )
+            inviteEmail = ""
+            await loadInvites()
+        } catch {
+            appViewModel.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func resendInvite(inviteId: String) async {
+        guard let organizationId = appViewModel.organizationId else { return }
+        do {
+            try await service.resendOrganizationInvite(organizationId: organizationId, inviteId: inviteId)
+            await loadInvites()
+        } catch {
+            appViewModel.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func revokeInvite(inviteId: String) async {
+        guard let organizationId = appViewModel.organizationId else { return }
+        do {
+            try await service.revokeOrganizationInvite(organizationId: organizationId, inviteId: inviteId)
+            await loadInvites()
+        } catch {
+            appViewModel.errorMessage = error.localizedDescription
         }
     }
 }

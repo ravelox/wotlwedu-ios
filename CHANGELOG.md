@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.8] - 2026-03-24
+- Add Google Sign-In to the iOS auth flow using the official `GoogleSignIn-iOS` Swift Package Manager packages.
+- Add invite-aware onboarding with backend `GET /login/invite/:token` lookup and `POST /login/google` completion.
+- Add organization-admin invite management in the profile flow with create, list, resend, revoke, and status filtering.
+- Add Google OAuth build settings and URL-scheme wiring in `project.yml` and `Info.plist`.
+
 ## [0.2.7] - 2026-03-09
 - Harden auth/session token restoration and API client handling for malformed persisted values.
 - Align registration and password-reset client behavior with backend token validation hardening.

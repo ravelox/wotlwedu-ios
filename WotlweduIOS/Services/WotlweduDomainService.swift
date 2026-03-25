@@ -170,6 +170,35 @@ final class WotlweduDomainService {
         try await dataService.detail(path: "organization/", id: id)
     }
 
+    func organizationInvites(organizationId: String, status: String? = nil) async throws -> [WotlweduOrganizationInvite] {
+        var query: [URLQueryItem] = []
+        if let status, !status.isEmpty, status != "all" {
+            query.append(URLQueryItem(name: "status", value: status))
+        }
+        let endpoint = Endpoint(path: "organization/\(organizationId)/invite", method: .get, query: query)
+        let response: APIResponse<PagedResponse<WotlweduOrganizationInvite>> = try await api.send(endpoint)
+        return response.data?.collection ?? []
+    }
+
+    func createOrganizationInvite(organizationId: String, email: String) async throws {
+        let endpoint = Endpoint(
+            path: "organization/\(organizationId)/invite",
+            method: .post,
+            body: try JSONEncoder.api.encode(["email": email])
+        )
+        try await api.sendWithoutDecoding(endpoint)
+    }
+
+    func resendOrganizationInvite(organizationId: String, inviteId: String) async throws {
+        let endpoint = Endpoint(path: "organization/\(organizationId)/invite/\(inviteId)/resend", method: .post)
+        try await api.sendWithoutDecoding(endpoint)
+    }
+
+    func revokeOrganizationInvite(organizationId: String, inviteId: String) async throws {
+        let endpoint = Endpoint(path: "organization/\(organizationId)/invite/\(inviteId)", method: .delete)
+        try await api.sendWithoutDecoding(endpoint)
+    }
+
     func save(organization: WotlweduOrganization) async throws -> WotlweduOrganization {
         struct Payload: Encodable {
             let name: String

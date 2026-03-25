@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.11] - 2026-03-24
+- Refine the profile sign-in and audit sections with reusable support-style rows and outcome badges.
+- Add a compact organization audit snapshot in the SwiftUI profile flow for admin users.
+- Keep the iOS profile support presentation aligned with the backend auth/invite/audit slice without introducing a separate console.
+
 ## [0.2.8] - 2026-03-24
 - Add Google Sign-In to the iOS auth flow using the official `GoogleSignIn-iOS` Swift Package Manager packages.
 - Add invite-aware onboarding with backend `GET /login/invite/:token` lookup and `POST /login/google` completion.

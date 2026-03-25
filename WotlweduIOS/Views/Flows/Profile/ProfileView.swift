@@ -75,23 +75,27 @@ private struct ProfileContent: View {
             }
 
             Section("Sign-In Methods") {
-                Text(signInMethods.passwordEnabled == true ? "Password: Enabled" : "Password: Disabled")
-                    .font(.subheadline)
+                MethodRow(
+                    title: "Password",
+                    subtitle: "Local password login availability.",
+                    badgeText: signInMethods.passwordEnabled == true ? "Enabled" : "Disabled",
+                    badgeTone: signInMethods.passwordEnabled == true ? .success : .neutral,
+                    actionTitle: nil,
+                    actionRole: nil,
+                    action: nil
+                )
                 ForEach(signInMethods.linkedProviders ?? []) { method in
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text((method.provider ?? "social").capitalized).font(.headline)
-                        if let email = method.email {
-                            Text(email).font(.caption).foregroundStyle(.secondary)
+                    MethodRow(
+                        title: methodTitle(method),
+                        subtitle: methodSubtitle(method),
+                        badgeText: "Linked",
+                        badgeTone: .neutral,
+                        actionTitle: method.id == nil ? nil : "Unlink",
+                        actionRole: .destructive,
+                        action: method.id == nil ? nil : {
+                            Task { await unlinkMethod(identityId: method.id ?? "") }
                         }
-                        if let updatedAt = method.updatedAt {
-                            Text("Updated \(updatedAt.formatted())").font(.caption).foregroundStyle(.secondary)
-                        }
-                        if let identityId = method.id {
-                            Button("Unlink", role: .destructive) {
-                                Task { await unlinkMethod(identityId: identityId) }
-                            }
-                        }
-                    }
+                    )
                 }
             }
 
@@ -101,13 +105,7 @@ private struct ProfileContent: View {
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(userAudits) { audit in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(audit.eventType ?? "Activity").font(.headline)
-                            Text(audit.message ?? "").font(.caption).foregroundStyle(.secondary)
-                            if let createdAt = audit.createdAt {
-                                Text(createdAt.formatted()).font(.caption2).foregroundStyle(.secondary)
-                            }
-                        }
+                        AuditRow(audit: audit)
                     }
                 }
             }
@@ -190,6 +188,8 @@ private struct ProfileContent: View {
                 }
 
                 Section("Organization Audit Feed") {
+                    SupportSnapshotRow(audits: organizationAudits)
+
                     Picker("Outcome", selection: $auditOutcomeFilter) {
                         Text("All").tag("all")
                         Text("Success").tag("success")
@@ -206,13 +206,7 @@ private struct ProfileContent: View {
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(organizationAudits) { audit in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(audit.eventType ?? "Activity").font(.headline)
-                                Text(audit.message ?? "").font(.caption).foregroundStyle(.secondary)
-                                if let createdAt = audit.createdAt {
-                                    Text(createdAt.formatted()).font(.caption2).foregroundStyle(.secondary)
-                                }
-                            }
+                            AuditRow(audit: audit)
                         }
                     }
                 }
@@ -349,6 +343,168 @@ private struct ProfileContent: View {
         } catch {
             appViewModel.errorMessage = error.localizedDescription
         }
+    }
+
+    private func methodTitle(_ method: WotlweduSignInMethod) -> String {
+        let provider = (method.provider ?? "social").capitalized
+        if let email = method.email, !email.isEmpty {
+            return "\(provider) • \(email)"
+        }
+        return provider
+    }
+
+    private func methodSubtitle(_ method: WotlweduSignInMethod) -> String {
+        if let updatedAt = method.updatedAt {
+            return "Updated \(updatedAt.formatted())"
+        }
+        if let subjectPreview = method.subjectPreview, !subjectPreview.isEmpty {
+            return subjectPreview
+        }
+        return "Linked provider"
+    }
+}
+
+private enum AuditTone {
+    case neutral
+    case success
+    case pending
+    case blocked
+}
+
+private struct AuditBadge: View {
+    let text: String
+    let tone: AuditTone
+
+    var body: some View {
+        Text(text)
+            .font(.caption.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(backgroundColor)
+            .clipShape(Capsule())
+    }
+
+    private var backgroundColor: Color {
+        switch tone {
+        case .success:
+            return Color.green.opacity(0.18)
+        case .pending:
+            return Color.orange.opacity(0.22)
+        case .blocked:
+            return Color.red.opacity(0.18)
+        case .neutral:
+            return Color.secondary.opacity(0.12)
+        }
+    }
+}
+
+private struct MethodRow: View {
+    let title: String
+    let subtitle: String
+    let badgeText: String
+    let badgeTone: AuditTone
+    let actionTitle: String?
+    let actionRole: ButtonRole?
+    let action: (() -> Void)?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top, spacing: 8) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title).font(.headline)
+                    Text(subtitle).font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+                AuditBadge(text: badgeText, tone: badgeTone)
+            }
+
+            if let actionTitle, let action {
+                Button(actionTitle, role: actionRole, action: action)
+                    .buttonStyle(.borderless)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+private struct AuditRow: View {
+    let audit: WotlweduAuthAudit
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top, spacing: 8) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(audit.eventType ?? "Activity").font(.headline)
+                    if let message = audit.message, !message.isEmpty {
+                        Text(message).font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                Spacer()
+                AuditBadge(text: audit.outcome ?? "unknown", tone: tone(for: audit.outcome))
+            }
+
+            if !metaParts.isEmpty {
+                Text(metaParts.joined(separator: " • "))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var metaParts: [String] {
+        [
+            audit.createdAt?.formatted(),
+            audit.provider,
+            audit.email,
+        ].compactMap { part in
+            guard let part, !part.isEmpty else { return nil }
+            return part
+        }
+    }
+
+    private func tone(for outcome: String?) -> AuditTone {
+        switch (outcome ?? "").lowercased() {
+        case "success":
+            return .success
+        case "pending":
+            return .pending
+        case "blocked", "error", "failed":
+            return .blocked
+        default:
+            return .neutral
+        }
+    }
+}
+
+private struct SupportSnapshotRow: View {
+    let audits: [WotlweduAuthAudit]
+
+    var body: some View {
+        HStack(spacing: 8) {
+            metric(title: "Loaded", value: "\(audits.count)")
+            metric(title: "Success", value: "\(successCount)")
+            metric(title: "Non-success", value: "\(max(0, audits.count - successCount))")
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var successCount: Int {
+        audits.filter { ($0.outcome ?? "").lowercased() == "success" }.count
+    }
+
+    private func metric(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.headline)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10)
+        .background(Color.secondary.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 

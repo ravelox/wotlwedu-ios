@@ -2,7 +2,7 @@
 
 Last updated: 2026-03-24
 Repo: `wotlwedu-ios`
-Current version: `0.2.10`
+Current version: `0.2.11`
 
 ## Current Focus
 
@@ -18,6 +18,7 @@ This repo has been updated to expose sign-in method visibility and audit/activit
   - recent account activity
   - organization audit activity for users with access
   - richer invite metadata display
+  - refined support/admin audit presentation with outcome badges and summary metrics
 
 ## Key Files For This Baseline
 
@@ -43,4 +44,4 @@ xcodebuild build -project WotlweduIOS.xcodeproj -scheme WotlweduIOS -sdk iphones
 ## Likely Next Actions
 
 1. Keep parity with backend auth/invite/audit behavior.
-2. Optionally refine the support/admin presentation of audit rows in the profile flow.
+2. Expand beyond the profile-based support snapshot only if the iOS client needs a dedicated operational console.

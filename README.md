@@ -28,7 +28,7 @@ This repository contains the SwiftUI iOS client for the wotlwedu ecosystem, mirr
    ```json
    {
      "apiUrl": "https://api.wotlwedu.com:9876/",
-     "appVersion": "0.2.10",
+     "appVersion": "0.2.11",
      "defaultStartPage": "home",
      "errorCountdown": 30,
      "allowInsecureCertificates": true

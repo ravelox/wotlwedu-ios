@@ -28,7 +28,7 @@ This repository contains the SwiftUI iOS client for the wotlwedu ecosystem, mirr
    ```json
    {
      "apiUrl": "https://api.wotlwedu.com:9876/",
-     "appVersion": "0.2.11",
+    "appVersion": "0.2.12",
      "defaultStartPage": "home",
      "errorCountdown": 30,
      "allowInsecureCertificates": true
@@ -50,6 +50,8 @@ Run tests from Xcode or via CLI:
 ```bash
 xcodebuild test -project WotlweduIOS.xcodeproj -scheme WotlweduIOS -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
+
+The unit-test target now includes auth/invite/audit payload-parity coverage so backend response-shape drift is caught before it reaches the profile flow.
 
 ## Notes
 - If `xcodebuild` complains about simulator plug-ins, run `xcodebuild -runFirstLaunch` or repair Xcode toolchain before building.

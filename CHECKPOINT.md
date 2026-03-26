@@ -2,7 +2,7 @@
 
 Last updated: 2026-03-24
 Repo: `wotlwedu-ios`
-Current version: `0.2.11`
+Current version: `0.2.12`
 
 ## Current Focus
 
@@ -19,6 +19,7 @@ This repo has been updated to expose sign-in method visibility and audit/activit
   - organization audit activity for users with access
   - richer invite metadata display
   - refined support/admin audit presentation with outcome badges and summary metrics
+- Unit-test coverage now checks current backend auth/invite/audit payload decoding for parity-sensitive profile flows.
 
 ## Key Files For This Baseline
 
@@ -43,5 +44,5 @@ xcodebuild build -project WotlweduIOS.xcodeproj -scheme WotlweduIOS -sdk iphones
 
 ## Likely Next Actions
 
-1. Keep parity with backend auth/invite/audit behavior.
+1. Keep extending the new auth/invite/audit parity tests whenever backend response contracts change.
 2. Expand beyond the profile-based support snapshot only if the iOS client needs a dedicated operational console.

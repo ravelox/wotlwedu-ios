@@ -2,7 +2,7 @@
 
 Last updated: 2026-03-24
 Repo: `wotlwedu-ios`
-Current version: `0.2.12`
+Current version: `0.2.13`
 
 ## Current Focus
 

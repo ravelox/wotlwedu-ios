@@ -117,7 +117,7 @@ private struct NotificationListContent: View {
                     }
 
                     if notification.type == NotificationTypeId.electionEnd || notification.type == NotificationTypeId.electionExpired {
-                        Button("View Election") {
+                        Button("View Poll") {
                             Task { await viewModel.previewElection(notification) }
                         }
                     }

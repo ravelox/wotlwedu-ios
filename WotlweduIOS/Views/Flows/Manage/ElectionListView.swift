@@ -38,7 +38,7 @@ private struct ElectionListContent: View {
                 DisclosureGroup(isExpanded: expansionBinding(for: group.categoryName)) {
                     ForEach(group.items) { election in
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(election.name ?? "Election").font(.headline)
+                            Text(election.name ?? "Poll").font(.headline)
                             if let desc = election.description { Text(desc).font(.subheadline) }
                             if let status = election.status?.name {
                                 Text(status).font(.caption).foregroundStyle(.secondary)
@@ -61,7 +61,7 @@ private struct ElectionListContent: View {
                 }
             }
         }
-        .navigationTitle("Elections")
+        .navigationTitle("Polls")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
@@ -159,7 +159,7 @@ private struct ElectionEditor: View {
                 TextField("Description", text: Binding($election.description, replacingNilWith: ""))
                 TextField("Text", text: Binding($election.text, replacingNilWith: ""))
 
-                Picker("Election Type", selection: Binding(
+                Picker("Poll Type", selection: Binding(
                     get: { election.electionType ?? 0 },
                     set: { election.electionType = $0 }
                 )) {
@@ -198,7 +198,7 @@ private struct ElectionEditor: View {
                     }
                 }
             }
-            .navigationTitle(election.id == nil ? "New Election" : "Edit Election")
+            .navigationTitle(election.id == nil ? "New Poll" : "Edit Poll")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {

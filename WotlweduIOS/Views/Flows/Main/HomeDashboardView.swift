@@ -13,7 +13,7 @@ struct HomeDashboardView: View {
         ("Items", "list.bullet", .items),
         ("Images", "photo.on.rectangle", .images),
         ("Lists", "square.stack.3d.up", .lists),
-        ("Elections", "flag.2.crossed", .elections),
+        ("Polls", "flag.2.crossed", .elections),
         ("Notifications", "bell", .notifications)
     ]
 

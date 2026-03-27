@@ -201,7 +201,7 @@ final class NotificationViewModel: ObservableObject {
             let election = try await domainService.electionDetail(id: objectId)
             await markStatus(notification: notification, statusId: NotificationStatusId.read)
             presentation = .message(
-                title: election.name ?? "Election",
+                title: election.name ?? "Poll",
                 body: [election.description, election.text, election.status?.name].compactMap { $0 }.joined(separator: "\n\n")
             )
         } catch {

@@ -19,7 +19,7 @@ private struct VotingContent: View {
         List {
             ForEach(viewModel.upcomingVotes) { vote in
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(vote.election?.name ?? "Election").font(.headline)
+                    Text(vote.election?.name ?? "Poll").font(.headline)
                     if let itemName = vote.item?.name {
                         Text("Item: \(itemName)").font(.subheadline)
                     }

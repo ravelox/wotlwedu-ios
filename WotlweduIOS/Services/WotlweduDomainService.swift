@@ -175,7 +175,7 @@ final class WotlweduDomainService {
         if let status, !status.isEmpty, status != "all" {
             query.append(URLQueryItem(name: "status", value: status))
         }
-        let endpoint = Endpoint(path: "organization/\(organizationId)/invite", method: .get, query: query)
+        let endpoint = Endpoint(path: "support/organizations/\(organizationId)/invite", method: .get, query: query)
         let response: APIResponse<PagedResponse<WotlweduOrganizationInvite>> = try await api.send(endpoint)
         return response.data?.collection ?? []
     }
@@ -185,14 +185,14 @@ final class WotlweduDomainService {
         if let outcome, !outcome.isEmpty, outcome != "all" {
             query.append(URLQueryItem(name: "outcome", value: outcome))
         }
-        let endpoint = Endpoint(path: "organization/\(organizationId)/authaudit", method: .get, query: query)
+        let endpoint = Endpoint(path: "support/organizations/\(organizationId)/authaudit", method: .get, query: query)
         let response: APIResponse<PagedResponse<WotlweduAuthAudit>> = try await api.send(endpoint)
         return response.data?.collection ?? []
     }
 
     func createOrganizationInvite(organizationId: String, email: String) async throws {
         let endpoint = Endpoint(
-            path: "organization/\(organizationId)/invite",
+            path: "support/organizations/\(organizationId)/invite",
             method: .post,
             body: try JSONEncoder.api.encode(["email": email])
         )
@@ -200,12 +200,12 @@ final class WotlweduDomainService {
     }
 
     func resendOrganizationInvite(organizationId: String, inviteId: String) async throws {
-        let endpoint = Endpoint(path: "organization/\(organizationId)/invite/\(inviteId)/resend", method: .post)
+        let endpoint = Endpoint(path: "support/organizations/\(organizationId)/invite/\(inviteId)/resend", method: .post)
         try await api.sendWithoutDecoding(endpoint)
     }
 
     func revokeOrganizationInvite(organizationId: String, inviteId: String) async throws {
-        let endpoint = Endpoint(path: "organization/\(organizationId)/invite/\(inviteId)", method: .delete)
+        let endpoint = Endpoint(path: "support/organizations/\(organizationId)/invite/\(inviteId)", method: .delete)
         try await api.sendWithoutDecoding(endpoint)
     }
 

@@ -39,8 +39,6 @@ private struct ProfileContent: View {
     @State private var invites: [WotlweduOrganizationInvite] = []
     @State private var signInMethods = WotlweduSignInMethodsEnvelope(passwordEnabled: false, linkedProviders: [])
     @State private var userAudits: [WotlweduAuthAudit] = []
-    @State private var organizationAudits: [WotlweduAuthAudit] = []
-    @State private var auditOutcomeFilter = "all"
 
     var body: some View {
         List {
@@ -187,29 +185,6 @@ private struct ProfileContent: View {
                     }
                 }
 
-                Section("Organization Audit Feed") {
-                    SupportSnapshotRow(audits: organizationAudits)
-
-                    Picker("Outcome", selection: $auditOutcomeFilter) {
-                        Text("All").tag("all")
-                        Text("Success").tag("success")
-                        Text("Pending").tag("pending")
-                        Text("Blocked").tag("blocked")
-                    }
-                    .pickerStyle(.segmented)
-                    .onChange(of: auditOutcomeFilter) { _ in
-                        Task { await loadOrganizationAudits() }
-                    }
-
-                    if organizationAudits.isEmpty {
-                        Text("No organization activity for this filter.")
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ForEach(organizationAudits) { audit in
-                            AuditRow(audit: audit)
-                        }
-                    }
-                }
             }
 
             Section {
@@ -227,7 +202,6 @@ private struct ProfileContent: View {
             await loadInvites()
             await loadSignInMethods()
             await loadUserAudits()
-            await loadOrganizationAudits()
         }
     }
 
@@ -283,18 +257,6 @@ private struct ProfileContent: View {
         guard let userId = appViewModel.sessionStore.userId else { return }
         do {
             userAudits = try await service.userAuthAudit(userId: userId)
-        } catch {
-            appViewModel.errorMessage = error.localizedDescription
-        }
-    }
-
-    private func loadOrganizationAudits() async {
-        guard canManageInvites, let organizationId = appViewModel.organizationId else { return }
-        do {
-            organizationAudits = try await service.organizationAuthAudit(
-                organizationId: organizationId,
-                outcome: auditOutcomeFilter
-            )
         } catch {
             appViewModel.errorMessage = error.localizedDescription
         }
@@ -474,37 +436,6 @@ private struct AuditRow: View {
         default:
             return .neutral
         }
-    }
-}
-
-private struct SupportSnapshotRow: View {
-    let audits: [WotlweduAuthAudit]
-
-    var body: some View {
-        HStack(spacing: 8) {
-            metric(title: "Loaded", value: "\(audits.count)")
-            metric(title: "Success", value: "\(successCount)")
-            metric(title: "Non-success", value: "\(max(0, audits.count - successCount))")
-        }
-        .padding(.vertical, 4)
-    }
-
-    private var successCount: Int {
-        audits.filter { ($0.outcome ?? "").lowercased() == "success" }.count
-    }
-
-    private func metric(title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-            Text(value)
-                .font(.headline)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(Color.secondary.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 

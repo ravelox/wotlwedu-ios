@@ -180,16 +180,6 @@ final class WotlweduDomainService {
         return response.data?.collection ?? []
     }
 
-    func organizationAuthAudit(organizationId: String, outcome: String? = nil, items: Int = 20) async throws -> [WotlweduAuthAudit] {
-        var query: [URLQueryItem] = [URLQueryItem(name: "items", value: "\(items)")]
-        if let outcome, !outcome.isEmpty, outcome != "all" {
-            query.append(URLQueryItem(name: "outcome", value: outcome))
-        }
-        let endpoint = Endpoint(path: "support/organizations/\(organizationId)/authaudit", method: .get, query: query)
-        let response: APIResponse<PagedResponse<WotlweduAuthAudit>> = try await api.send(endpoint)
-        return response.data?.collection ?? []
-    }
-
     func createOrganizationInvite(organizationId: String, email: String) async throws {
         let endpoint = Endpoint(
             path: "support/organizations/\(organizationId)/invite",

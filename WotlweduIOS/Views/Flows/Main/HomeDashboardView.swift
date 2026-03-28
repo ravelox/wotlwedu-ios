@@ -18,6 +18,7 @@ struct HomeDashboardView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @State private var pendingVotes: [WotlweduVote] = []
     @State private var myPolls: [WotlweduElection] = []
+    @State private var participationByElectionId: [String: WotlweduElectionParticipationEnvelope] = [:]
     @State private var selectedPanel: HomePanel = .votes
     @State private var isLoadingSummary = false
 
@@ -190,6 +191,9 @@ struct HomeDashboardView: View {
                                             .font(.subheadline)
                                             .foregroundStyle(.secondary)
                                     }
+                                    if let summary = poll.id.flatMap({ participationByElectionId[$0] }) {
+                                        participationSummaryView(summary)
+                                    }
                                 }
                                 Spacer()
                                 Image(systemName: "square.and.pencil")
@@ -227,6 +231,14 @@ struct HomeDashboardView: View {
         }
         if let polls = try? await pollsTask {
             myPolls = polls.collection
+            var next: [String: WotlweduElectionParticipationEnvelope] = [:]
+            for poll in polls.collection {
+                guard let id = poll.id else { continue }
+                if let summary = try? await service.electionParticipation(id: id) {
+                    next[id] = summary
+                }
+            }
+            participationByElectionId = next
         }
 
         if pendingVotes.isEmpty && !myPolls.isEmpty {
@@ -234,5 +246,26 @@ struct HomeDashboardView: View {
         } else {
             selectedPanel = .votes
         }
+    }
+
+    @ViewBuilder
+    private func participationSummaryView(_ summary: WotlweduElectionParticipationEnvelope) -> some View {
+        let participation = summary.participation
+        HStack(spacing: 8) {
+            dashboardChip("\(participation?.expectedParticipants ?? 0) people")
+            dashboardChip("\(participation?.completedCount ?? 0) done")
+            dashboardChip("\(participation?.followUpCount ?? 0) follow-up")
+            dashboardChip("\(participation?.completionRate ?? 0)%")
+        }
+        .padding(.top, 4)
+    }
+
+    private func dashboardChip(_ text: String) -> some View {
+        Text(text)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(RoundedRectangle(cornerRadius: 999).fill(Color(.tertiarySystemBackground)))
     }
 }

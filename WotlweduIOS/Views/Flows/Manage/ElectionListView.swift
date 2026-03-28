@@ -22,6 +22,7 @@ private struct ElectionListContent: View {
     @State private var categories: [WotlweduCategory] = []
     @State private var images: [WotlweduImage] = []
     @State private var collapsedCategories: Set<String> = []
+    @State private var participationByElectionId: [String: WotlweduElectionParticipationEnvelope] = [:]
 
     init(service: WotlweduDomainService, workgroupId: String?) {
         self.service = service
@@ -43,17 +44,40 @@ private struct ElectionListContent: View {
                             if let status = election.status?.name {
                                 Text(status).font(.caption).foregroundStyle(.secondary)
                             }
+                            if let summary = election.id.flatMap({ participationByElectionId[$0] }) {
+                                participationSummaryView(summary)
+                            }
                         }
                         .contentShape(Rectangle())
                         .onTapGesture { editing = election }
                         .swipeActions {
                             Button("Delete", role: .destructive) {
                                 Task {
-                                    if let id = election.id { try? await service.deleteElection(id: id); await viewModel.load() }
+                                    if let id = election.id {
+                                        try? await service.deleteElection(id: id)
+                                        await viewModel.load()
+                                        await loadParticipation()
+                                    }
                                 }
                             }
-                            Button("Start") { Task { if let id = election.id { try? await service.startElection(id: id); await viewModel.load() } } }.tint(.green)
-                            Button("Stop") { Task { if let id = election.id { try? await service.stopElection(id: id); await viewModel.load() } } }.tint(.orange)
+                            Button("Start") {
+                                Task {
+                                    if let id = election.id {
+                                        try? await service.startElection(id: id)
+                                        await viewModel.load()
+                                        await loadParticipation()
+                                    }
+                                }
+                            }.tint(.green)
+                            Button("Stop") {
+                                Task {
+                                    if let id = election.id {
+                                        try? await service.stopElection(id: id)
+                                        await viewModel.load()
+                                        await loadParticipation()
+                                    }
+                                }
+                            }.tint(.orange)
                         }
                     }
                 } label: {
@@ -86,6 +110,7 @@ private struct ElectionListContent: View {
         .task {
             await viewModel.load()
             await loadLookups()
+            await loadParticipation()
         }
         .sheet(item: $editing) { election in
             ElectionEditor(election: election, lists: lists, groups: groups, categories: categories, images: images) { updated, startAfterSave in
@@ -97,6 +122,7 @@ private struct ElectionListContent: View {
                         }
                         editing = nil
                         await viewModel.load()
+                        await loadParticipation()
                     } catch {
                         // Keep the sheet open and rely on the editor state to show the save issue.
                     }
@@ -116,6 +142,17 @@ private struct ElectionListContent: View {
         if let res = try? await ims { images = res.collection.sortedByName() }
     }
 
+    private func loadParticipation() async {
+        var next: [String: WotlweduElectionParticipationEnvelope] = [:]
+        for election in viewModel.items {
+            guard let id = election.id else { continue }
+            if let summary = try? await service.electionParticipation(id: id) {
+                next[id] = summary
+            }
+        }
+        participationByElectionId = next
+    }
+
     private func expansionBinding(for categoryName: String) -> Binding<Bool> {
         Binding(
             get: { !collapsedCategories.contains(categoryName) },
@@ -127,6 +164,47 @@ private struct ElectionListContent: View {
                 }
             }
         )
+    }
+
+    @ViewBuilder
+    private func participationSummaryView(_ summary: WotlweduElectionParticipationEnvelope) -> some View {
+        let participation = summary.participation
+        let audience = summary.audience
+        VStack(alignment: .leading, spacing: 6) {
+            if let groupName = audience?.group?.name, !groupName.isEmpty {
+                Text(groupName)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            HStack {
+                metricBadge(title: "Participants", value: participation?.expectedParticipants ?? 0)
+                metricBadge(title: "Done", value: participation?.completedCount ?? 0)
+                metricBadge(title: "Follow-up", value: participation?.followUpCount ?? 0)
+                metricBadge(title: "Complete", value: participation?.completionRate ?? 0, suffix: "%")
+            }
+            let followUpNames = (audience?.participants ?? [])
+                .filter { $0.state != "completed" }
+                .prefix(3)
+                .map { $0.fullName ?? $0.email ?? $0.id ?? "Member" }
+            if !followUpNames.isEmpty {
+                Text("Follow up: \(followUpNames.joined(separator: ", "))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.top, 4)
+    }
+
+    private func metricBadge(title: String, value: Int, suffix: String = "") -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("\(value)\(suffix)")
+                .font(.subheadline.weight(.semibold))
+            Text(title)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .padding(8)
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.secondarySystemBackground)))
     }
 }
 

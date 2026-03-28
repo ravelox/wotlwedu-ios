@@ -209,6 +209,46 @@ struct WotlweduVote: Codable, Identifiable, Hashable {
     var user: WotlweduUser?
 }
 
+struct WotlweduParticipationParticipant: Codable, Identifiable, Hashable {
+    var id: String?
+    var firstName: String?
+    var lastName: String?
+    var fullName: String?
+    var alias: String?
+    var email: String?
+    var state: String?
+    var totalVotes: Int?
+    var pendingVotes: Int?
+    var castVotes: Int?
+    var organizationAdmin: Bool?
+    var workgroupAdmin: Bool?
+}
+
+struct WotlweduParticipationAudience: Codable, Hashable {
+    var group: WotlweduGroup?
+    var list: WotlweduList?
+    var expectedParticipants: Int?
+    var participants: [WotlweduParticipationParticipant]?
+}
+
+struct WotlweduParticipationSummary: Codable, Hashable {
+    var expectedParticipants: Int?
+    var notStartedCount: Int?
+    var inProgressCount: Int?
+    var completedCount: Int?
+    var followUpCount: Int?
+    var totalVotes: Int?
+    var castVotes: Int?
+    var pendingVotes: Int?
+    var completionRate: Int?
+}
+
+struct WotlweduElectionParticipationEnvelope: Codable, Hashable {
+    var election: WotlweduElection?
+    var audience: WotlweduParticipationAudience?
+    var participation: WotlweduParticipationSummary?
+}
+
 struct WotlweduRegistration: Codable {
     var email: String
     var firstName: String

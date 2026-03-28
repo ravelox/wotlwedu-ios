@@ -415,6 +415,15 @@ final class WotlweduDomainService {
         try await dataService.detail(path: "election/", id: id, detail: "group,list,category,image")
     }
 
+    func electionParticipation(id: String) async throws -> WotlweduElectionParticipationEnvelope {
+        let endpoint = Endpoint(path: "election/\(id)/participation", method: .get)
+        let response: APIResponse<WotlweduElectionParticipationEnvelope> = try await api.send(endpoint)
+        guard let data = response.data else {
+            throw APIError.server(message: response.message ?? "No participation data", url: nil)
+        }
+        return data
+    }
+
     func save(election: WotlweduElection) async throws -> WotlweduElection {
         struct Payload: Encodable {
             let id: String?

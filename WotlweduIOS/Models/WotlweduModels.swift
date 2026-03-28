@@ -226,8 +226,10 @@ struct WotlweduOrganizationInvite: Codable, Identifiable, Hashable {
     var createdAt: Date?
     var expiresAt: Date?
     var acceptedAt: Date?
+    var declinedAt: Date?
     var invitedByName: String?
     var acceptedByName: String?
+    var declinedByName: String?
     var revokedAt: Date?
     var revokedByName: String?
     var organizationName: String?
@@ -235,6 +237,38 @@ struct WotlweduOrganizationInvite: Codable, Identifiable, Hashable {
 
 struct WotlweduInviteLookup: Codable {
     var invite: WotlweduOrganizationInvite?
+}
+
+struct WotlweduOrganizationMember: Codable, Identifiable, Hashable {
+    var id: String?
+    var firstName: String?
+    var lastName: String?
+    var fullName: String?
+    var alias: String?
+    var email: String?
+    var organizationAdmin: Bool?
+    var workgroupAdmin: Bool?
+    var adminWorkgroupId: String?
+}
+
+struct WotlweduMembershipWorkgroup: Codable, Identifiable, Hashable {
+    var id: String?
+    var name: String?
+    var description: String?
+    var memberCount: Int?
+    var isMember: Bool?
+    var users: [WotlweduUser]?
+}
+
+struct WotlweduOrganizationMembership: Codable {
+    var members: [WotlweduOrganizationMember]?
+    var workgroups: [WotlweduMembershipWorkgroup]?
+    var pendingInviteCount: Int?
+}
+
+struct WotlweduOrganizationMembershipEnvelope: Codable {
+    var organization: WotlweduOrganization?
+    var membership: WotlweduOrganizationMembership?
 }
 
 struct WotlweduSignInMethod: Codable, Identifiable, Hashable {

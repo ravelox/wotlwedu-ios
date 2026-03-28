@@ -116,6 +116,21 @@ final class AuthService {
         return data
     }
 
+    func acceptInvite(token: String) async throws -> AuthTokens {
+        let endpoint = Endpoint(path: "login/invite/\(token)/accept", method: .post)
+        let response: APIResponse<AuthTokens> = try await api.send(endpoint)
+        guard let data = response.data else {
+            throw APIError.server(message: response.message ?? "Failed to accept invite", url: nil)
+        }
+        save(tokens: data)
+        return data
+    }
+
+    func declineInvite(token: String) async throws {
+        let endpoint = Endpoint(path: "login/invite/\(token)/decline", method: .post)
+        try await api.sendWithoutDecoding(endpoint)
+    }
+
     func refresh() async throws -> AuthTokens {
         guard let refresh = sessionStore.refreshToken else { throw APIError.unauthorized(url: nil) }
         let payload = ["refreshToken": refresh]

@@ -33,6 +33,7 @@ private struct ProfileContent: View {
     @State private var show2FA = false
     @State private var twoFAData: TwoFactorBootstrap?
     @State private var workgroups: [WotlweduWorkgroup] = []
+    @State private var membership = WotlweduOrganizationMembership(members: [], workgroups: [], pendingInviteCount: 0)
     @State private var selectedWorkgroupId: String = ""
     @State private var inviteEmail = ""
     @State private var inviteFilter: InviteFilter = .all
@@ -62,6 +63,107 @@ private struct ProfileContent: View {
                 }
                 .onChange(of: selectedWorkgroupId) { newValue in
                     appViewModel.setActiveWorkgroupId(newValue.isEmpty ? nil : newValue)
+                }
+            }
+
+            if let invite = appViewModel.inviteDetails,
+               let inviteToken = appViewModel.inviteToken,
+               appViewModel.isAuthenticated {
+                Section("Invitation") {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(invite.organizationName ?? "Organization")
+                            .font(.headline)
+                        Text(invite.email ?? "")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        if let expiresAt = invite.expiresAt {
+                            Text("Expires \(expiresAt.formatted())")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        HStack {
+                            Button("Accept Invite") {
+                                Task {
+                                    await appViewModel.acceptInvite(token: inviteToken)
+                                    await loadOrganization()
+                                    await loadMembership()
+                                }
+                            }
+                            Button("Decline", role: .destructive) {
+                                Task {
+                                    await appViewModel.declineInvite(token: inviteToken)
+                                }
+                            }
+                        }
+                        .buttonStyle(.borderless)
+                    }
+                }
+            }
+
+            if let organization {
+                Section("Organization") {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(organization.name ?? organization.id ?? "Organization")
+                            .font(.headline)
+                        Text("\(membership.members?.count ?? 0) members")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text("\(membership.workgroups?.count ?? 0) workgroups")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text("\(membership.pendingInviteCount ?? 0) pending invites")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    ForEach(Array((membership.members ?? []).prefix(8))) { member in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(member.fullName ?? member.alias ?? member.email ?? member.id ?? "Member")
+                                    .font(.headline)
+                                Text(member.email ?? member.alias ?? "")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Text(member.organizationAdmin == true ? "Org admin" : (member.workgroupAdmin == true ? "Workgroup admin" : "Member"))
+                                .font(.caption.weight(.semibold))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.secondary.opacity(0.12))
+                                .clipShape(Capsule())
+                        }
+                    }
+                }
+            }
+
+            if let membershipWorkgroups = membership.workgroups, !membershipWorkgroups.isEmpty {
+                Section("Workgroups") {
+                    ForEach(membershipWorkgroups) { workgroup in
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(workgroup.name ?? workgroup.id ?? "Workgroup")
+                                        .font(.headline)
+                                    if let description = workgroup.description, !description.isEmpty {
+                                        Text(description)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                Spacer()
+                                Text(selectedWorkgroupId == workgroup.id ? "Active" : (workgroup.isMember == true ? "Member" : "Visible"))
+                                    .font(.caption.weight(.semibold))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.secondary.opacity(0.12))
+                                    .clipShape(Capsule())
+                            }
+                            Text("\(workgroup.memberCount ?? 0) members")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
             }
 
@@ -198,6 +300,7 @@ private struct ProfileContent: View {
             selectedWorkgroupId = appViewModel.activeWorkgroupId ?? ""
             await loadUser()
             await loadOrganization()
+            await loadMembership()
             await loadWorkgroups()
             await loadInvites()
             await loadSignInMethods()
@@ -232,6 +335,19 @@ private struct ProfileContent: View {
     private func loadWorkgroups() async {
         if let result = try? await service.workgroups(page: 1, items: 200, filter: nil) {
             workgroups = result.collection
+        }
+    }
+
+    private func loadMembership() async {
+        guard let organizationId = appViewModel.organizationId else { return }
+        do {
+            let response = try await service.organizationMembership(organizationId: organizationId)
+            if let organization = response.organization {
+                self.organization = organization
+            }
+            membership = response.membership ?? WotlweduOrganizationMembership(members: [], workgroups: [], pendingInviteCount: 0)
+        } catch {
+            appViewModel.errorMessage = error.localizedDescription
         }
     }
 

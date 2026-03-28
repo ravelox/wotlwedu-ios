@@ -154,6 +154,31 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    func acceptInvite(token: String) async {
+        guard let authService else { return }
+        do {
+            let tokens = try await authService.acceptInvite(token: token)
+            applyAuth(tokens: tokens)
+            inviteToken = nil
+            inviteDetails = nil
+            await refreshStatus()
+            await refreshNotifications()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func declineInvite(token: String) async {
+        guard let authService else { return }
+        do {
+            try await authService.declineInvite(token: token)
+            inviteToken = nil
+            inviteDetails = nil
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
     func verify2FA(verificationToken: String, authToken: String) async {
         guard let authService else { return }
         do {

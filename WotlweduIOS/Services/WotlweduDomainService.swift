@@ -175,14 +175,23 @@ final class WotlweduDomainService {
         if let status, !status.isEmpty, status != "all" {
             query.append(URLQueryItem(name: "status", value: status))
         }
-        let endpoint = Endpoint(path: "support/organizations/\(organizationId)/invite", method: .get, query: query)
+        let endpoint = Endpoint(path: "organization/\(organizationId)/invite", method: .get, query: query)
         let response: APIResponse<PagedResponse<WotlweduOrganizationInvite>> = try await api.send(endpoint)
         return response.data?.collection ?? []
     }
 
+    func organizationMembership(organizationId: String) async throws -> WotlweduOrganizationMembershipEnvelope {
+        let endpoint = Endpoint(path: "organization/\(organizationId)/membership", method: .get)
+        let response: APIResponse<WotlweduOrganizationMembershipEnvelope> = try await api.send(endpoint)
+        guard let data = response.data else {
+            throw APIError.server(message: response.message ?? "No membership data", url: nil)
+        }
+        return data
+    }
+
     func createOrganizationInvite(organizationId: String, email: String) async throws {
         let endpoint = Endpoint(
-            path: "support/organizations/\(organizationId)/invite",
+            path: "organization/\(organizationId)/invite",
             method: .post,
             body: try JSONEncoder.api.encode(["email": email])
         )
@@ -190,12 +199,12 @@ final class WotlweduDomainService {
     }
 
     func resendOrganizationInvite(organizationId: String, inviteId: String) async throws {
-        let endpoint = Endpoint(path: "support/organizations/\(organizationId)/invite/\(inviteId)/resend", method: .post)
+        let endpoint = Endpoint(path: "organization/\(organizationId)/invite/\(inviteId)/resend", method: .post)
         try await api.sendWithoutDecoding(endpoint)
     }
 
     func revokeOrganizationInvite(organizationId: String, inviteId: String) async throws {
-        let endpoint = Endpoint(path: "support/organizations/\(organizationId)/invite/\(inviteId)", method: .delete)
+        let endpoint = Endpoint(path: "organization/\(organizationId)/invite/\(inviteId)", method: .delete)
         try await api.sendWithoutDecoding(endpoint)
     }
 

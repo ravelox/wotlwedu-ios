@@ -88,11 +88,18 @@ private struct ElectionListContent: View {
             await loadLookups()
         }
         .sheet(item: $editing) { election in
-            ElectionEditor(election: election, lists: lists, groups: groups, categories: categories, images: images) { updated in
+            ElectionEditor(election: election, lists: lists, groups: groups, categories: categories, images: images) { updated, startAfterSave in
                 Task {
-                    _ = try? await service.save(election: updated)
-                    editing = nil
-                    await viewModel.load()
+                    do {
+                        let saved = try await service.save(election: updated)
+                        if startAfterSave, let id = saved.id {
+                            try await service.startElection(id: id)
+                        }
+                        editing = nil
+                        await viewModel.load()
+                    } catch {
+                        // Keep the sheet open and rely on the editor state to show the save issue.
+                    }
                 }
             }
         }
@@ -129,7 +136,7 @@ private struct ElectionEditor: View {
     let groups: [WotlweduGroup]
     let categories: [WotlweduCategory]
     let images: [WotlweduImage]
-    var onSave: (WotlweduElection) -> Void
+    var onSave: (WotlweduElection, Bool) -> Void
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedList = ""
@@ -137,8 +144,9 @@ private struct ElectionEditor: View {
     @State private var selectedCategory = ""
     @State private var selectedImage = ""
     @State private var expiration = Date()
+    @State private var saveError: String?
 
-    init(election: WotlweduElection, lists: [WotlweduList], groups: [WotlweduGroup], categories: [WotlweduCategory], images: [WotlweduImage], onSave: @escaping (WotlweduElection) -> Void) {
+    init(election: WotlweduElection, lists: [WotlweduList], groups: [WotlweduGroup], categories: [WotlweduCategory], images: [WotlweduImage], onSave: @escaping (WotlweduElection, Bool) -> Void) {
         self.election = election
         self.lists = lists
         self.groups = groups
@@ -155,15 +163,27 @@ private struct ElectionEditor: View {
     var body: some View {
         NavigationStack {
             Form {
+                if let saveError {
+                    Section {
+                        Text(saveError)
+                            .foregroundStyle(.red)
+                    }
+                }
                 TextField("Name", text: Binding($election.name, replacingNilWith: ""))
                 TextField("Description", text: Binding($election.description, replacingNilWith: ""))
                 TextField("Text", text: Binding($election.text, replacingNilWith: ""))
+
+                Section("Selections") {
+                    summaryRow(title: "List", value: lists.first(where: { $0.id == selectedList })?.name ?? "Choose a list")
+                    summaryRow(title: "Audience", value: groups.first(where: { $0.id == selectedGroup })?.name ?? "Choose a group")
+                    summaryRow(title: "Image", value: images.first(where: { $0.id == selectedImage })?.name ?? "Optional")
+                }
 
                 Picker("Poll Type", selection: Binding(
                     get: { election.electionType ?? 0 },
                     set: { election.electionType = $0 }
                 )) {
-                    Text("Ranked").tag(0)
+                    Text("Ranked choice").tag(0)
                     Text("Single choice").tag(1)
                     Text("Approval").tag(2)
                 }
@@ -203,16 +223,41 @@ private struct ElectionEditor: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        election.list = lists.first { $0.id == selectedList }
-                        election.group = groups.first { $0.id == selectedGroup }
-                        election.category = categories.first { $0.id == selectedCategory }
-                        election.image = images.first { $0.id == selectedImage }
-                        election.expiration = expiration
-                        onSave(election)
-                        dismiss()
+                        submit(startAfterSave: false)
                     }
                 }
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Save & Start") {
+                        submit(startAfterSave: true)
+                    }
+                    .disabled(selectedList.isEmpty || selectedGroup.isEmpty)
+                }
             }
+        }
+    }
+
+    private func submit(startAfterSave: Bool) {
+        guard !startAfterSave || (!selectedList.isEmpty && !selectedGroup.isEmpty) else {
+            saveError = "Choose both a list and an audience group before starting the poll."
+            return
+        }
+        saveError = nil
+        election.list = lists.first { $0.id == selectedList }
+        election.group = groups.first { $0.id == selectedGroup }
+        election.category = categories.first { $0.id == selectedCategory }
+        election.image = images.first { $0.id == selectedImage }
+        election.expiration = expiration
+        onSave(election, startAfterSave)
+        dismiss()
+    }
+
+    private func summaryRow(title: String, value: String) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Text(value)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.trailing)
         }
     }
 }

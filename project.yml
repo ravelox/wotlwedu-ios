@@ -30,7 +30,6 @@ targets:
       - path: WotlweduIOS/Resources
     settings:
       base:
-        PRODUCT_NAME: Wotlwedu
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     dependencies:
       - package: GoogleSignIn
@@ -55,3 +54,16 @@ targets:
       - path: WotlweduIOSIntegrationTests/Fixtures
     dependencies:
       - target: WotlweduIOS
+schemes:
+  WotlweduIOS:
+    build:
+      targets:
+        WotlweduIOS: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+    profile:
+      config: Release
+    analyze:
+      config: Debug

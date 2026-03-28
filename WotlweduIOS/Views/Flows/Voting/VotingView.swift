@@ -2,10 +2,15 @@ import SwiftUI
 
 struct VotingView: View {
     @EnvironmentObject var appViewModel: AppViewModel
+    let electionId: String?
+
+    init(electionId: String? = nil) {
+        self.electionId = electionId
+    }
 
     var body: some View {
         if let service = appViewModel.domainService {
-            VotingContent(viewModel: VotingViewModel(domainService: service))
+            VotingContent(viewModel: VotingViewModel(domainService: service, electionId: electionId))
         } else {
             Text("Configuration not loaded.")
         }
@@ -17,29 +22,34 @@ private struct VotingContent: View {
 
     var body: some View {
         List {
-            ForEach(viewModel.upcomingVotes) { vote in
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(vote.election?.name ?? "Poll").font(.headline)
-                    if let itemName = vote.item?.name {
-                        Text("Item: \(itemName)").font(.subheadline)
-                    }
-                    HStack {
-                        Button {
-                            if let id = vote.id { Task { await viewModel.cast(voteId: id, decision: "yes") } }
-                        } label: {
-                            Label("Yes", systemImage: "hand.thumbsup.fill")
+            if viewModel.upcomingVotes.isEmpty && !viewModel.isLoading {
+                Text("No pending votes available.")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(viewModel.upcomingVotes) { vote in
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(vote.election?.name ?? "Poll").font(.headline)
+                        if let itemName = vote.item?.name {
+                            Text("Item: \(itemName)").font(.subheadline)
                         }
-                        Button {
-                            if let id = vote.id { Task { await viewModel.cast(voteId: id, decision: "no") } }
-                        } label: {
-                            Label("No", systemImage: "hand.thumbsdown.fill")
+                        HStack {
+                            Button {
+                                if let id = vote.id { Task { await viewModel.cast(voteId: id, decision: "yes") } }
+                            } label: {
+                                Label("Yes", systemImage: "hand.thumbsup.fill")
+                            }
+                            Button {
+                                if let id = vote.id { Task { await viewModel.cast(voteId: id, decision: "no") } }
+                            } label: {
+                                Label("No", systemImage: "hand.thumbsdown.fill")
+                            }
                         }
+                        .buttonStyle(.borderedProminent)
                     }
-                    .buttonStyle(.borderedProminent)
                 }
             }
         }
-        .navigationTitle("Cast Vote")
+        .navigationTitle(viewModel.electionId == nil ? "Cast Vote" : "Vote")
         .task { await viewModel.load() }
         .overlay {
             if viewModel.isLoading { ProgressView("Loading votes...") }

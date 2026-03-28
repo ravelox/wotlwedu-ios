@@ -2,15 +2,15 @@ import Foundation
 
 enum NotificationPresentation: Identifiable {
     case message(title: String, body: String)
-    case votes
+    case votes(electionId: String?)
     case friends
 
     var id: String {
         switch self {
         case .message(let title, _):
             return "message-\(title)"
-        case .votes:
-            return "votes"
+        case .votes(let electionId):
+            return "votes-\(electionId ?? "all")"
         case .friends:
             return "friends"
         }
@@ -93,11 +93,11 @@ final class NotificationViewModel: ObservableObject {
             await acceptSharedList(notification)
         case NotificationTypeId.electionStart:
             await markStatus(notification: notification, statusId: NotificationStatusId.read)
-            presentation = .votes
+            presentation = .votes(electionId: notification.objectId)
         case NotificationTypeId.electionEnd, NotificationTypeId.electionExpired:
             await previewElection(notification)
         default:
-            await markStatus(notification: notification, statusId: NotificationStatusId.read)
+            await navigateUsingObjectId(notification)
         }
     }
 
@@ -207,6 +207,39 @@ final class NotificationViewModel: ObservableObject {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    private func navigateUsingObjectId(_ notification: WotlweduNotification) async {
+        guard let objectId = notification.objectId else {
+            await markStatus(notification: notification, statusId: NotificationStatusId.read)
+            return
+        }
+
+        if objectId.hasPrefix("election_") {
+            let text = (notification.text ?? "").lowercased()
+            if text.contains("ended") || notification.type == NotificationTypeId.electionEnd || notification.type == NotificationTypeId.electionExpired {
+                await previewElection(notification)
+            } else {
+                await markStatus(notification: notification, statusId: NotificationStatusId.read)
+                presentation = .votes(electionId: objectId)
+            }
+            return
+        }
+
+        if objectId.hasPrefix("item_") {
+            await previewSharedItem(notification)
+            return
+        }
+        if objectId.hasPrefix("image_") {
+            await previewSharedImage(notification)
+            return
+        }
+        if objectId.hasPrefix("list_") {
+            await previewSharedList(notification)
+            return
+        }
+
+        await markStatus(notification: notification, statusId: NotificationStatusId.read)
     }
 
     func currentStatusId(_ notification: WotlweduNotification) -> Int? {

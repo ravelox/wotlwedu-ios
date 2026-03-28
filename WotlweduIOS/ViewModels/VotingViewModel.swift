@@ -7,18 +7,26 @@ final class VotingViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     private let domainService: WotlweduDomainService
+    let electionId: String?
 
-    init(domainService: WotlweduDomainService) {
+    init(domainService: WotlweduDomainService, electionId: String? = nil) {
         self.domainService = domainService
+        self.electionId = electionId
     }
 
     func load() async {
         isLoading = true
         errorMessage = nil
         do {
-            upcomingVotes = try await domainService.myVotes()
+            if let electionId, !electionId.isEmpty {
+                let vote = try await domainService.nextVote(electionId: electionId)
+                upcomingVotes = [vote]
+            } else {
+                upcomingVotes = try await domainService.myVotes()
+            }
         } catch {
             errorMessage = error.localizedDescription
+            upcomingVotes = []
         }
         isLoading = false
     }

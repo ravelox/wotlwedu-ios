@@ -11,7 +11,7 @@ enum MainRoute: Hashable {
     case images
     case lists
     case elections
-    case votes
+    case votes(electionId: String?)
     case roles
     case users
     case friends
@@ -48,8 +48,8 @@ struct MainShellView: View {
                         ListListView()
                     case .elections:
                         ElectionListView()
-                    case .votes:
-                        VotingView()
+                    case .votes(let electionId):
+                        VotingView(electionId: electionId)
                     case .roles:
                         RoleListView()
                     case .users:
@@ -128,7 +128,7 @@ struct MainShellView: View {
         case "elections":
             return .elections
         case "votes":
-            return .votes
+            return .votes(electionId: nil)
         case "roles":
             return .roles
         case "users":

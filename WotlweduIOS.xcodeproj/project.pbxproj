@@ -32,6 +32,7 @@
 		5E0F7328DB70A6EA522834F7 /* ImageListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEC84F13E003F4A9ECA6253 /* ImageListView.swift */; };
 		6E0E2895B9DAC90196A5B88C /* MockURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83C5C74F6C8D57D16649D256 /* MockURLProtocol.swift */; };
 		8258089B88F72C9B1DC9B6A3 /* VotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5307B09EFE1ACC9BE0265562 /* VotingView.swift */; };
+		84ABBF10201E32965021E452 /* AuthAuditParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69D93659C5FE8B6B29FA6433 /* AuthAuditParityTests.swift */; };
 		8776869ADAB7A2D0CE04F8CD /* FriendListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C2F66D18E60D53A49FBFCF /* FriendListView.swift */; };
 		8EFD3C4DCDEEA2F2551CB79E /* ConfigLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85970E881055BD9DE7FAE329 /* ConfigLoaderTests.swift */; };
 		93FDA0B3A7C0A594CF191AF3 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 69D3EC921B1E24C36674F4B0 /* GoogleSignIn */; };
@@ -99,6 +100,7 @@
 		5307B09EFE1ACC9BE0265562 /* VotingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingView.swift; sourceTree = "<group>"; };
 		5BAD4AAC2E6432682D590062 /* wotlwedu-config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "wotlwedu-config.json"; sourceTree = "<group>"; };
 		67885BB6411916FB34B66C41 /* SessionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreTests.swift; sourceTree = "<group>"; };
+		69D93659C5FE8B6B29FA6433 /* AuthAuditParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthAuditParityTests.swift; sourceTree = "<group>"; };
 		6DEC84F13E003F4A9ECA6253 /* ImageListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageListView.swift; sourceTree = "<group>"; };
 		70FD8F2BCA3EE2DC2F9BF157 /* AppViewModelIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModelIntegrationTests.swift; sourceTree = "<group>"; };
 		74ABB5B9BB7CF92E94494309 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
@@ -241,6 +243,7 @@
 			isa = PBXGroup;
 			children = (
 				0CEAE0441350176CF4AF4580 /* APIClientTests.swift */,
+				69D93659C5FE8B6B29FA6433 /* AuthAuditParityTests.swift */,
 				85970E881055BD9DE7FAE329 /* ConfigLoaderTests.swift */,
 				67885BB6411916FB34B66C41 /* SessionStoreTests.swift */,
 				7D3F0FCCB6CB911A86206C2A /* Fixtures */,
@@ -560,6 +563,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				456C7F44832055F7ACD5467C /* APIClientTests.swift in Sources */,
+				84ABBF10201E32965021E452 /* AuthAuditParityTests.swift in Sources */,
 				8EFD3C4DCDEEA2F2551CB79E /* ConfigLoaderTests.swift in Sources */,
 				6E0E2895B9DAC90196A5B88C /* MockURLProtocol.swift in Sources */,
 				EFEF05EFC4FD8A83A7129A91 /* SessionStoreTests.swift in Sources */,
@@ -603,7 +607,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_NAME = Wotlwedu;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -795,7 +798,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_NAME = Wotlwedu;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

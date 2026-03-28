@@ -138,8 +138,8 @@ private struct NotificationListContent: View {
         .navigationTitle("Notifications")
         .sheet(item: $viewModel.presentation) { presentation in
             switch presentation {
-            case .votes:
-                VotingView()
+            case .votes(let electionId):
+                VotingView(electionId: electionId)
             case .friends:
                 FriendListView()
             case .message(let title, let body):
@@ -175,6 +175,10 @@ private struct NotificationListContent: View {
         case NotificationTypeId.electionEnd, NotificationTypeId.electionExpired:
             return "View"
         default:
+            if let objectId = notification.objectId {
+                if objectId.hasPrefix("election_") { return "Open" }
+                if objectId.hasPrefix("list_") || objectId.hasPrefix("item_") || objectId.hasPrefix("image_") { return "Open" }
+            }
             return nil
         }
     }
@@ -201,7 +205,7 @@ private struct NotificationListContent: View {
         case NotificationTypeId.friendRequest:
             await viewModel.blockSender(notification)
         default:
-            break
+            await viewModel.performPrimaryAction(for: notification)
         }
     }
 }

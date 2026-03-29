@@ -298,6 +298,7 @@ struct WotlweduPollTutorial: Codable, Hashable {
     var version: Int?
     var status: String?
     var startedAt: Date?
+    var skippedAt: Date?
     var names: WotlweduTutorialNames?
     var bindings: WotlweduTutorialBindings?
     var progress: WotlweduTutorialProgress?

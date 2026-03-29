@@ -145,6 +145,7 @@ struct HomeDashboardView: View {
             if let tutorial = appViewModel.pollTutorial {
                 let nextStep = tutorial.steps?.first(where: { $0.key == tutorial.nextStepKey }) ??
                     tutorial.steps?.first(where: { $0.complete != true })
+                let isSkipped = tutorial.status == "skipped"
 
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
@@ -156,7 +157,23 @@ struct HomeDashboardView: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    if let nextStep {
+                    if isSkipped {
+                        Text("Tutorial skipped")
+                            .font(.subheadline.weight(.semibold))
+                        Text("Resume the saved walkthrough or restart it with a fresh tutorial poll.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        HStack {
+                            Button("Resume Tutorial") {
+                                Task { await appViewModel.enablePollTutorial() }
+                            }
+                            .buttonStyle(.borderedProminent)
+                            Button("Restart Tutorial") {
+                                Task { await appViewModel.enablePollTutorial(restart: true) }
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                    } else if let nextStep {
                         Text("Next: \(nextStep.title ?? "Continue")")
                             .font(.subheadline.weight(.semibold))
                         if let detail = nextStep.detail, !detail.isEmpty {
@@ -174,6 +191,10 @@ struct HomeDashboardView: View {
                                 Button("Open Step") { onSelect(route) }
                                     .buttonStyle(.borderedProminent)
                             }
+                            Button("Skip Tutorial") {
+                                Task { await appViewModel.skipPollTutorial() }
+                            }
+                            .buttonStyle(.bordered)
                             if tutorial.status == "completed", let electionId = tutorial.bindings?.electionId {
                                 Button("View Votes") { onSelect(.votes(electionId: electionId)) }
                                     .buttonStyle(.bordered)
@@ -182,6 +203,16 @@ struct HomeDashboardView: View {
                     } else {
                         Text("Tutorial completed.")
                             .font(.subheadline.weight(.semibold))
+                        HStack {
+                            if let electionId = tutorial.bindings?.electionId {
+                                Button("View Votes") { onSelect(.votes(electionId: electionId)) }
+                                    .buttonStyle(.borderedProminent)
+                            }
+                            Button("Restart Tutorial") {
+                                Task { await appViewModel.enablePollTutorial(restart: true) }
+                            }
+                            .buttonStyle(.bordered)
+                        }
                     }
                 }
                 .padding()

@@ -40,6 +40,8 @@ private struct ProfileContent: View {
     @State private var invites: [WotlweduOrganizationInvite] = []
     @State private var signInMethods = WotlweduSignInMethodsEnvelope(passwordEnabled: false, linkedProviders: [])
     @State private var userAudits: [WotlweduAuthAudit] = []
+    @State private var tutorialAdminUserId = ""
+    @State private var tutorialAdminResult: WotlweduPollTutorial?
 
     var body: some View {
         List {
@@ -210,6 +212,44 @@ private struct ProfileContent: View {
                 }
             }
 
+            Section("Tutorial") {
+                if let tutorial = appViewModel.pollTutorial {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Status: \((tutorial.status ?? "unknown").capitalized)")
+                            .font(.headline)
+                        if let nextStep = tutorial.steps?.first(where: { $0.key == tutorial.nextStepKey }) {
+                            Text(nextStep.title ?? "Continue")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        HStack {
+                            if tutorial.status == "skipped" {
+                                Button("Resume") {
+                                    Task { await appViewModel.enablePollTutorial() }
+                                }
+                                Button("Restart") {
+                                    Task { await appViewModel.enablePollTutorial(restart: true) }
+                                }
+                            } else {
+                                Button("Skip") {
+                                    Task { await appViewModel.skipPollTutorial() }
+                                }
+                                if tutorial.status == "completed" {
+                                    Button("Restart") {
+                                        Task { await appViewModel.enablePollTutorial(restart: true) }
+                                    }
+                                }
+                            }
+                        }
+                        .buttonStyle(.borderless)
+                    }
+                } else {
+                    Button("Start Tutorial") {
+                        Task { await appViewModel.startPollTutorial() }
+                    }
+                }
+            }
+
             if canManageInvites {
                 Section("Organization Invitations") {
                     TextField("Invite email", text: $inviteEmail)
@@ -289,6 +329,42 @@ private struct ProfileContent: View {
 
             }
 
+            if appViewModel.isSystemAdmin || appViewModel.isOrganizationAdmin {
+                Section("Tutorial Ops") {
+                    TextField("Target user ID", text: $tutorialAdminUserId)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    HStack {
+                        Button("Re-enable") {
+                            Task { await enableTutorialForSelectedUser(restart: false) }
+                        }
+                        .disabled(tutorialAdminUserId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        Button("Restart") {
+                            Task { await enableTutorialForSelectedUser(restart: true) }
+                        }
+                        .disabled(tutorialAdminUserId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                    .buttonStyle(.borderless)
+
+                    if let tutorialAdminResult {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Status: \((tutorialAdminResult.status ?? "unknown").capitalized)")
+                                .font(.headline)
+                            if let startedAt = tutorialAdminResult.startedAt {
+                                Text("Started \(startedAt.formatted())")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            if let nextStepKey = tutorialAdminResult.nextStepKey {
+                                Text("Next step: \(nextStepKey)")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+
             Section {
                 Button("Log out", role: .destructive) {
                     appViewModel.logout()
@@ -355,6 +431,16 @@ private struct ProfileContent: View {
         guard canManageInvites, let organizationId = appViewModel.organizationId else { return }
         do {
             invites = try await service.organizationInvites(organizationId: organizationId, status: inviteFilter.rawValue)
+        } catch {
+            appViewModel.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func enableTutorialForSelectedUser(restart: Bool) async {
+        let userId = tutorialAdminUserId.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !userId.isEmpty else { return }
+        do {
+            tutorialAdminResult = try await service.enablePollTutorial(userId: userId, restart: restart)
         } catch {
             appViewModel.errorMessage = error.localizedDescription
         }

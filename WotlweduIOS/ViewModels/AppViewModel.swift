@@ -222,6 +222,24 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    func skipPollTutorial() async {
+        guard let domainService else { return }
+        do {
+            pollTutorial = try await domainService.skipPollTutorial()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func enablePollTutorial(restart: Bool = false) async {
+        guard let domainService else { return }
+        do {
+            pollTutorial = try await domainService.enablePollTutorial(restart: restart)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
     func setUnreadNotifications(_ value: Int) {
         unreadNotifications = max(0, value)
     }

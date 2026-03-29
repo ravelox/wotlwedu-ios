@@ -87,6 +87,48 @@ final class WotlweduDomainService {
         return data
     }
 
+    func skipPollTutorial() async throws -> WotlweduPollTutorial {
+        let endpoint = Endpoint(
+            path: "tutorial/poll/skip",
+            method: .post,
+            body: try JSONEncoder.api.encode([String: Bool]())
+        )
+        let response: APIResponse<WotlweduPollTutorial> = try await api.send(endpoint)
+        guard let data = response.data else {
+            throw APIError.server(message: response.message ?? "No tutorial data", url: nil)
+        }
+        return data
+    }
+
+    func enablePollTutorial(restart: Bool = false) async throws -> WotlweduPollTutorial {
+        struct Payload: Encodable { let restart: Bool }
+        let endpoint = Endpoint(
+            path: "tutorial/poll/enable",
+            method: .post,
+            body: try JSONEncoder.api.encode(Payload(restart: restart))
+        )
+        let response: APIResponse<WotlweduPollTutorial> = try await api.send(endpoint)
+        guard let data = response.data else {
+            throw APIError.server(message: response.message ?? "No tutorial data", url: nil)
+        }
+        return data
+    }
+
+    func enablePollTutorial(userId: String, restart: Bool = false) async throws -> WotlweduPollTutorial {
+        struct Payload: Encodable { let restart: Bool }
+        struct TutorialAdminResponse: Decodable { let tutorial: WotlweduPollTutorial? }
+        let endpoint = Endpoint(
+            path: "support/users/\(userId)/tutorial/poll/enable",
+            method: .post,
+            body: try JSONEncoder.api.encode(Payload(restart: restart))
+        )
+        let response: APIResponse<TutorialAdminResponse> = try await api.send(endpoint)
+        guard let data = response.data?.tutorial else {
+            throw APIError.server(message: response.message ?? "No tutorial data", url: nil)
+        }
+        return data
+    }
+
     func save(preference: WotlweduPreference) async throws -> WotlweduPreference {
         struct Payload: Encodable { let name: String; let value: String }
         return try await dataService.save(

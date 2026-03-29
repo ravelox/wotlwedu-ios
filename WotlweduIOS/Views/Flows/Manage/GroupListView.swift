@@ -5,7 +5,7 @@ struct GroupListView: View {
 
     var body: some View {
         if let service = appViewModel.domainService {
-            GroupListContent(service: service)
+            GroupListContent(service: service, tutorial: appViewModel.pollTutorial)
         } else {
             Text("Configuration not loaded.")
         }
@@ -14,14 +14,17 @@ struct GroupListView: View {
 
 private struct GroupListContent: View {
     let service: WotlweduDomainService
+    let tutorial: WotlweduPollTutorial?
+    @EnvironmentObject var appViewModel: AppViewModel
     @StateObject private var viewModel: PagedListViewModel<WotlweduGroup>
     @State private var editing: WotlweduGroup?
     @State private var categories: [WotlweduCategory] = []
     @State private var users: [WotlweduUser] = []
     @State private var collapsedCategories: Set<String> = []
 
-    init(service: WotlweduDomainService) {
+    init(service: WotlweduDomainService, tutorial: WotlweduPollTutorial?) {
         self.service = service
+        self.tutorial = tutorial
         _viewModel = StateObject(wrappedValue: PagedListViewModel<WotlweduGroup> { page, items, filter in
             let response = try await service.groups(page: page, items: items, filter: filter)
             return PagedResult(items: response.collection, page: response.page ?? 1, total: response.total ?? response.collection.count, itemsPerPage: response.itemsPerPage ?? items)
@@ -30,6 +33,22 @@ private struct GroupListContent: View {
 
     var body: some View {
         List {
+            if let tutorial {
+                Section("Tutorial") {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(tutorial.steps?.first(where: { $0.key == tutorial.nextStepKey })?.title ?? "Create your audience group")
+                            .font(.subheadline.weight(.semibold))
+                        Text(tutorial.steps?.first(where: { $0.key == tutorial.nextStepKey })?.detail ?? "Use this screen to create the tutorial audience.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        if let suggestedName = tutorial.names?.groupName, !suggestedName.isEmpty {
+                            Text("Suggested name: \(suggestedName)")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
             ForEach(viewModel.items.groupedByCategory()) { categoryGroup in
                 DisclosureGroup(isExpanded: expansionBinding(for: categoryGroup.categoryName)) {
                     ForEach(categoryGroup.items) { group in
@@ -61,7 +80,13 @@ private struct GroupListContent: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    editing = WotlweduGroup(id: nil, name: "", description: "", users: [], category: nil)
+                    editing = WotlweduGroup(
+                        id: nil,
+                        name: tutorial?.names?.groupName ?? "",
+                        description: "",
+                        users: [],
+                        category: nil
+                    )
                 } label: { Image(systemName: "plus") }
             }
         }
@@ -76,6 +101,7 @@ private struct GroupListContent: View {
                     _ = try? await service.save(group: updated, originalMemberIds: originalIds)
                     editing = nil
                     await viewModel.load()
+                    await appViewModel.refreshPollTutorial()
                 }
             }
         }

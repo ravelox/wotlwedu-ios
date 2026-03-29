@@ -5,7 +5,11 @@ struct ElectionListView: View {
 
     var body: some View {
         if let service = appViewModel.domainService {
-            ElectionListContent(service: service, workgroupId: appViewModel.activeWorkgroupId)
+            ElectionListContent(
+                service: service,
+                workgroupId: appViewModel.activeWorkgroupId,
+                tutorial: appViewModel.pollTutorial
+            )
         } else {
             Text("Configuration not loaded.")
         }
@@ -15,6 +19,8 @@ struct ElectionListView: View {
 private struct ElectionListContent: View {
     let service: WotlweduDomainService
     let workgroupId: String?
+    let tutorial: WotlweduPollTutorial?
+    @EnvironmentObject var appViewModel: AppViewModel
     @StateObject private var viewModel: PagedListViewModel<WotlweduElection>
     @State private var editing: WotlweduElection?
     @State private var lists: [WotlweduList] = []
@@ -24,9 +30,10 @@ private struct ElectionListContent: View {
     @State private var collapsedCategories: Set<String> = []
     @State private var participationByElectionId: [String: WotlweduElectionParticipationEnvelope] = [:]
 
-    init(service: WotlweduDomainService, workgroupId: String?) {
+    init(service: WotlweduDomainService, workgroupId: String?, tutorial: WotlweduPollTutorial?) {
         self.service = service
         self.workgroupId = workgroupId
+        self.tutorial = tutorial
         _viewModel = StateObject(wrappedValue: PagedListViewModel<WotlweduElection> { page, items, filter in
             let response = try await service.elections(page: page, items: items, filter: filter, workgroupId: workgroupId)
             return PagedResult(items: response.collection, page: response.page ?? 1, total: response.total ?? response.collection.count, itemsPerPage: response.itemsPerPage ?? items)
@@ -35,6 +42,22 @@ private struct ElectionListContent: View {
 
     var body: some View {
         List {
+            if let tutorial {
+                Section("Tutorial") {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(tutorial.steps?.first(where: { $0.key == tutorial.nextStepKey })?.title ?? "Create your first poll")
+                            .font(.subheadline.weight(.semibold))
+                        Text(tutorial.steps?.first(where: { $0.key == tutorial.nextStepKey })?.detail ?? "Use this screen to create and start the tutorial poll.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        if let suggestedName = tutorial.names?.electionName, !suggestedName.isEmpty {
+                            Text("Suggested name: \(suggestedName)")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
             ForEach(viewModel.items.groupedByCategory()) { group in
                 DisclosureGroup(isExpanded: expansionBinding(for: group.categoryName)) {
                     ForEach(group.items) { election in
@@ -66,6 +89,7 @@ private struct ElectionListContent: View {
                                         try? await service.startElection(id: id)
                                         await viewModel.load()
                                         await loadParticipation()
+                                        await appViewModel.refreshPollTutorial()
                                     }
                                 }
                             }.tint(.green)
@@ -75,6 +99,7 @@ private struct ElectionListContent: View {
                                         try? await service.stopElection(id: id)
                                         await viewModel.load()
                                         await loadParticipation()
+                                        await appViewModel.refreshPollTutorial()
                                     }
                                 }
                             }.tint(.orange)
@@ -92,15 +117,15 @@ private struct ElectionListContent: View {
                     editing = WotlweduElection(
                         id: nil,
                         workgroupId: workgroupId,
-                        name: "",
+                        name: tutorial?.names?.electionName ?? "",
                         description: "",
                         text: "",
                         electionType: 0,
                         expiration: nil,
                         statusId: nil,
                         status: nil,
-                        list: nil,
-                        group: nil,
+                        list: lists.first(where: { $0.id == tutorial?.bindings?.listId }),
+                        group: groups.first(where: { $0.id == tutorial?.bindings?.groupId }),
                         category: nil,
                         image: nil
                     )
@@ -113,7 +138,14 @@ private struct ElectionListContent: View {
             await loadParticipation()
         }
         .sheet(item: $editing) { election in
-            ElectionEditor(election: election, lists: lists, groups: groups, categories: categories, images: images) { updated, startAfterSave in
+            ElectionEditor(
+                election: election,
+                lists: lists,
+                groups: groups,
+                categories: categories,
+                images: images,
+                tutorial: tutorial
+            ) { updated, startAfterSave in
                 Task {
                     do {
                         let saved = try await service.save(election: updated)
@@ -123,6 +155,7 @@ private struct ElectionListContent: View {
                         editing = nil
                         await viewModel.load()
                         await loadParticipation()
+                        await appViewModel.refreshPollTutorial()
                     } catch {
                         // Keep the sheet open and rely on the editor state to show the save issue.
                     }
@@ -214,6 +247,7 @@ private struct ElectionEditor: View {
     let groups: [WotlweduGroup]
     let categories: [WotlweduCategory]
     let images: [WotlweduImage]
+    let tutorial: WotlweduPollTutorial?
     var onSave: (WotlweduElection, Bool) -> Void
     @Environment(\.dismiss) private var dismiss
 
@@ -224,15 +258,24 @@ private struct ElectionEditor: View {
     @State private var expiration = Date()
     @State private var saveError: String?
 
-    init(election: WotlweduElection, lists: [WotlweduList], groups: [WotlweduGroup], categories: [WotlweduCategory], images: [WotlweduImage], onSave: @escaping (WotlweduElection, Bool) -> Void) {
+    init(
+        election: WotlweduElection,
+        lists: [WotlweduList],
+        groups: [WotlweduGroup],
+        categories: [WotlweduCategory],
+        images: [WotlweduImage],
+        tutorial: WotlweduPollTutorial?,
+        onSave: @escaping (WotlweduElection, Bool) -> Void
+    ) {
         self.election = election
         self.lists = lists
         self.groups = groups
         self.categories = categories
         self.images = images
+        self.tutorial = tutorial
         self.onSave = onSave
-        _selectedList = State(initialValue: election.list?.id ?? "")
-        _selectedGroup = State(initialValue: election.group?.id ?? "")
+        _selectedList = State(initialValue: election.list?.id ?? tutorial?.bindings?.listId ?? "")
+        _selectedGroup = State(initialValue: election.group?.id ?? tutorial?.bindings?.groupId ?? "")
         _selectedCategory = State(initialValue: election.category?.id ?? "")
         _selectedImage = State(initialValue: election.image?.id ?? "")
         _expiration = State(initialValue: election.expiration ?? Date().addingTimeInterval(86400))
@@ -245,6 +288,25 @@ private struct ElectionEditor: View {
                     Section {
                         Text(saveError)
                             .foregroundStyle(.red)
+                    }
+                }
+                if let tutorial {
+                    Section("Tutorial") {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(tutorial.steps?.first(where: { $0.key == tutorial.nextStepKey })?.detail ?? "Link the tutorial list and audience, then save the poll.")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                            if let listName = tutorial.names?.listName, !listName.isEmpty {
+                                Text("Use list: \(listName)")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                            if let groupName = tutorial.names?.groupName, !groupName.isEmpty {
+                                Text("Use audience: \(groupName)")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
                 }
                 TextField("Name", text: Binding($election.name, replacingNilWith: ""))

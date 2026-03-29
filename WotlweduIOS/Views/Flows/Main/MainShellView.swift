@@ -93,6 +93,7 @@ struct MainShellView: View {
         .task {
             await appViewModel.refreshStatus()
             await appViewModel.refreshNotifications()
+            await appViewModel.refreshPollTutorial()
         }
         .task {
             guard !appliedDefaultStartPage else { return }

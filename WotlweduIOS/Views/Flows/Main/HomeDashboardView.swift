@@ -22,25 +22,32 @@ struct HomeDashboardView: View {
     @State private var selectedPanel: HomePanel = .votes
     @State private var isLoadingSummary = false
 
-    private let actions: [(title: String, icon: String, route: MainRoute)] = [
-        ("Cast vote", "checkmark.circle", .votes(electionId: nil)),
-        ("Friends", "person.2", .friends),
-        ("Preferences", "slider.horizontal.3", .preferences),
-        ("Audience Groups", "person.3.sequence", .groups),
-        ("Categories", "tag", .categories),
-        ("Items", "list.bullet", .items),
-        ("Images", "photo.on.rectangle", .images),
-        ("Lists", "square.stack.3d.up", .lists),
-        ("Polls", "flag.2.crossed", .elections),
-        ("Notifications", "bell", .notifications)
-    ]
-
     private let adminActions: [(title: String, icon: String, route: MainRoute)] = [
-        ("Workgroups", "person.3", .workgroups),
         ("Organizations", "building.2", .organizations),
         ("Users", "person.crop.rectangle", .users),
         ("Roles", "lock.shield", .roles)
     ]
+
+    private var actions: [(title: String, icon: String, route: MainRoute)] {
+        var base: [(title: String, icon: String, route: MainRoute)] = [
+            ("Cast vote", "checkmark.circle", .votes(electionId: nil)),
+            ("Friends", "person.2", .friends),
+            ("Preferences", "slider.horizontal.3", .preferences),
+            ("Audience Groups", "person.3.sequence", .groups),
+            ("Categories", "tag", .categories),
+            ("Items", "list.bullet", .items),
+            ("Images", "photo.on.rectangle", .images),
+            ("Lists", "square.stack.3d.up", .lists),
+            ("Polls", "flag.2.crossed", .elections),
+            ("Notifications", "bell", .notifications)
+        ]
+
+        if appViewModel.isSystemAdmin || appViewModel.isOrganizationAdmin || appViewModel.isWorkgroupAdmin {
+            base.insert(("Workgroups", "person.3", .workgroups), at: 4)
+        }
+
+        return base
+    }
 
     var body: some View {
         ScrollView {
@@ -72,6 +79,8 @@ struct HomeDashboardView: View {
                     .padding()
                     .background(RoundedRectangle(cornerRadius: 14).fill(.yellow.opacity(0.2)))
                 }
+
+                tutorialSection
 
                 Text("Quick actions").font(.headline)
 
@@ -121,9 +130,75 @@ struct HomeDashboardView: View {
         .navigationTitle("Home")
         .task {
             await loadSummary()
+            await appViewModel.refreshPollTutorial()
         }
         .refreshable {
             await loadSummary()
+            await appViewModel.refreshPollTutorial()
+        }
+    }
+
+    @ViewBuilder
+    private var tutorialSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Tutorial").font(.headline)
+            if let tutorial = appViewModel.pollTutorial {
+                let nextStep = tutorial.steps?.first(where: { $0.key == tutorial.nextStepKey }) ??
+                    tutorial.steps?.first(where: { $0.complete != true })
+
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Text("Create your first poll")
+                            .font(.headline)
+                        Spacer()
+                        Text("\(tutorial.progress?.completedSteps ?? 0)/\(tutorial.progress?.totalSteps ?? 0)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    if let nextStep {
+                        Text("Next: \(nextStep.title ?? "Continue")")
+                            .font(.subheadline.weight(.semibold))
+                        if let detail = nextStep.detail, !detail.isEmpty {
+                            Text(detail)
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                        if let suggestedName = nextStep.suggestedName, !suggestedName.isEmpty {
+                            Text("Suggested name: \(suggestedName)")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                        HStack {
+                            if let route = route(for: nextStep, tutorial: tutorial) {
+                                Button("Open Step") { onSelect(route) }
+                                    .buttonStyle(.borderedProminent)
+                            }
+                            if tutorial.status == "completed", let electionId = tutorial.bindings?.electionId {
+                                Button("View Votes") { onSelect(.votes(electionId: electionId)) }
+                                    .buttonStyle(.bordered)
+                            }
+                        }
+                    } else {
+                        Text("Tutorial completed.")
+                            .font(.subheadline.weight(.semibold))
+                    }
+                }
+                .padding()
+                .background(RoundedRectangle(cornerRadius: 14).fill(Color(.secondarySystemBackground)))
+            } else {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Walk through creating a real options list, audience group, poll, and live stats.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    Button("Start Tutorial") {
+                        Task { await appViewModel.startPollTutorial() }
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .padding()
+                .background(RoundedRectangle(cornerRadius: 14).fill(Color(.secondarySystemBackground)))
+            }
         }
     }
 
@@ -245,6 +320,23 @@ struct HomeDashboardView: View {
             selectedPanel = .polls
         } else {
             selectedPanel = .votes
+        }
+    }
+
+    private func route(for step: WotlweduTutorialStep, tutorial: WotlweduPollTutorial) -> MainRoute? {
+        switch step.key {
+        case "create_options_list", "add_items":
+            return .lists
+        case "create_audience", "add_yourself_to_audience":
+            return .groups
+        case "create_poll", "start_poll":
+            return .elections
+        case "cast_vote":
+            return .votes(electionId: tutorial.bindings?.electionId)
+        case "view_stats":
+            return .elections
+        default:
+            return nil
         }
     }
 

@@ -177,6 +177,7 @@ enum NotificationTypeId {
     static let shareImage = 107
     static let shareItem = 108
     static let shareList = 109
+    static let electionParticipationReminder = 110
 }
 
 struct WotlweduPreference: Codable, Identifiable, Hashable {
@@ -222,6 +223,9 @@ struct WotlweduParticipationParticipant: Codable, Identifiable, Hashable {
     var castVotes: Int?
     var organizationAdmin: Bool?
     var workgroupAdmin: Bool?
+    var reminderCount: Int?
+    var lastReminderAt: Date?
+    var lastReminderSenderId: String?
 }
 
 struct WotlweduParticipationAudience: Codable, Hashable {
@@ -240,7 +244,65 @@ struct WotlweduParticipationSummary: Codable, Hashable {
     var totalVotes: Int?
     var castVotes: Int?
     var pendingVotes: Int?
+    var reminderCount: Int?
+    var remindedCount: Int?
+    var lastReminderAt: Date?
     var completionRate: Int?
+}
+
+struct WotlweduTutorialProgress: Codable, Hashable {
+    var listCreated: Bool?
+    var totalListItemCount: Int?
+    var createdItemsAddedCount: Int?
+    var groupCreated: Bool?
+    var audienceMemberCount: Int?
+    var selfInAudience: Bool?
+    var electionCreated: Bool?
+    var electionStarted: Bool?
+    var electionStatus: String?
+    var totalVoteCount: Int?
+    var castVoteCount: Int?
+    var hasStats: Bool?
+    var completedSteps: Int?
+    var totalSteps: Int?
+    var completionRate: Int?
+}
+
+struct WotlweduTutorialBindings: Codable, Hashable {
+    var listId: String?
+    var groupId: String?
+    var electionId: String?
+}
+
+struct WotlweduTutorialNames: Codable, Hashable {
+    var listName: String?
+    var groupName: String?
+    var electionName: String?
+}
+
+struct WotlweduTutorialStep: Codable, Identifiable, Hashable {
+    var key: String?
+    var title: String?
+    var complete: Bool?
+    var resourceType: String?
+    var suggestedName: String?
+    var suggestedCount: Int?
+    var resourceId: String?
+    var detail: String?
+
+    var id: String { key ?? UUID().uuidString }
+}
+
+struct WotlweduPollTutorial: Codable, Hashable {
+    var key: String?
+    var version: Int?
+    var status: String?
+    var startedAt: Date?
+    var names: WotlweduTutorialNames?
+    var bindings: WotlweduTutorialBindings?
+    var progress: WotlweduTutorialProgress?
+    var nextStepKey: String?
+    var steps: [WotlweduTutorialStep]?
 }
 
 struct WotlweduElectionParticipationEnvelope: Codable, Hashable {

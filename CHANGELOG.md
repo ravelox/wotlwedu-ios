@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.21] - 2026-03-28
+- Add backend poll-tutorial payload models and service methods for `/tutorial/poll` and `/tutorial/poll/start`.
+- Surface tutorial progress on the home dashboard and inside the list, audience-group, and poll management flows.
+- Pre-fill tutorial names and bound list/group selections so the iOS app walks a new user through creating a genuine poll and viewing its stats.
+
 ## [0.2.11] - 2026-03-24
 - Refine the profile sign-in and audit sections with reusable support-style rows and outcome badges.
 - Add a compact organization audit snapshot in the SwiftUI profile flow for admin users.

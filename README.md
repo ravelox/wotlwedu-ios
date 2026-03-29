@@ -28,7 +28,7 @@ This repository contains the SwiftUI iOS client for the wotlwedu ecosystem, mirr
    ```json
    {
      "apiUrl": "https://api.wotlwedu.com:9876/",
-    "appVersion": "0.2.14",
+    "appVersion": "0.2.21",
      "defaultStartPage": "home",
      "errorCountdown": 30,
      "allowInsecureCertificates": true
@@ -61,6 +61,7 @@ The unit-test target now includes auth/invite/audit payload-parity coverage so b
 - Google Sign-In is available when the Google build settings above are configured.
 - The login flow accepts an optional invite token and can consume incoming URLs containing `?invite=...`.
 - The profile flow now shows linked sign-in methods, recent account activity, and organization audit activity when the backend grants access.
+- The home and management flows now consume the backend poll tutorial payload and guide first-time users through creating a real list, audience, poll, and stats flow.
 
 ## Parity with wotlwedu-minimal
 - CRUD/listing for categories, groups, items, images (with upload and category assignment), lists (with item linking and category assignment), elections (with start/stop), roles/capabilities, users, preferences, friends.

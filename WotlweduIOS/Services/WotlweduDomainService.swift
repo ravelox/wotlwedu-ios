@@ -62,6 +62,31 @@ final class WotlweduDomainService {
         try await dataService.pagedList(path: "preference/", page: page, items: items)
     }
 
+    // MARK: - Tutorial
+    func pollTutorial() async throws -> WotlweduPollTutorial? {
+        let endpoint = Endpoint(path: "tutorial/poll", method: .get)
+        let response: APIResponse<WotlweduPollTutorial> = try await api.send(endpoint)
+        if response.status == 404 { return nil }
+        guard let data = response.data else {
+            throw APIError.server(message: response.message ?? "No tutorial data", url: nil)
+        }
+        return data
+    }
+
+    func startPollTutorial(restart: Bool = false) async throws -> WotlweduPollTutorial {
+        struct Payload: Encodable { let restart: Bool }
+        let endpoint = Endpoint(
+            path: "tutorial/poll/start",
+            method: .post,
+            body: try JSONEncoder.api.encode(Payload(restart: restart))
+        )
+        let response: APIResponse<WotlweduPollTutorial> = try await api.send(endpoint)
+        guard let data = response.data else {
+            throw APIError.server(message: response.message ?? "No tutorial data", url: nil)
+        }
+        return data
+    }
+
     func save(preference: WotlweduPreference) async throws -> WotlweduPreference {
         struct Payload: Encodable { let name: String; let value: String }
         return try await dataService.save(

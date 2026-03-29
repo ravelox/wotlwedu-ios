@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import GoogleSignIn
 
 @MainActor
 final class AppViewModel: ObservableObject {
@@ -19,7 +18,7 @@ final class AppViewModel: ObservableObject {
     @Published var activeWorkgroupId: String?
     @Published var inviteToken: String?
     @Published var inviteDetails: WotlweduOrganizationInvite?
-    @Published var pendingGoogleLinkToken: String?
+    @Published var pollTutorial: WotlweduPollTutorial?
 
     let sessionStore = SessionStore()
     private let workgroupScopeKey = "wotlwedu-active-workgroup"
@@ -50,6 +49,7 @@ final class AppViewModel: ObservableObject {
                 Task {
                     await refreshStatus()
                     await refreshNotifications()
+                    await refreshPollTutorial()
                 }
             }
         } catch {
@@ -101,44 +101,11 @@ final class AppViewModel: ObservableObject {
     func login(email: String, password: String) async {
         guard let authService else { return }
         do {
-            pendingGoogleLinkToken = nil
             let tokens = try await authService.login(email: email, password: password)
             applyAuth(tokens: tokens)
             await refreshStatus()
             await refreshNotifications()
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-
-    func loginWithGoogle(idToken: String, inviteToken: String?) async {
-        guard let authService else { return }
-        do {
-            let result = try await authService.loginGoogle(idToken: idToken, inviteToken: inviteToken)
-            if result.linkRequired == true {
-                pendingGoogleLinkToken = result.linkToken
-                return
-            }
-            guard let tokens = result.tokens else {
-                throw APIError.server(message: "Missing auth data", url: nil)
-            }
-            pendingGoogleLinkToken = nil
-            applyAuth(tokens: tokens)
-            await refreshStatus()
-            await refreshNotifications()
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-
-    func confirmGoogleLink() async {
-        guard let authService, let pendingGoogleLinkToken else { return }
-        do {
-            let tokens = try await authService.confirmGoogleLink(linkToken: pendingGoogleLinkToken)
-            self.pendingGoogleLinkToken = nil
-            applyAuth(tokens: tokens)
-            await refreshStatus()
-            await refreshNotifications()
+            await refreshPollTutorial()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -163,6 +130,7 @@ final class AppViewModel: ObservableObject {
             inviteDetails = nil
             await refreshStatus()
             await refreshNotifications()
+            await refreshPollTutorial()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -190,7 +158,6 @@ final class AppViewModel: ObservableObject {
     }
 
     func logout() {
-        GIDSignIn.sharedInstance.signOut()
         authService?.logout()
         isAuthenticated = false
         isSystemAdmin = false
@@ -203,7 +170,7 @@ final class AppViewModel: ObservableObject {
         unreadNotifications = 0
         inviteToken = nil
         inviteDetails = nil
-        pendingGoogleLinkToken = nil
+        pollTutorial = nil
         setActiveWorkgroupId(nil)
     }
 
@@ -234,6 +201,24 @@ final class AppViewModel: ObservableObject {
             unreadNotifications = try await domainService.unreadNotificationCount()
         } catch {
             // keep quiet for badge fetch failures
+        }
+    }
+
+    func refreshPollTutorial() async {
+        guard let domainService else { return }
+        do {
+            pollTutorial = try await domainService.pollTutorial()
+        } catch {
+            // Keep this non-fatal so the rest of the app still works.
+        }
+    }
+
+    func startPollTutorial(restart: Bool = false) async {
+        guard let domainService else { return }
+        do {
+            pollTutorial = try await domainService.startPollTutorial(restart: restart)
+        } catch {
+            errorMessage = error.localizedDescription
         }
     }
 

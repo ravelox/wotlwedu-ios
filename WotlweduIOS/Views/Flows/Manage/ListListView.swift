@@ -5,7 +5,7 @@ struct ListListView: View {
 
     var body: some View {
         if let service = appViewModel.domainService {
-            ListListContent(service: service, workgroupId: appViewModel.activeWorkgroupId)
+            ListListContent(service: service, workgroupId: appViewModel.activeWorkgroupId, tutorial: appViewModel.pollTutorial)
         } else {
             Text("Configuration not loaded.")
         }
@@ -15,15 +15,18 @@ struct ListListView: View {
 private struct ListListContent: View {
     let service: WotlweduDomainService
     let workgroupId: String?
+    let tutorial: WotlweduPollTutorial?
+    @EnvironmentObject var appViewModel: AppViewModel
     @StateObject private var viewModel: PagedListViewModel<WotlweduList>
     @State private var editing: WotlweduList?
     @State private var items: [WotlweduItem] = []
     @State private var categories: [WotlweduCategory] = []
     @State private var collapsedCategories: Set<String> = []
 
-    init(service: WotlweduDomainService, workgroupId: String?) {
+    init(service: WotlweduDomainService, workgroupId: String?, tutorial: WotlweduPollTutorial?) {
         self.service = service
         self.workgroupId = workgroupId
+        self.tutorial = tutorial
         _viewModel = StateObject(wrappedValue: PagedListViewModel<WotlweduList> { page, items, filter in
             let response = try await service.lists(page: page, items: items, filter: filter, workgroupId: workgroupId)
             return PagedResult(items: response.collection, page: response.page ?? 1, total: response.total ?? response.collection.count, itemsPerPage: response.itemsPerPage ?? items)
@@ -32,6 +35,22 @@ private struct ListListContent: View {
 
     var body: some View {
         List {
+            if let tutorial {
+                Section("Tutorial") {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(tutorial.steps?.first(where: { $0.key == tutorial.nextStepKey })?.title ?? "Create your first options list")
+                            .font(.subheadline.weight(.semibold))
+                        Text(tutorial.steps?.first(where: { $0.key == tutorial.nextStepKey })?.detail ?? "Use this screen to create the tutorial list.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        if let suggestedName = tutorial.names?.listName, !suggestedName.isEmpty {
+                            Text("Suggested name: \(suggestedName)")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
             ForEach(viewModel.items.groupedByCategory()) { group in
                 DisclosureGroup(isExpanded: expansionBinding(for: group.categoryName)) {
                     ForEach(group.items) { list in
@@ -61,7 +80,14 @@ private struct ListListContent: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    editing = WotlweduList(id: nil, workgroupId: workgroupId, name: "", description: "", category: nil, items: [])
+                    editing = WotlweduList(
+                        id: nil,
+                        workgroupId: workgroupId,
+                        name: tutorial?.names?.listName ?? "",
+                        description: "",
+                        category: nil,
+                        items: []
+                    )
                 } label: { Image(systemName: "plus") }
             }
         }
@@ -85,6 +111,7 @@ private struct ListListContent: View {
                     }
                     editing = nil
                     await viewModel.load()
+                    await appViewModel.refreshPollTutorial()
                 }
             }
         }
